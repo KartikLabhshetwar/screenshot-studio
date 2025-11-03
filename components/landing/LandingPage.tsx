@@ -4,6 +4,7 @@ import { Features } from "./Features";
 import { Footer } from "./Footer";
 import { MasonryGrid } from "./MasonryGrid";
 import { Pricing } from "./Pricing";
+import { FAQ } from "./FAQ";
 
 interface Feature {
   title: string;
@@ -46,7 +47,8 @@ export function LandingPage({
       <MasonryGrid />
       <Features features={features} title={featuresTitle} />
       <Pricing />
-      <Footer brandName={brandName} additionalText={footerText} />
+      <FAQ />
+      <Footer brandName={brandName}/>
     </div>
   );
 }
