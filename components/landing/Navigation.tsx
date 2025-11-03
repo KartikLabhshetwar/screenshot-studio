@@ -93,6 +93,12 @@ export function Navigation({
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuItem 
+                    onClick={() => router.push("/designs")}
+                    className="cursor-pointer"
+                  >
+                    My Designs
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
                     variant="destructive"
                     onClick={handleSignOut}
                     className="cursor-pointer"

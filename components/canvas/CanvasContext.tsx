@@ -8,6 +8,7 @@ import { DEFAULT_ASPECT_RATIO } from "@/lib/constants";
 import { saveImageBlob, getBlobUrlFromStored, deleteImageBlob } from "@/lib/image-storage";
 
 const CANVAS_OBJECTS_KEY = "canvas-objects";
+const BACKGROUND_PREFS_KEY = "canvas-background-prefs";
 
 interface CanvasObject {
   id: string;
@@ -45,6 +46,8 @@ interface CanvasContextType {
   aspectRatio: AspectRatioPreset;
   setAspectRatio: (preset: AspectRatioPreset) => void;
   setCanvasDimensions: (width: number, height: number) => void;
+  saveDesign: () => Promise<{ canvasData: any; previewUrl?: string }>;
+  loadDesign: (canvasData: any) => Promise<void>;
 }
 
 const CanvasContext = createContext<CanvasContextType | undefined>(undefined);
@@ -467,6 +470,135 @@ export function CanvasProvider({ children }: { children: React.ReactNode }) {
     },
   };
 
+  // Save design - capture current canvas state
+  const saveDesign = useCallback(async (): Promise<{ canvasData: any; previewUrl?: string }> => {
+    // Get background preferences from localStorage
+    let backgroundPreferences = null;
+    try {
+      const saved = localStorage.getItem(BACKGROUND_PREFS_KEY);
+      if (saved) {
+        backgroundPreferences = JSON.parse(saved);
+      }
+    } catch (error) {
+      console.error("Failed to load background preferences:", error);
+    }
+
+    // Prepare canvas data
+    const canvasData = {
+      objects: objects.map(obj => ({
+        ...obj,
+        image: undefined, // Don't include image element
+      })),
+      dimensions: canvasDimensions,
+      aspectRatio: aspectRatio,
+      background: backgroundPreferences,
+    };
+
+    // Generate preview URL if stage exists
+    let previewUrl: string | undefined;
+    if (stage && layer) {
+      try {
+        previewUrl = stage.toDataURL({
+          mimeType: "image/png",
+          quality: 0.7,
+          pixelRatio: 0.5, // Lower resolution for preview
+        });
+      } catch (error) {
+        console.error("Failed to generate preview:", error);
+      }
+    }
+
+    return { canvasData, previewUrl };
+  }, [objects, canvasDimensions, aspectRatio, stage, layer]);
+
+  // Load design - restore canvas state
+  const loadDesign = useCallback(async (canvasData: any) => {
+    if (!stage || !layer) {
+      console.error("Canvas not initialized");
+      return;
+    }
+
+    try {
+      // Restore dimensions and aspect ratio
+      if (canvasData.dimensions) {
+        setCanvasDimensionsState(canvasData.dimensions);
+        setAspectRatioState(canvasData.aspectRatio || DEFAULT_ASPECT_RATIO);
+        
+        // Update stage dimensions
+        stage.width(canvasData.dimensions.width);
+        stage.height(canvasData.dimensions.height);
+        
+        // Update background rect
+        const bgRect = layer.findOne((node: any) => node.id() === "canvas-background") as Konva.Rect;
+        if (bgRect && bgRect instanceof Konva.Rect) {
+          bgRect.width(canvasData.dimensions.width);
+          bgRect.height(canvasData.dimensions.height);
+        }
+      }
+
+      // Restore background preferences
+      if (canvasData.background) {
+        try {
+          localStorage.setItem(BACKGROUND_PREFS_KEY, JSON.stringify(canvasData.background));
+          // Trigger background restoration by dispatching a custom event
+          window.dispatchEvent(new CustomEvent("restore-background", { detail: canvasData.background }));
+        } catch (error) {
+          console.error("Failed to save background preferences:", error);
+        }
+      }
+
+      // Restore objects
+      if (canvasData.objects && Array.isArray(canvasData.objects)) {
+        const restorePromises = canvasData.objects.map(async (obj: CanvasObject) => {
+          if (obj.type === "image" && obj.imageUrl) {
+            let imageSrc = obj.imageUrl;
+            
+            // If it's a stored image ID (not starting with blob: or http: or data:), get from IndexedDB
+            if (!imageSrc.startsWith("blob:") && !imageSrc.startsWith("http") && !imageSrc.startsWith("data:")) {
+              const blobUrl = await getBlobUrlFromStored(imageSrc);
+              if (blobUrl) {
+                imageSrc = blobUrl;
+              } else {
+                console.warn(`Image blob not found for ID: ${imageSrc}`);
+                return null; // Skip this object if blob not found
+              }
+            }
+            
+            const img = await new Promise<HTMLImageElement>((resolve, reject) => {
+              const image = new Image();
+              image.crossOrigin = "anonymous";
+              image.onload = () => resolve(image);
+              image.onerror = reject;
+              image.src = imageSrc;
+            });
+            return { ...obj, image: img, imageUrl: imageSrc };
+          }
+          return obj;
+        });
+        
+        const restoredObjects = await Promise.all(restorePromises);
+        const validObjects = restoredObjects.filter(obj => obj !== null) as CanvasObject[];
+        
+        setObjects(validObjects);
+        historyRef.current.present = [...validObjects];
+        historyRef.current.past = [];
+        historyRef.current.future = [];
+        saveObjectsToStorage(validObjects);
+        setSelectedObject(null);
+        
+        // Trigger a draw after a short delay
+        setTimeout(() => {
+          if (layer) {
+            layer.batchDraw();
+          }
+        }, 100);
+      }
+    } catch (error) {
+      console.error("Failed to load design:", error);
+      throw error;
+    }
+  }, [stage, layer, saveObjectsToStorage]);
+
   return (
     <CanvasContext.Provider
       value={{
@@ -481,6 +613,8 @@ export function CanvasProvider({ children }: { children: React.ReactNode }) {
         aspectRatio,
         setAspectRatio,
         setCanvasDimensions,
+        saveDesign,
+        loadDesign,
       }}
     >
       {children}

@@ -1,12 +1,37 @@
 "use client";
 
-import { CanvasProvider } from "@/components/canvas/CanvasContext";
+import { useEffect } from "react";
+import { CanvasProvider, useCanvasContext } from "@/components/canvas/CanvasContext";
 import { CanvasEditor } from "@/components/canvas/CanvasEditor";
 import { CanvasToolbar } from "@/components/canvas/CanvasToolbar";
 import { Navigation } from "@/components/landing/Navigation";
 import { Footer } from "@/components/landing/Footer";
 
 function EditorContent() {
+  const { loadDesign, stage, layer } = useCanvasContext();
+
+  // Load design from sessionStorage if available
+  useEffect(() => {
+    if (!stage || !layer) return;
+
+    const loadDesignData = sessionStorage.getItem("loadDesign");
+    if (loadDesignData) {
+      try {
+        const design = JSON.parse(loadDesignData);
+        if (design.canvasData) {
+          loadDesign(design.canvasData).catch((error) => {
+            console.error("Failed to load design:", error);
+          });
+        }
+        // Clear the sessionStorage after loading
+        sessionStorage.removeItem("loadDesign");
+      } catch (error) {
+        console.error("Failed to parse design data:", error);
+        sessionStorage.removeItem("loadDesign");
+      }
+    }
+  }, [stage, layer, loadDesign]);
+
   return (
     <div className="min-h-screen flex flex-col relative bg-gray-50">
       <Navigation ctaLabel="Home" ctaHref="/" />

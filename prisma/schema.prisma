@@ -25,6 +25,7 @@ model User {
   accounts        Account[]
   orders          Order[]
   subscriptions   Subscription[]
+  designs         Design[]
 
   @@unique([email])
   @@map("user")
@@ -108,4 +109,20 @@ model Subscription {
   updatedAt           DateTime  @default(now()) @updatedAt
 
   @@map("subscription")
+}
+
+model Design {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name            String   @default("Untitled Design")
+  description     String?
+  // Canvas state stored as JSON
+  canvasData      Json     // Contains: objects, dimensions, background, aspectRatio
+  previewUrl      String?  // Optional preview image URL
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @default(now()) @updatedAt
+
+  @@index([userId])
+  @@map("design")
 }

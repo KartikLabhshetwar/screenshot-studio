@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { CloudArrowUp, TextT, PaintBrush, Download, ArrowsOut, Sliders } from "@phosphor-icons/react";
+import { CloudArrowUp, TextT, PaintBrush, Download, ArrowsOut, Sliders, FloppyDisk } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
 import { useCanvas } from "@/hooks/useCanvas";
 import { UploadDialog } from "./dialogs/UploadDialog";
@@ -10,6 +10,7 @@ import { BackgroundDialog } from "./dialogs/BackgroundDialog";
 import { AspectRatioDialog } from "./dialogs/AspectRatioDialog";
 import { ExportDialog } from "./dialogs/ExportDialog";
 import { TransformDialog } from "./dialogs/TransformDialog";
+import { SaveDesignDialog } from "./dialogs/SaveDesignDialog";
 
 export function CanvasToolbar() {
   const { operations, canvas, selectedObject } = useCanvas();
@@ -19,6 +20,7 @@ export function CanvasToolbar() {
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
   const [aspectRatioDialogOpen, setAspectRatioDialogOpen] = useState(false);
   const [transformDialogOpen, setTransformDialogOpen] = useState(false);
+  const [saveDialogOpen, setSaveDialogOpen] = useState(false);
 
   const handleUpload = async (imageUrl: string) => {
     await operations.addImage(imageUrl);
@@ -106,6 +108,17 @@ export function CanvasToolbar() {
         <Button
           variant="ghost"
           size="icon"
+          onClick={() => setSaveDialogOpen(true)}
+          className="h-10 w-10 md:h-9 md:w-9 rounded-lg hover:bg-gray-100/80 hover:scale-105 active:scale-95 touch-manipulation"
+          aria-label="Save Design"
+          title="Save Design"
+        >
+          <FloppyDisk size={18} weight="regular" className="text-gray-700" />
+        </Button>
+
+        <Button
+          variant="ghost"
+          size="icon"
           onClick={() => setExportDialogOpen(true)}
           className="h-10 w-10 md:h-9 md:w-9 rounded-lg hover:bg-gray-100/80 hover:scale-105 active:scale-95 touch-manipulation"
           aria-label="Export Canvas"
@@ -147,6 +160,11 @@ export function CanvasToolbar() {
       <TransformDialog
         open={transformDialogOpen}
         onOpenChange={setTransformDialogOpen}
+      />
+
+      <SaveDesignDialog
+        open={saveDialogOpen}
+        onOpenChange={setSaveDialogOpen}
       />
     </>
   );

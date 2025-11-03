@@ -85,6 +85,86 @@ export function BackgroundDialog({ open, onOpenChange }: BackgroundDialogProps) 
     setIsInitialized(true);
   }, []);
 
+  // Listen for restore-background event (triggered when loading a design)
+  useEffect(() => {
+    const handleRestoreBackground = async (event: CustomEvent) => {
+      const prefs = event.detail;
+      if (prefs && stage && layer) {
+        setBackgroundColor(prefs.backgroundColor || "#ffffff");
+        setBackgroundType(prefs.type || "solid");
+        if (prefs.gradientColors) setGradientColors(prefs.gradientColors);
+        if (prefs.gradientType) setGradientType(prefs.gradientType);
+        if (prefs.backgroundImageUrl) setBackgroundImageUrl(prefs.backgroundImageUrl);
+        if (prefs.backgroundBlur !== undefined) setBackgroundBlur(prefs.backgroundBlur);
+        
+        // Trigger background update after a short delay to ensure state is set
+        setTimeout(async () => {
+          if (prefs.type === "solid" && prefs.backgroundColor) {
+            updateCanvasBackground(prefs.backgroundColor);
+          } else if (prefs.type === "gradient" && prefs.gradientColors) {
+            // Handle gradient restoration
+            const bgRect = layer.findOne((node: any) => node.id() === "canvas-background") as Konva.Rect;
+            if (bgRect && bgRect instanceof Konva.Rect) {
+              if (prefs.gradientType === "linear") {
+                const linearGradient = {
+                  start: { x: 0, y: 0 },
+                  end: { x: bgRect.width(), y: bgRect.height() },
+                  colorStops: prefs.gradientColors.flatMap((color: string, index: number) => [
+                    index / (prefs.gradientColors.length - 1),
+                    color,
+                  ]),
+                };
+                bgRect.fillLinearGradientStartPoint(linearGradient.start);
+                bgRect.fillLinearGradientEndPoint(linearGradient.end);
+                bgRect.fillLinearGradientColorStops(linearGradient.colorStops);
+                bgRect.fillPriority('linear-gradient');
+                bgRect.fillRadialGradientColorStops([]);
+                bgRect.fillPatternImage(null);
+              } else {
+                // Radial gradient
+                const centerX = bgRect.width() / 2;
+                const centerY = bgRect.height() / 2;
+                const radius = Math.max(bgRect.width(), bgRect.height()) / 2;
+                bgRect.fillRadialGradientStartPoint({ x: centerX, y: centerY });
+                bgRect.fillRadialGradientEndPoint({ x: centerX, y: centerY });
+                bgRect.fillRadialGradientStartRadius(0);
+                bgRect.fillRadialGradientEndRadius(radius);
+                bgRect.fillRadialGradientColorStops(
+                  prefs.gradientColors.flatMap((color: string, index: number) => [
+                    index / (prefs.gradientColors.length - 1),
+                    color,
+                  ])
+                );
+                bgRect.fillPriority('radial-gradient');
+                bgRect.fillLinearGradientColorStops([]);
+                bgRect.fillPatternImage(null);
+              }
+              layer.batchDraw();
+            }
+          } else if (prefs.type === "image" && prefs.backgroundImageUrl) {
+            // Handle image background restoration - actually load the image
+            try {
+              await updateCanvasBackgroundImage(prefs.backgroundImageUrl, prefs.backgroundBlur || 0);
+            } catch (error) {
+              console.error("Failed to restore background image:", error);
+              // Fallback to solid color if image fails to load
+              updateCanvasBackground(prefs.backgroundColor || "#ffffff");
+            }
+          }
+        }, 150);
+      }
+    };
+
+    const eventHandler = (event: Event) => {
+      handleRestoreBackground(event as CustomEvent);
+    };
+    window.addEventListener("restore-background", eventHandler);
+    return () => {
+      window.removeEventListener("restore-background", eventHandler);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stage, layer]);
+
   // Restore background when canvas is ready and preferences are loaded
   useEffect(() => {
     if (!isInitialized || !stage || !layer) return;
