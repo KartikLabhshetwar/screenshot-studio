@@ -3,8 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --webpack && npx prisma generate",
-    "build": "next build --webpack && npx prisma generate",
+    "dev": "prisma generate && next dev --webpack",
+    "build": "prisma generate && next build --webpack",
+    "postinstall": "prisma generate",
     "start": "next start",
     "upload-backgrounds": "tsx scripts/upload-backgrounds.ts",
     "upload-demo-images": "tsx scripts/upload-demo-images.ts"
