@@ -498,36 +498,36 @@ export function SidebarLeft({
   return (
     <>
       <Sidebar className="border-r border-sidebar-border bg-sidebar/80 backdrop-blur-xl" {...props}>
-        <SidebarHeader className="p-6 border-b border-sidebar-border space-y-3">
+        <SidebarHeader className="p-3 border-b border-sidebar-border space-y-1.5 min-w-0">
           <Button
             onClick={() => setSaveDialogOpen(true)}
             disabled={!uploadedImageUrl}
-            className="w-full"
-            size="lg"
-            variant="default"
+            className="w-full h-9 min-w-0 justify-start gap-2 rounded-lg bg-background hover:bg-accent text-foreground border border-border hover:border-border/80 shadow-none hover:shadow-sm transition-all duration-200 font-medium text-xs px-3 overflow-hidden"
+            variant="outline"
+            size="sm"
           >
-            <Save className="size-4" />
-            Save Design
+            <Save className="size-3.5 shrink-0" />
+            <span className="truncate min-w-0">Save Design</span>
           </Button>
           <Button
             onClick={() => setExportDialogOpen(true)}
             disabled={!uploadedImageUrl}
-            className="w-full"
-            size="lg"
-            variant="default"
+            className="w-full h-9 min-w-0 justify-start gap-2 rounded-lg bg-background hover:bg-accent text-foreground border border-border hover:border-border/80 shadow-none hover:shadow-sm transition-all duration-200 font-medium text-xs px-3 overflow-hidden"
+            variant="outline"
+            size="sm"
           >
-            <Download className="size-4" />
-            Export Image
+            <Download className="size-3.5 shrink-0" />
+            <span className="truncate min-w-0">Export Image</span>
           </Button>
           <Button
             onClick={clearImage}
             disabled={!uploadedImageUrl}
-            className="w-full"
-            size="lg"
-            variant="destructive"
+            className="w-full h-9 min-w-0 justify-start gap-2 rounded-lg bg-background hover:bg-destructive/10 text-destructive border border-destructive/20 hover:border-destructive/40 shadow-none hover:shadow-sm transition-all duration-200 font-medium text-xs px-3 hover:text-destructive overflow-hidden"
+            variant="outline"
+            size="sm"
           >
-            <Trash2 className="size-4" />
-            Remove Image
+            <Trash2 className="size-3.5 shrink-0" />
+            <span className="truncate min-w-0">Remove Image</span>
           </Button>
         </SidebarHeader>
         <SidebarContent className="px-6 py-7 space-y-6 overflow-x-hidden">

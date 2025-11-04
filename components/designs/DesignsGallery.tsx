@@ -136,18 +136,31 @@ export function DesignsGallery() {
             <CircleNotch className="w-8 h-8 animate-spin text-gray-400" />
           </div>
         ) : designs.length === 0 ? (
-          <Card className="p-12 text-center border-0 shadow-none">
-            <FolderOpen className="w-16 h-16 mx-auto text-gray-400 mb-4" />
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">
-              No designs yet
-            </h3>
-            <p className="text-gray-600 mb-6">
-              Start creating and save your designs to see them here.
-            </p>
-            <Button onClick={() => router.push("/home")} className="w-auto px-6">
-              Go to Editor
-            </Button>
-          </Card>
+          <div className="flex items-center justify-center min-h-[60vh]">
+            <Card className="p-16 text-center max-w-md w-full border shadow-lg bg-white/80 backdrop-blur-sm">
+              <div className="flex flex-col items-center">
+                <div className="relative mb-6">
+                  <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-full blur-xl opacity-60"></div>
+                  <div className="relative bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full p-6">
+                    <FolderOpen className="w-12 h-12 text-blue-600" weight="duotone" />
+                  </div>
+                </div>
+                <h3 className="text-2xl font-semibold text-gray-900 mb-3">
+                  No designs yet
+                </h3>
+                <p className="text-gray-600 mb-8 text-base leading-relaxed max-w-sm mx-auto">
+                  Start creating and save your designs to see them here. Your saved work will appear in this gallery for easy access.
+                </p>
+                <Button 
+                  onClick={() => router.push("/home")} 
+                  size="lg"
+                  className="px-8 py-6 text-base font-medium shadow-md hover:shadow-lg transition-all duration-200"
+                >
+                  Go to Editor
+                </Button>
+              </div>
+            </Card>
+          </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {designs.map((design) => (
