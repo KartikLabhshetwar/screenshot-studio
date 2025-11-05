@@ -461,6 +461,13 @@ export const useImageStore = create<ImageState>((set, get) => ({
       uploadedImageUrl: imageUrl,
       imageName: file.name,
       imageScale: 90,
+      backgroundConfig: {
+        type: 'gradient',
+        value: 'yellow_gradient',
+        opacity: 1,
+        
+      },
+      selectedGradient: 'yellow_gradient',
     })
   },
 
@@ -497,12 +504,40 @@ export const useImageStore = create<ImageState>((set, get) => ({
 
   setBackgroundType: (type: BackgroundType) => {
     const { backgroundConfig } = get()
-    set({
-      backgroundConfig: {
-        ...backgroundConfig,
-        type,
-      },
-    })
+    
+    // If switching to 'image' type and current value is not a valid image, set default to radiant9
+    if (type === 'image') {
+      const currentValue = backgroundConfig.value
+      const isGradientKey = currentValue in gradientColors
+      const isSolidColorKey = currentValue in solidColors
+      const isValidImage = 
+        typeof currentValue === 'string' &&
+        (currentValue.startsWith('blob:') ||
+         currentValue.startsWith('http') ||
+         currentValue.startsWith('data:') ||
+         // Check if it's a Cloudinary public ID (contains '/' but not a gradient/solid key)
+         (currentValue.includes('/') && !isGradientKey && !isSolidColorKey))
+      
+      // If current value is a gradient or solid color key, or not a valid image, set default to radiant9
+      const newValue = (isGradientKey || isSolidColorKey || !isValidImage) 
+        ? 'backgrounds/backgrounds/radiant/radiant9' 
+        : currentValue
+      
+      set({
+        backgroundConfig: {
+          ...backgroundConfig,
+          type,
+          value: newValue,
+        },
+      })
+    } else {
+      set({
+        backgroundConfig: {
+          ...backgroundConfig,
+          type,
+        },
+      })
+    }
   },
 
   setBackgroundValue: (value: string) => {
