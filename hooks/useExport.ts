@@ -166,7 +166,7 @@ export function useExport(selectedAspectRatio: string) {
       const exportOptions: ExportOptions = {
         format: 'png', // Always use PNG for clipboard to preserve transparency
         quality: 1.0,
-        scale: settings.scale,
+        scale: 5,
         exportWidth: preset.width,
         exportHeight: preset.height,
       };
