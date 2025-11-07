@@ -7,21 +7,35 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Search, Upload } from 'lucide-react'
 import Image from 'next/image'
+import { useResponsiveCanvasDimensions } from '@/hooks/useAspectRatioDimensions'
 
 export function OverlayGallery() {
   const { addImageOverlay } = useImageStore()
   const [searchTerm, setSearchTerm] = useState('')
   const [customOverlayRef, setCustomOverlayRef] = useState<HTMLInputElement | null>(null)
+  const responsiveDimensions = useResponsiveCanvasDimensions()
 
   const filteredOverlays = OVERLAY_IMAGES.filter((src) =>
     src.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
+  // Calculate default position at the top center of canvas
+  const getDefaultPosition = () => {
+    const canvasWidth = responsiveDimensions.width || 1920
+    const overlaySize = 150
+    // Position at top center: x = (canvasWidth / 2) - (overlaySize / 2), y = small offset from top
+    return {
+      x: Math.max(20, (canvasWidth / 2) - (overlaySize / 2)),
+      y: 30, // Small offset from top
+    }
+  }
+
   const handleAddOverlay = (src: string) => {
-    // Default position in center of canvas (will be adjusted based on canvas size)
+    // Default position at top center of canvas
+    const defaultPosition = getDefaultPosition()
     addImageOverlay({
       src,
-      position: { x: 200, y: 200 },
+      position: defaultPosition,
       size: 150,
       rotation: 0,
       opacity: 0.9,
@@ -37,9 +51,11 @@ export function OverlayGallery() {
       const reader = new FileReader()
       reader.onload = () => {
         const result = reader.result as string
+        // Default position at top center of canvas
+        const defaultPosition = getDefaultPosition()
         addImageOverlay({
           src: result,
-          position: { x: 200, y: 200 },
+          position: defaultPosition,
           size: 150,
           rotation: 0,
           opacity: 0.9,

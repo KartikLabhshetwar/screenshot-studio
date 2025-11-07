@@ -33,19 +33,6 @@ interface SponsorsProps {
 }
 
 const defaultSponsors: Sponsor[] = [
-
-  {
-    name: "Void",
-    avatar: "/void.jpeg",
-    avatarAlt: "void",
-    amount: "$10.00",
-    amountType: "one time",
-    total: "$10.00",
-    github: "2xBuild",
-    twitter: "iBuild",
-    website: "https://www.void.ac",
-    url: "https://x.com/iBuild",
-  },
   {
     name: "Kanak Kumar Mahala",
     avatar: "/kanak.jpg",
