@@ -1,15 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server'
-import puppeteer from 'puppeteer-core'
-import chromium from '@sparticuz/chromium'
 
 export const maxDuration = 10
 
 export async function POST(request: NextRequest) {
-  let browser: Awaited<ReturnType<typeof puppeteer.launch>> | null = null
-
   try {
     const body = await request.json()
     const { url } = body
+
+    const screenshotApiKey = process.env.SCREENSHOTAPI_KEY
+
+    // Validate API key is provided
+    if (!screenshotApiKey) {
+      return NextResponse.json(
+        { error: 'ScreenshotAPI.net API key is required. Please set SCREENSHOTAPI_KEY in your environment variables.' },
+        { status: 400 }
+      )
+    }
 
     // Validate URL
     if (!url || typeof url !== 'string') {
@@ -36,88 +42,68 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Launch browser with Chromium optimized for serverless
-    browser = await puppeteer.launch({
-      args: chromium.args,
-      defaultViewport: chromium.defaultViewport,
-      executablePath: await chromium.executablePath(),
-      headless: chromium.headless,
-    })
+    const encodedUrl = encodeURIComponent(validUrl.toString())
 
-    const page = await browser.newPage()
 
-    // Set viewport to desktop size (1920x1080)
-    await page.setViewport({
-      width: 1920,
-      height: 1080,
-      deviceScaleFactor: 1,
-    })
+    const apiUrl = `https://shot.screenshotapi.net/v3/screenshot?token=${screenshotApiKey}&url=${encodedUrl}&output=image&width=1920&height=1080&file_type=PNG&full_page=false`
 
-    // Navigate with optimized settings for speed
     try {
-      await page.goto(validUrl.toString(), {
-        waitUntil: 'domcontentloaded', // Faster than networkidle2
-        timeout: 7000, // 7 seconds max (leaving 3s for screenshot)
+      const response = await fetch(apiUrl, {
+        headers: {
+          'Accept': 'image/png',
+        },
+        signal: AbortSignal.timeout(8000), // 8s timeout
+      })
+
+      if (!response.ok) {
+        const errorText = await response.text()
+        console.error('ScreenshotAPI.net error:', response.status, errorText)
+        
+        if (response.status === 401) {
+          return NextResponse.json(
+            { error: 'Invalid API key. Please check your SCREENSHOTAPI_KEY.' },
+            { status: 401 }
+          )
+        }
+        
+        if (response.status === 429) {
+          return NextResponse.json(
+            { error: 'Rate limit exceeded. Please try again later.' },
+            { status: 429 }
+          )
+        }
+
+        return NextResponse.json(
+          { error: `ScreenshotAPI.net returned error: ${response.status}` },
+          { status: response.status }
+        )
+      }
+
+      // Get image as buffer
+      const imageBuffer = await response.arrayBuffer()
+      const screenshotBase64 = Buffer.from(imageBuffer).toString('base64')
+
+      return NextResponse.json({
+        screenshot: screenshotBase64,
+        url: validUrl.toString(),
       })
     } catch (error) {
-      await browser.close()
-      return NextResponse.json(
-        { error: 'Failed to load website. The site may be taking too long to respond.' },
-        { status: 408 }
-      )
-    }
+      console.error('ScreenshotAPI.net request error:', error)
 
-    // Wait briefly for any critical dynamic content
-    await new Promise(resolve => setTimeout(resolve, 500))
-
-    // Take viewport screenshot
-    const screenshot = await page.screenshot({
-      fullPage: false,
-      type: 'png',
-      encoding: 'base64',
-    })
-
-    // Close browser
-    await browser.close()
-    browser = null
-
-    return NextResponse.json({
-      screenshot: screenshot as string,
-      url: validUrl.toString(),
-    })
-  } catch (error) {
-    // Ensure browser is closed on error
-    if (browser) {
-      try {
-        await browser.close()
-      } catch (closeError) {
-        console.error('Error closing browser:', closeError)
-      }
-    }
-
-    console.error('Screenshot error:', error)
-
-    // Handle specific error types
-    if (error instanceof Error) {
-      if (error.message.includes('net::ERR_NAME_NOT_RESOLVED')) {
+      if (error instanceof Error && error.name === 'TimeoutError') {
         return NextResponse.json(
-          { error: 'Could not resolve the website address. Please check the URL.' },
-          { status: 400 }
-        )
-      }
-      if (error.message.includes('net::ERR_CONNECTION_REFUSED')) {
-        return NextResponse.json(
-          { error: 'Connection refused. The website may be down or blocking requests.' },
-          { status: 400 }
-        )
-      }
-      if (error.message.includes('Navigation timeout') || error.message.includes('Timeout')) {
-        return NextResponse.json(
-          { error: 'The website took too long to load. Please try again.' },
+          { error: 'Screenshot request timed out. Please try again.' },
           { status: 408 }
         )
       }
+
+      return NextResponse.json(
+        { error: 'Failed to capture screenshot. Please try again.' },
+        { status: 500 }
+      )
     }
+  } catch (error) {
+    console.error('Screenshot error:', error)
 
     return NextResponse.json(
       { error: 'Failed to capture screenshot. Please try again.' },
