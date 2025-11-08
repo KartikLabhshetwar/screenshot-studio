@@ -31,7 +31,6 @@ export class KonvaExporter {
 
     // Get all layers
     const layers = stage.getLayers()
-    console.log('[KonvaExporter] Total layers:', layers.length)
 
     // Store visibility state of all layers we'll hide (pattern and noise layers)
     const layerVisibilityState = new Map<Konva.Layer, boolean>()
@@ -39,9 +38,8 @@ export class KonvaExporter {
     // Intelligently identify pattern and noise layers by their content
     // Pattern/Noise layers have a single Rect with fillPatternImage
     // ImageLayer has a Group with complex children (frames, images, etc.)
-    layers.forEach((layer, index) => {
+    layers.forEach((layer) => {
       const children = layer.getChildren()
-      console.log(`[KonvaExporter] Layer ${index}: ${children.length} children, visible: ${layer.visible()}`)
 
       // Check if this is a pattern or noise layer
       const isPatternOrNoiseLayer =
@@ -53,9 +51,6 @@ export class KonvaExporter {
         // Hide pattern/noise layers - they're rendered via html2canvas in BackgroundExporter
         layerVisibilityState.set(layer, layer.visible())
         layer.visible(false)
-        console.log(`[KonvaExporter] Hiding layer ${index} (pattern/noise layer with fillPatternImage)`)
-      } else {
-        console.log(`[KonvaExporter] Keeping layer ${index} visible (image layer)`)
       }
     })
 

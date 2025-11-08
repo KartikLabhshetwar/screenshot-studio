@@ -105,13 +105,7 @@ export class Transform3DExporter {
       perspective3D.translateY !== 0 ||
       perspective3D.scale !== 1
 
-    console.log('[Transform3DExporter] Checking for 3D transforms:', {
-      has3DTransform,
-      perspective3D,
-    })
-
     if (!has3DTransform) {
-      console.log('[Transform3DExporter] No 3D transforms active, skipping')
       return konvaCanvas
     }
 
@@ -120,11 +114,8 @@ export class Transform3DExporter {
       const overlayContainer = element.querySelector('[data-3d-overlay="true"]') as HTMLElement
 
       if (!overlayContainer) {
-        console.warn('[Transform3DExporter] 3D overlay container not found in DOM')
         return konvaCanvas
       }
-
-      console.log('[Transform3DExporter] Found 3D overlay container')
 
       // Get dimensions
       const overlayRect = overlayContainer.getBoundingClientRect()
@@ -137,12 +128,7 @@ export class Transform3DExporter {
       const innerRect = innerContainer.getBoundingClientRect()
 
       // Capture 3D transform
-      console.log('[Transform3DExporter] Capturing 3D transformed element...')
       const transformedCanvas = await this.capture(elementId, scale)
-      console.log('[Transform3DExporter] 3D capture complete:', {
-        width: transformedCanvas.width,
-        height: transformedCanvas.height,
-      })
 
       // Calculate position relative to inner container
       const relativeX = overlayRect.left - innerRect.left
@@ -156,11 +142,6 @@ export class Transform3DExporter {
       const scaledY = relativeY * scaleY
       const scaledWidth = transformedCanvas.width
       const scaledHeight = transformedCanvas.height
-
-      console.log('[Transform3DExporter] Compositing 3D canvas onto Konva:', {
-        position: { x: scaledX, y: scaledY },
-        size: { width: scaledWidth, height: scaledHeight },
-      })
 
       // Composite the transformed canvas onto the Konva canvas
       const compositeCtx = konvaCanvas.getContext('2d')
@@ -180,15 +161,12 @@ export class Transform3DExporter {
           scaledHeight
         )
         compositeCtx.restore()
-        console.log('[Transform3DExporter] 3D transform composited successfully')
-      } else {
-        console.warn('[Transform3DExporter] Invalid canvas or context for compositing')
       }
 
       return konvaCanvas
     } catch (error) {
       // Fallback to original canvas if 3D capture fails
-      console.error('[Transform3DExporter] Error capturing/compositing 3D transform:', error)
+      console.error('Error capturing 3D transform:', error)
       return konvaCanvas
     }
   }
