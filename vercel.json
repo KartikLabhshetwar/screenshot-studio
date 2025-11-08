@@ -1,0 +1,9 @@
+{
+  "functions": {
+    "app/api/screenshot/route.ts": {
+      "maxDuration": 10,
+      "memory": 1024
+    }
+  }
+}
+
