@@ -341,8 +341,7 @@ NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=your-cloud-name
 CLOUDINARY_API_KEY=your-api-key
 CLOUDINARY_API_SECRET=your-api-secret
 
-# Optional: Screenshot API
-SCREENSHOTAPI_KEY=your-screenshot-api-key
+# Screenshot functionality uses Puppeteer (no API key needed)
 
 # Optional: Analytics
 BETTER_AUTH_URL=https://your-domain.com
@@ -352,10 +351,10 @@ BETTER_AUTH_URL=https://your-domain.com
 
 ### `/api/screenshot`
 - **Method**: POST
-- **Purpose**: Capture website screenshots
+- **Purpose**: Capture website screenshots using Puppeteer
 - **Body**: `{ url: string }`
 - **Returns**: `{ screenshot: string (base64), url: string }`
-- **External Service**: ScreenshotAPI.net
+- **Technology**: Puppeteer with @sparticuz/chromium for Vercel/serverless compatibility
 
 ## Browser Storage
 
