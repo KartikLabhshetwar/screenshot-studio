@@ -41,7 +41,7 @@ export function EditorLeftPanel() {
         {/* Header */}
         <div className="p-4 border-b border-border">
           <div className="flex items-center gap-3">
-            <Link href="/" className="flex items-center hover:opacity-80 transition-opacity shrink-0">
+            <Link href="/landing" className="flex items-center hover:opacity-80 transition-opacity shrink-0">
               <Image 
                 src="/logo.png" 
                 alt="Stage" 
