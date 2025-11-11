@@ -1,125 +1,58 @@
 import { NextRequest, NextResponse } from 'next/server'
-import chromium from '@sparticuz/chromium'
 import { getCachedScreenshot, cacheScreenshot, normalizeUrl, invalidateCache } from '@/lib/screenshot-cache'
 import { checkRateLimit } from '@/lib/rate-limit'
 
 export const maxDuration = 60
 
-interface CaptureOptions {
-  url: string
-  timeout?: number
-  viewport?: { width: number; height: number }
-}
+const SCREENSHOT_SERVICE_URL = process.env.SCREENSHOT_SERVICE_URL || 'http://localhost:3001'
 
-async function captureWithPlaywright(options: CaptureOptions): Promise<string> {
-  const { url, timeout = 30000, viewport = { width: 1920, height: 1080 } } = options
-  
-  const isProduction = process.env.NODE_ENV === 'production' || process.env.VERCEL_ENV
-  
-  let browser = null
-  
+async function captureViaService(url: string): Promise<{ screenshot: string; strategy: string }> {
   try {
-    const playwright = await import('playwright-core')
-    
-    if (isProduction) {
-      browser = await playwright.chromium.launch({
-        args: chromium.args,
-        executablePath: await chromium.executablePath(),
-        headless: true,
-      })
-    } else {
-      browser = await playwright.chromium.launch({
-        headless: true,
-      })
-    }
-
-    const context = await browser.newContext({
-      viewport,
-      userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-      extraHTTPHeaders: {
-        'Accept-Language': 'en-US,en;q=0.9',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+    const response = await fetch(`${SCREENSHOT_SERVICE_URL}/screenshot`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
       },
-      bypassCSP: true,
-      ignoreHTTPSErrors: true,
+      body: JSON.stringify({ 
+        url,
+        viewport: {
+          width: 1920,
+          height: 1080
+        }
+      }),
+      signal: AbortSignal.timeout(55000),
     })
 
-    const page = await context.newPage()
-    
-    page.setDefaultNavigationTimeout(timeout)
-    page.setDefaultTimeout(timeout)
-
-    let navigationSuccess = false
-    const strategies = [
-      { waitUntil: 'networkidle' as const, timeout: 15000 },
-      { waitUntil: 'load' as const, timeout: 20000 },
-      { waitUntil: 'domcontentloaded' as const, timeout: 10000 },
-    ]
-
-    for (const strategy of strategies) {
-      try {
-        await page.goto(url, strategy)
-        navigationSuccess = true
-        break
-      } catch (navError) {
-        console.warn(`Navigation with ${strategy.waitUntil} failed, trying next strategy...`)
-        continue
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ error: 'Unknown error', type: 'unknown' }))
+      
+      if (errorData.type === 'timeout') {
+        throw new Error('timeout')
       }
+      if (errorData.type === 'connection_error') {
+        throw new Error('connection_error')
+      }
+      if (errorData.type === 'ssl_error') {
+        throw new Error('ssl_error')
+      }
+      
+      throw new Error(errorData.error || `Service returned ${response.status}`)
     }
 
-    if (!navigationSuccess) {
-      throw new Error('All navigation strategies failed')
+    const data = await response.json()
+    
+    if (!data.success) {
+      throw new Error(data.error || 'Screenshot capture failed')
     }
-
-    await page.waitForTimeout(2000)
-
-    await page.evaluate(() => {
-      window.scrollTo(0, 0)
-    })
-
-    const screenshotBuffer = await page.screenshot({
-      type: 'png',
-      fullPage: false,
-    })
-
-    const base64Screenshot = screenshotBuffer.toString('base64')
-
-    if (!base64Screenshot || base64Screenshot.length === 0) {
-      throw new Error('Screenshot capture returned empty result')
+    
+    return {
+      screenshot: data.screenshot,
+      strategy: data.strategy || 'external-service',
     }
-
-    return base64Screenshot
-  } finally {
-    if (browser) {
-      await browser.close().catch(console.error)
-    }
-  }
-}
-
-async function captureScreenshot(url: string): Promise<{ screenshot: string; strategy: string }> {
-  const errors: string[] = []
-
-  try {
-    const screenshot = await captureWithPlaywright({
-      url,
-      timeout: 30000,
-    })
-    return { screenshot, strategy: 'playwright-standard' }
   } catch (error) {
-    errors.push(`playwright-standard: ${error instanceof Error ? error.message : String(error)}`)
+    console.error('Screenshot service error:', error)
+    throw error
   }
-
-  try {
-    const screenshot = await captureWithPlaywright({
-      url,
-      timeout: 50000,
-    })
-    return { screenshot, strategy: 'playwright-extended' }
-  } catch (error) {
-    errors.push(`playwright-extended: ${error instanceof Error ? error.message : String(error)}`)
-  }
-
-  throw new Error(`All capture strategies failed: ${errors.join('; ')}`)
 }
 
 export async function POST(request: NextRequest) {
@@ -196,7 +129,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const { screenshot, strategy } = await captureScreenshot(normalizedUrl)
+    const { screenshot, strategy } = await captureViaService(normalizedUrl)
 
     try {
       await cacheScreenshot(normalizedUrl, screenshot)
@@ -221,6 +154,13 @@ export async function POST(request: NextRequest) {
         )
       }
 
+      if (error.message.includes('ECONNREFUSED') || error.message.includes('fetch failed')) {
+        return NextResponse.json(
+          { error: 'Screenshot service is unavailable. Please try again later.' },
+          { status: 503 }
+        )
+      }
+
       if (error.message.includes('net::ERR_NAME_NOT_RESOLVED') || 
           error.message.includes('net::ERR_CONNECTION_REFUSED') ||
           error.message.includes('net::ERR_CONNECTION_TIMED_OUT') ||
@@ -237,22 +177,6 @@ export async function POST(request: NextRequest) {
         return NextResponse.json(
           { error: 'Website has SSL certificate issues. The screenshot may be incomplete.' },
           { status: 400 }
-        )
-      }
-
-      if (error.message.includes('Target closed') || 
-          error.message.includes('Protocol error')) {
-        return NextResponse.json(
-          { error: 'Browser connection was interrupted. Please try again.' },
-          { status: 500 }
-        )
-      }
-
-      if (error.message.includes('Failed to launch') || 
-          error.message.includes('Browser closed')) {
-        return NextResponse.json(
-          { error: 'Server is currently busy. Please try again in a moment.' },
-          { status: 503 }
         )
       }
     }

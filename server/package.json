@@ -1,0 +1,19 @@
+{
+  "name": "screenshot-service",
+  "version": "1.0.0",
+  "description": "Standalone screenshot service using Playwright",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "playwright": "^1.56.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "zod": "^3.22.4"
+  }
+}
+
