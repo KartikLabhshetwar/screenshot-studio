@@ -3,70 +3,126 @@ import chromium from '@sparticuz/chromium'
 import { getCachedScreenshot, cacheScreenshot, normalizeUrl, invalidateCache } from '@/lib/screenshot-cache'
 import { checkRateLimit } from '@/lib/rate-limit'
 
-export const maxDuration = 10
+export const maxDuration = 60
 
-async function getBrowser() {
+interface CaptureOptions {
+  url: string
+  timeout?: number
+  viewport?: { width: number; height: number }
+}
+
+async function captureWithPlaywright(options: CaptureOptions): Promise<string> {
+  const { url, timeout = 30000, viewport = { width: 1920, height: 1080 } } = options
+  
   const isProduction = process.env.NODE_ENV === 'production' || process.env.VERCEL_ENV
   
-  // Memory-optimized args for serverless
-  const memoryOptimizedArgs = [
-    '--no-sandbox',
-    '--disable-setuid-sandbox',
-    '--disable-dev-shm-usage',
-    '--disable-accelerated-2d-canvas',
-    '--no-first-run',
-    '--no-zygote',
-    '--single-process',
-    '--disable-gpu',
-    '--disable-software-rasterizer',
-    '--disable-extensions',
-    '--disable-background-networking',
-    '--disable-default-apps',
-    '--disable-sync',
-    '--disable-translate',
-    '--hide-scrollbars',
-    '--metrics-recording-only',
-    '--mute-audio',
-    '--no-default-browser-check',
-    '--safebrowsing-disable-auto-update',
-    '--disable-background-timer-throttling',
-    '--disable-backgrounding-occluded-windows',
-    '--disable-breakpad',
-    '--disable-component-extensions-with-background-pages',
-    '--disable-features=TranslateUI,BlinkGenPropertyTrees',
-    '--disable-ipc-flooding-protection',
-    '--disable-renderer-backgrounding',
-  ]
+  let browser = null
   
-  if (isProduction) {
-    const puppeteerCore = await import('puppeteer-core')
-    try {
-      return await puppeteerCore.default.launch({
-        args: [...chromium.args, ...memoryOptimizedArgs],
-        defaultViewport: { width: 1920, height: 1080 },
+  try {
+    const playwright = await import('playwright-core')
+    
+    if (isProduction) {
+      browser = await playwright.chromium.launch({
+        args: chromium.args,
         executablePath: await chromium.executablePath(),
         headless: true,
       })
-    } catch (error) {
-      console.error('Failed to launch browser with chromium, trying without executable path:', error)
-      return await puppeteerCore.default.launch({
-        args: [...chromium.args, ...memoryOptimizedArgs],
-        defaultViewport: { width: 1920, height: 1080 },
+    } else {
+      browser = await playwright.chromium.launch({
         headless: true,
       })
     }
-  } else {
-    const puppeteer = await import('puppeteer')
-    return await puppeteer.default.launch({
-      headless: true,
-      args: memoryOptimizedArgs,
+
+    const context = await browser.newContext({
+      viewport,
+      userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+      extraHTTPHeaders: {
+        'Accept-Language': 'en-US,en;q=0.9',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+      },
+      bypassCSP: true,
+      ignoreHTTPSErrors: true,
     })
+
+    const page = await context.newPage()
+    
+    page.setDefaultNavigationTimeout(timeout)
+    page.setDefaultTimeout(timeout)
+
+    let navigationSuccess = false
+    const strategies = [
+      { waitUntil: 'networkidle' as const, timeout: 15000 },
+      { waitUntil: 'load' as const, timeout: 20000 },
+      { waitUntil: 'domcontentloaded' as const, timeout: 10000 },
+    ]
+
+    for (const strategy of strategies) {
+      try {
+        await page.goto(url, strategy)
+        navigationSuccess = true
+        break
+      } catch (navError) {
+        console.warn(`Navigation with ${strategy.waitUntil} failed, trying next strategy...`)
+        continue
+      }
+    }
+
+    if (!navigationSuccess) {
+      throw new Error('All navigation strategies failed')
+    }
+
+    await page.waitForTimeout(2000)
+
+    await page.evaluate(() => {
+      window.scrollTo(0, 0)
+    })
+
+    const screenshotBuffer = await page.screenshot({
+      type: 'png',
+      fullPage: false,
+    })
+
+    const base64Screenshot = screenshotBuffer.toString('base64')
+
+    if (!base64Screenshot || base64Screenshot.length === 0) {
+      throw new Error('Screenshot capture returned empty result')
+    }
+
+    return base64Screenshot
+  } finally {
+    if (browser) {
+      await browser.close().catch(console.error)
+    }
   }
 }
 
+async function captureScreenshot(url: string): Promise<{ screenshot: string; strategy: string }> {
+  const errors: string[] = []
+
+  try {
+    const screenshot = await captureWithPlaywright({
+      url,
+      timeout: 30000,
+    })
+    return { screenshot, strategy: 'playwright-standard' }
+  } catch (error) {
+    errors.push(`playwright-standard: ${error instanceof Error ? error.message : String(error)}`)
+  }
+
+  try {
+    const screenshot = await captureWithPlaywright({
+      url,
+      timeout: 50000,
+    })
+    return { screenshot, strategy: 'playwright-extended' }
+  } catch (error) {
+    errors.push(`playwright-extended: ${error instanceof Error ? error.message : String(error)}`)
+  }
+
+  throw new Error(`All capture strategies failed: ${errors.join('; ')}`)
+}
+
 export async function POST(request: NextRequest) {
-  let browser = null
-  
   try {
     const ip = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown'
     const rateLimit = checkRateLimit(ip)
@@ -121,7 +177,7 @@ export async function POST(request: NextRequest) {
       try {
         await invalidateCache(normalizedUrl)
       } catch (invalidateError) {
-        console.warn('Failed to invalidate cache, proceeding with screenshot:', invalidateError)
+        console.warn('Failed to invalidate cache:', invalidateError)
       }
     }
 
@@ -136,49 +192,11 @@ export async function POST(request: NextRequest) {
           })
         }
       } catch (cacheError) {
-        console.warn('Cache check failed, proceeding with screenshot:', cacheError)
+        console.warn('Cache check failed:', cacheError)
       }
     }
 
-    browser = await getBrowser()
-    const page = await browser.newPage()
-
-    await page.setViewport({
-      width: 1920,
-      height: 1080,
-      deviceScaleFactor: 1,
-    })
-
-    await page.setDefaultNavigationTimeout(30000)
-    await page.setDefaultTimeout(30000)
-
-    try {
-      await page.goto(normalizedUrl, {
-        waitUntil: 'networkidle2',
-        timeout: 30000,
-      })
-    } catch (navError) {
-      console.warn('Navigation with networkidle2 failed, trying load:', navError)
-      await page.goto(normalizedUrl, {
-        waitUntil: 'load',
-        timeout: 30000,
-      })
-    }
-
-    await new Promise(resolve => setTimeout(resolve, 2000))
-
-    const screenshot = await page.screenshot({
-      type: 'png',
-      encoding: 'base64',
-      fullPage: false,
-    }) as string
-
-    if (!screenshot || screenshot.length === 0) {
-      throw new Error('Screenshot capture returned empty result')
-    }
-
-    await browser.close()
-    browser = null
+    const { screenshot, strategy } = await captureScreenshot(normalizedUrl)
 
     try {
       await cacheScreenshot(normalizedUrl, screenshot)
@@ -190,43 +208,57 @@ export async function POST(request: NextRequest) {
       screenshot,
       url: normalizedUrl,
       cached: false,
+      strategy,
     })
   } catch (error) {
-    if (browser) {
-      try {
-        await browser.close()
-      } catch (closeError) {
-        console.error('Error closing browser:', closeError)
-      }
-    }
-
     console.error('Screenshot error:', error)
 
     if (error instanceof Error) {
-      if (error.message.includes('timeout') || error.message.includes('Navigation timeout')) {
+      if (error.message.includes('timeout') || error.message.includes('Timeout')) {
         return NextResponse.json(
-          { error: 'Screenshot request timed out. Please try again.' },
+          { error: 'Website took too long to load. Please try again or try a different URL.' },
           { status: 408 }
         )
       }
 
-      if (error.message.includes('net::ERR_NAME_NOT_RESOLVED') || error.message.includes('net::ERR_CONNECTION_REFUSED')) {
+      if (error.message.includes('net::ERR_NAME_NOT_RESOLVED') || 
+          error.message.includes('net::ERR_CONNECTION_REFUSED') ||
+          error.message.includes('net::ERR_CONNECTION_TIMED_OUT') ||
+          error.message.includes('NS_ERROR_UNKNOWN_HOST')) {
         return NextResponse.json(
-          { error: 'Failed to connect to the website. Please check the URL and try again.' },
+          { error: 'Could not connect to the website. Please check the URL and try again.' },
           { status: 400 }
         )
       }
 
-      if (error.message.includes('detached') || error.message.includes('LifecycleWatcher disposed')) {
+      if (error.message.includes('SSL') || 
+          error.message.includes('certificate') ||
+          error.message.includes('ERR_CERT')) {
         return NextResponse.json(
-          { error: 'Screenshot capture was interrupted. Please try again.' },
+          { error: 'Website has SSL certificate issues. The screenshot may be incomplete.' },
+          { status: 400 }
+        )
+      }
+
+      if (error.message.includes('Target closed') || 
+          error.message.includes('Protocol error')) {
+        return NextResponse.json(
+          { error: 'Browser connection was interrupted. Please try again.' },
           { status: 500 }
+        )
+      }
+
+      if (error.message.includes('Failed to launch') || 
+          error.message.includes('Browser closed')) {
+        return NextResponse.json(
+          { error: 'Server is currently busy. Please try again in a moment.' },
+          { status: 503 }
         )
       }
     }
 
     return NextResponse.json(
-      { error: 'Failed to capture screenshot. Please try again.' },
+      { error: 'Failed to capture screenshot. Please try again or contact support if the issue persists.' },
       { status: 500 }
     )
   }
