@@ -72,7 +72,7 @@ export async function POST(request: NextRequest) {
           status: 429,
           headers: {
             'Retry-After': Math.ceil((rateLimit.resetAt - Date.now()) / 1000).toString(),
-            'X-RateLimit-Limit': '30',
+            'X-RateLimit-Limit': '20',
             'X-RateLimit-Remaining': '0',
             'X-RateLimit-Reset': rateLimit.resetAt.toString()
           }
@@ -140,77 +140,12 @@ export async function POST(request: NextRequest) {
       deviceScaleFactor: 1,
     })
 
-    await page.setDefaultNavigationTimeout(15000)
-    await page.setDefaultTimeout(15000)
+    await page.setDefaultNavigationTimeout(8000)
+    await page.setDefaultTimeout(8000)
 
     await page.goto(normalizedUrl, {
       waitUntil: 'domcontentloaded',
-      timeout: 15000,
-    })
-
-    await new Promise(resolve => setTimeout(resolve, 1000))
-
-    // Detect the website's default theme preference
-    const themePreference = await page.evaluate(() => {
-      // Check for common dark mode indicators
-      const html = document.documentElement
-      const body = document.body
-      
-      // Check for dark mode classes (common in frameworks like Tailwind, Next.js, etc.)
-      const hasDarkClass = html.classList.contains('dark') || 
-                          html.classList.contains('dark-mode') ||
-                          body.classList.contains('dark') ||
-                          body.classList.contains('dark-mode')
-      
-      // Check for dark mode attribute
-      const hasDarkAttribute = html.getAttribute('data-theme') === 'dark' ||
-                               html.getAttribute('data-color-mode') === 'dark' ||
-                               html.getAttribute('class')?.includes('dark')
-      
-      // Check computed background color brightness
-      const bodyStyle = window.getComputedStyle(body)
-      const bgColor = bodyStyle.backgroundColor || bodyStyle.background
-      
-      // Check if background is dark (simple heuristic)
-      let isDarkBackground = false
-      if (bgColor && bgColor !== 'rgba(0, 0, 0, 0)' && bgColor !== 'transparent') {
-        const rgbMatch = bgColor.match(/\d+/g)
-        if (rgbMatch && rgbMatch.length >= 3) {
-          const r = parseInt(rgbMatch[0])
-          const g = parseInt(rgbMatch[1])
-          const b = parseInt(rgbMatch[2])
-          // Calculate luminance (simplified)
-          const luminance = (r * 0.299 + g * 0.587 + b * 0.114) / 255
-          isDarkBackground = luminance < 0.5
-        }
-      }
-      
-      // Check CSS custom properties for theme
-      const rootStyle = window.getComputedStyle(html)
-      const colorScheme = rootStyle.colorScheme || ''
-      
-      // Return detected theme preference
-      if (hasDarkClass || hasDarkAttribute || colorScheme === 'dark') {
-        return 'dark'
-      }
-      if (isDarkBackground) {
-        return 'dark'
-      }
-      if (colorScheme === 'light') {
-        return 'light'
-      }
-      
-      // Default to light if we can't determine
-      return 'light'
-    })
-
-    await page.emulateMediaFeatures([
-      { name: 'prefers-color-scheme', value: themePreference }
-    ])
-
-    await page.reload({
-      waitUntil: 'domcontentloaded',
-      timeout: 15000,
+      timeout: 8000,
     })
 
     await new Promise(resolve => setTimeout(resolve, 500))

@@ -2,17 +2,8 @@
   "functions": {
     "app/api/screenshot/route.ts": {
       "maxDuration": 10,
-      "memory": 2048
-    },
-    "app/api/cron/cleanup-cache/route.ts": {
-      "maxDuration": 60
+      "memory": 1024
     }
-  },
-  "crons": [
-    {
-      "path": "/api/cron/cleanup-cache",
-      "schedule": "0 2 * * *"
-    }
-  ]
+  }
 }
 

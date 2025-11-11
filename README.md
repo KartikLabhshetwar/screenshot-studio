@@ -78,8 +78,8 @@ A modern web-based canvas editor for creating stunning visual designs. Upload im
    CLOUDINARY_API_KEY=your-api-key
    CLOUDINARY_API_SECRET=your-api-secret
 
-   # Cron Job Security (Required for production)
-   CRON_SECRET=your-random-secret-string
+   # Cache Cleanup Security (Required for production)
+   CLEANUP_SECRET=your-random-secret-string
    ```
 
    > **Note**: Screenshot feature requires database and Cloudinary. All other core features including **export work fully in-browser**. Cloudinary is also used for optional image optimization of backgrounds and overlays.
@@ -204,28 +204,25 @@ DATABASE_URL="postgresql://user:password@host:port/dbname?schema=public"
 NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=your-cloud-name
 CLOUDINARY_API_KEY=your-api-key
 CLOUDINARY_API_SECRET=your-api-secret
-CRON_SECRET=your-random-secret-string
+CLEANUP_SECRET=your-random-secret-string
 ```
 
-### Automatic Screenshot Cache Cleanup
+### Manual Screenshot Cache Cleanup
 
-Stage includes an automatic cleanup job that runs daily at 2 AM UTC to remove screenshots older than 2 days from both Cloudinary and the database.
+To remove screenshots older than 2 days from both Cloudinary and the database:
 
-**Setup:**
-1. The cron job is configured in `vercel.json`
-2. Ensure `CRON_SECRET` is set in environment variables
-3. Vercel will automatically run the cleanup job
-
-**Manual cleanup:**
 ```bash
-curl -X GET https://your-domain.com/api/cron/cleanup-cache \
-  -H "Authorization: Bearer your-cron-secret"
+curl -X POST https://your-domain.com/api/cleanup-cache \
+  -H "Content-Type: application/json" \
+  -d '{"secret": "your-cleanup-secret"}'
 ```
+
+**Recommended schedule**: Run this weekly or when approaching Cloudinary storage limits.
 
 ### Rate Limiting
 
 The screenshot API includes built-in rate limiting:
-- **Limit**: 30 requests per minute per IP
+- **Limit**: 20 requests per minute per IP
 - **Response**: 429 status with `Retry-After` header
 - **Headers**: `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset`
 
@@ -282,8 +279,9 @@ For detailed contribution guidelines, see [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 - Export may take a few seconds for high-resolution images
 - Some browsers may have limitations with large canvas operations
-- Website screenshot may timeout for slow-loading websites (15s timeout)
+- Website screenshot may timeout for slow-loading websites (8s timeout on Vercel free tier)
 - Screenshot feature requires database and Cloudinary configuration
+- Manual cache cleanup required on free Vercel account (no cron jobs)
 
 ## 📄 License
 
