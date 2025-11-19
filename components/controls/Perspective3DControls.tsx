@@ -5,6 +5,8 @@ import { useImageStore } from '@/lib/store';
 import { Slider } from '@/components/ui/slider';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
+import { ShadowControls } from '@/components/controls/ShadowControls';
 
 interface TransformPreset {
   name: string;
@@ -33,10 +35,82 @@ const PRESETS: TransformPreset[] = [
     },
   },
   {
-    name: 'Front View',
+    name: 'Subtle Left',
     values: {
-      perspective: 250,
-      rotateX: 6,
+      perspective: 1000,
+      rotateX: 3,
+      rotateY: -5,
+      rotateZ: 0,
+      translateX: 0,
+      translateY: 0,
+      scale: 0.98,
+    },
+  },
+  {
+    name: 'Subtle Right',
+    values: {
+      perspective: 1000,
+      rotateX: -3,
+      rotateY: 5,
+      rotateZ: 0,
+      translateX: 0,
+      translateY: 0,
+      scale: 0.97,
+    },
+  },
+  {
+    name: 'Dramatic Left',
+    values: {
+      perspective: 800,
+      rotateX: 10,
+      rotateY: -25,
+      rotateZ: 0,
+      translateX: 0,
+      translateY: 0,
+      scale: 0.85,
+    },
+  },
+  {
+    name: 'Dramatic Right',
+    values: {
+      perspective: 800,
+      rotateX: -10,
+      rotateY: 25,
+      rotateZ: 0,
+      translateX: 0,
+      translateY: 0,
+      scale: 0.87,
+    },
+  },
+  {
+    name: 'Top Left',
+    values: {
+      perspective: 1200,
+      rotateX: 45,
+      rotateY: 0,
+      rotateZ: -45,
+      translateX: 0,
+      translateY: 0,
+      scale: 0.9,
+    },
+  },
+  {
+    name: 'Top Right',
+    values: {
+      perspective: 1200,
+      rotateX: 45,
+      rotateY: 0,
+      rotateZ: 45,
+      translateX: 0,
+      translateY: 0,
+      scale: 0.92,
+    },
+  },
+  {
+    name: 'Front Depth',
+    values: {
+      perspective: 1000,
+      rotateX: 10,
       rotateY: 0,
       rotateZ: 0,
       translateX: 0,
@@ -45,71 +119,23 @@ const PRESETS: TransformPreset[] = [
     },
   },
   {
-    name: 'Top Right',
+    name: 'Side Depth',
     values: {
-      perspective: 400,
-      rotateX: 18,
-      rotateY: -24,
-      rotateZ: 2,
+      perspective: 1000,
+      rotateX: 0,
+      rotateY: -15,
+      rotateZ: 0,
       translateX: 0,
       translateY: 0,
-      scale: 0.82,
+      scale: 0.93,
     },
   },
   {
-    name: 'Dramatic Angle',
+    name: 'Complex Tilt',
     values: {
-      perspective: 450,
-      rotateX: 16,
-      rotateY: -28,
-      rotateZ: 3,
-      translateX: 0,
-      translateY: 0,
-      scale: 0.8,
-    },
-  },
-  {
-    name: 'Tablet View 1',
-    values: {
-      perspective: 350,
+      perspective: 900,
       rotateX: 10,
-      rotateY: -16,
-      rotateZ: 1,
-      translateX: 0,
-      translateY: 0,
-      scale: 0.88,
-    },
-  },
-  {
-    name: 'Tablet View 2',
-    values: {
-      perspective: 380,
-      rotateX: 12,
-      rotateY: -20,
-      rotateZ: 1,
-      translateX: 0,
-      translateY: 0,
-      scale: 0.85,
-    },
-  },
-  {
-    name: 'Tablet View 3',
-    values: {
-      perspective: 320,
-      rotateX: 8,
-      rotateY: -14,
-      rotateZ: 1,
-      translateX: 0,
-      translateY: 0,
-      scale: 0.9,
-    },
-  },
-  {
-    name: '3D Tilt',
-    values: {
-      perspective: 200,
-      rotateX: 10,
-      rotateY: -18,
+      rotateY: -15,
       rotateZ: 5,
       translateX: 0,
       translateY: 0,
@@ -117,36 +143,114 @@ const PRESETS: TransformPreset[] = [
     },
   },
   {
-    name: 'Deep Perspective',
+    name: 'Complex Tilt Reverse',
     values: {
-      perspective: 500,
-      rotateX: 14,
-      rotateY: -22,
-      rotateZ: 4,
+      perspective: 900,
+      rotateX: -10,
+      rotateY: 15,
+      rotateZ: -5,
       translateX: 0,
       translateY: 0,
-      scale: 0.82,
+      scale: 0.89,
     },
   },
   {
-    name: 'Subtle Angle',
+    name: 'Skew Left',
     values: {
-      perspective: 300,
-      rotateX: 5,
-      rotateY: -10,
-      rotateZ: 1,
+      perspective: 800,
+      rotateX: 3,
+      rotateY: 10,
+      rotateZ: -5,
       translateX: 0,
       translateY: 0,
-      scale: 0.92,
+      scale: 0.91,
+    },
+  },
+  {
+    name: 'Skew Right',
+    values: {
+      perspective: 800,
+      rotateX: -3,
+      rotateY: -10,
+      rotateZ: 5,
+      translateX: 0,
+      translateY: 0,
+      scale: 0.9,
+    },
+  },
+  {
+    name: 'Scale Down',
+    values: {
+      perspective: 900,
+      rotateX: 5,
+      rotateY: -5,
+      rotateZ: 0,
+      translateX: 0,
+      translateY: 0,
+      scale: 0.95,
+    },
+  },
+  {
+    name: 'Scale Up',
+    values: {
+      perspective: 900,
+      rotateX: -5,
+      rotateY: 5,
+      rotateZ: 0,
+      translateX: 0,
+      translateY: 0,
+      scale: 0.98,
+    },
+  },
+  {
+    name: 'Extreme Angle',
+    values: {
+      perspective: 1000,
+      rotateX: 10,
+      rotateY: 20,
+      rotateZ: -15,
+      translateX: 0,
+      translateY: 0,
+      scale: 0.9,
+    },
+  },
+  {
+    name: 'Extreme Reverse',
+    values: {
+      perspective: 1000,
+      rotateX: -10,
+      rotateY: -20,
+      rotateZ: 15,
+      translateX: 0,
+      translateY: 0,
+      scale: 0.95,
     },
   },
 ];
 
 export function Perspective3DControls() {
-  const { perspective3D, setPerspective3D } = useImageStore();
+  const { perspective3D, setPerspective3D, imageShadow, setImageShadow } = useImageStore();
+  const [selectedPresetIndex, setSelectedPresetIndex] = React.useState<number | null>(null);
 
-  const applyPreset = (preset: TransformPreset) => {
+  React.useEffect(() => {
+    const currentIndex = PRESETS.findIndex((preset) => {
+      const values = preset.values;
+      return (
+        Math.abs(values.perspective - perspective3D.perspective) < 10 &&
+        Math.abs(values.rotateX - perspective3D.rotateX) < 2 &&
+        Math.abs(values.rotateY - perspective3D.rotateY) < 2 &&
+        Math.abs(values.rotateZ - perspective3D.rotateZ) < 2 &&
+        Math.abs(values.translateX - perspective3D.translateX) < 1 &&
+        Math.abs(values.translateY - perspective3D.translateY) < 1 &&
+        Math.abs(values.scale - perspective3D.scale) < 0.05
+      );
+    });
+    setSelectedPresetIndex(currentIndex >= 0 ? currentIndex : null);
+  }, [perspective3D]);
+
+  const applyPreset = (preset: TransformPreset, index: number) => {
     setPerspective3D(preset.values);
+    setSelectedPresetIndex(index);
   };
 
   const reset = () => {
@@ -159,6 +263,20 @@ export function Perspective3DControls() {
       translateY: 0,
       scale: 1,
     });
+    setSelectedPresetIndex(0);
+  };
+
+  const getTransformStyle = (preset: TransformPreset) => {
+    const { rotateX, rotateY, rotateZ, translateX, translateY, scale } = preset.values;
+    return {
+      transform: `translate(${translateX}%, ${translateY}%) scale(${scale}) rotateX(${rotateX}deg) rotateY(${rotateY}deg) rotateZ(${rotateZ}deg)`,
+    };
+  };
+
+  const getPerspectiveStyle = (preset: TransformPreset) => {
+    return {
+      perspective: `${preset.values.perspective}px`,
+    };
   };
 
   return (
@@ -177,19 +295,27 @@ export function Perspective3DControls() {
         </Button>
       </div>
 
-      {/* Presets */}
-      <div className="grid grid-cols-3 gap-2">
-        {PRESETS.map((preset) => (
-          <Button
-            key={preset.name}
-            variant="outline"
-            size="sm"
-            onClick={() => applyPreset(preset)}
-            className="h-8 text-xs font-medium border border-border/50 hover:border-border"
-          >
-            {preset.name}
-          </Button>
-        ))}
+      <div className="flex overflow-x-auto scroll-m-0 space-x-3 p-1.5 -mx-1.5">
+        {PRESETS.map((preset, index) => {
+          const isSelected = selectedPresetIndex === index;
+          return (
+            <button
+              key={preset.name}
+              onClick={() => applyPreset(preset, index)}
+              className={cn(
+                'flex items-center justify-center bg-[rgb(192,192,192)] shrink-0 w-16 h-16 rounded-sm overflow-hidden transition-all cursor-pointer',
+                'hover:opacity-80 active:scale-95',
+                isSelected && 'border-2 border-gray-800 dark:border-gray-300'
+              )}
+              style={getPerspectiveStyle(preset)}
+            >
+              <div
+                className="w-10 h-10 bg-white shadow-[0_4px_12px_rgba(0,0,0,0.25)]"
+                style={getTransformStyle(preset)}
+              />
+            </button>
+          );
+        })}
       </div>
 
       {/* Sliders */}
@@ -285,6 +411,8 @@ export function Perspective3DControls() {
           />
         </div>
       </div>
+
+      <ShadowControls shadow={imageShadow} onShadowChange={setImageShadow} />
     </div>
   );
 }

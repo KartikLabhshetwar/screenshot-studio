@@ -217,6 +217,7 @@ function CanvasRenderer({ image }: { image: HTMLImageElement }) {
           minWidth: `${canvasW}px`,
           minHeight: `${canvasH}px`,
           overflow: 'hidden',
+          isolation: 'isolate',
         }}
       >
         <Perspective3DOverlay
@@ -253,6 +254,7 @@ function CanvasRenderer({ image }: { image: HTMLImageElement }) {
             overflow: 'hidden',
             position: 'relative',
             borderRadius: `${backgroundBorderRadius}px`,
+            contain: 'layout style paint',
           }}
           onMouseDown={(e) => {
             const clickedOnTransformer =

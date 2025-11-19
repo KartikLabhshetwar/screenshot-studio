@@ -73,6 +73,18 @@ export function Perspective3DOverlay({
     .replace(/\s+/g, ' ')
     .trim();
 
+  const shadowFilter = shadow.enabled
+    ? `drop-shadow(${
+        shadow.side === 'bottom'
+          ? `0px ${shadow.elevation}px`
+          : shadow.side === 'right'
+          ? `${shadow.elevation}px 0px`
+          : shadow.side === 'bottom-right'
+          ? `${shadow.elevation * 0.707}px ${shadow.elevation * 0.707}px`
+          : '0px 0px'
+      } ${shadow.softness}px ${shadow.color})`
+    : `drop-shadow(0px 8px 16px rgba(0, 0, 0, 0.2))`;
+
   return (
     <div
       data-3d-overlay="true"
@@ -91,6 +103,7 @@ export function Perspective3DOverlay({
         zIndex: 15,
         pointerEvents: 'none',
         overflow: 'hidden',
+        clipPath: `inset(0 0 0 0)`,
       }}
     >
       <div
@@ -104,18 +117,8 @@ export function Perspective3DOverlay({
           transformOrigin: 'center center',
           willChange: 'transform',
           transition: 'transform 0.125s linear',
-          ...(shadow.enabled && {
-            filter: `drop-shadow(${
-              shadow.side === 'bottom'
-                ? `0px ${shadow.elevation}px`
-                : shadow.side === 'right'
-                ? `${shadow.elevation}px 0px`
-                : shadow.side === 'bottom-right'
-                ? `${shadow.elevation * 0.707}px ${shadow.elevation * 0.707}px`
-                : '0px 0px'
-            } ${shadow.softness}px ${shadow.color})`,
-            opacity: shadow.intensity,
-          }),
+          filter: shadowFilter,
+          opacity: shadow.enabled ? shadow.intensity : 1,
         }}
       >
         <div

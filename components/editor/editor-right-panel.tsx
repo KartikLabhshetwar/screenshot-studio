@@ -5,7 +5,6 @@ import { useImageStore } from '@/lib/store';
 import { AspectRatioDropdown } from '@/components/aspect-ratio/aspect-ratio-dropdown';
 import { Button } from '@/components/ui/button';
 import { ChevronDown, ChevronUp } from 'lucide-react';
-import { aspectRatios } from '@/lib/constants/aspect-ratios';
 import { useDropzone } from 'react-dropzone';
 import { ALLOWED_IMAGE_TYPES, MAX_IMAGE_SIZE } from '@/lib/constants';
 import { getCldImageUrl } from '@/lib/cloudinary';
@@ -19,7 +18,6 @@ import { BackgroundEffects } from '@/components/controls/BackgroundEffects';
 
 export function EditorRightPanel() {
   const { 
-    selectedAspectRatio,
     backgroundConfig,
     backgroundBorderRadius,
     setBackgroundType,
@@ -30,7 +28,6 @@ export function EditorRightPanel() {
   
   const [expanded, setExpanded] = React.useState(true);
   const [bgUploadError, setBgUploadError] = React.useState<string | null>(null);
-  const selectedRatio = aspectRatios.find((ar) => ar.id === selectedAspectRatio);
 
   const validateFile = (file: File): string | null => {
     if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
@@ -86,16 +83,11 @@ export function EditorRightPanel() {
         
         {expanded && (
           <>
-            {/* Aspect Ratio */}
-            <div className="space-y-2">
-              <div className="flex items-center">
-                <span className="text-xs font-medium text-muted-foreground">Aspect Ratio</span>
+            <div className="space-y-3">
+              <div>
+                <h4 className="text-xs font-semibold text-foreground mb-1">Canvas Size</h4>
+                <p className="text-xs text-muted-foreground">Change aspect ratio to fit different platforms</p>
               </div>
-              {selectedRatio && (
-                <div className="text-xs text-muted-foreground">
-                  {selectedRatio.width}:{selectedRatio.height} • {selectedRatio.width}x{selectedRatio.height}
-                </div>
-              )}
               <AspectRatioDropdown />
             </div>
           </>

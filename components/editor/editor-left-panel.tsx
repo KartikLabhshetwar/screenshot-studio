@@ -47,24 +47,24 @@ export function EditorLeftPanel() {
 
         {/* Tabs Navigation */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col overflow-hidden">
-          <TabsList className="w-full grid grid-cols-3 rounded-none border-b border-border bg-muted/50 h-12">
+          <TabsList className="w-full grid grid-cols-3 rounded-none bg-transparent h-12 p-1.5 gap-1.5">
             <TabsTrigger 
               value="image" 
-              className="data-[state=active]:bg-background data-[state=active]:shadow-none rounded-none border-b-2 border-transparent data-[state=active]:border-primary"
+              className="data-[state=active]:bg-background data-[state=active]:shadow-lg data-[state=active]:shadow-black/20 rounded-md border-0 data-[state=active]:border-0 transition-all duration-200"
             >
               <ImageIcon className="size-4 mr-2" />
               Image
             </TabsTrigger>
             <TabsTrigger 
               value="text"
-              className="data-[state=active]:bg-background data-[state=active]:shadow-none rounded-none border-b-2 border-transparent data-[state=active]:border-primary"
+              className="data-[state=active]:bg-background data-[state=active]:shadow-lg data-[state=active]:shadow-black/20 rounded-md border-0 data-[state=active]:border-0 transition-all duration-200"
             >
               <Type className="size-4 mr-2" />
               Text
             </TabsTrigger>
             <TabsTrigger 
               value="stickers"
-              className="data-[state=active]:bg-background data-[state=active]:shadow-none rounded-none border-b-2 border-transparent data-[state=active]:border-primary"
+              className="data-[state=active]:bg-background data-[state=active]:shadow-lg data-[state=active]:shadow-black/20 rounded-md border-0 data-[state=active]:border-0 transition-all duration-200"
             >
               <Sticker className="size-4 mr-2" />
               Stickers
