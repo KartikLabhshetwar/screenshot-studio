@@ -70,12 +70,11 @@ export function Hero({
 
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-4 pt-2 sm:pt-4 px-4 sm:px-0 w-full sm:w-auto">
           <Link href={ctaHref} className="w-full sm:w-auto">
-            <Button size="lg" className="rounded-lg w-full sm:w-auto bg-primary hover:bg-primary/90 text-primary-foreground shadow-md hover:shadow-lg transition-all touch-manipulation min-h-[44px] text-base sm:text-lg">
+            <Button variant="integration" className="w-full sm:w-auto">
               {ctaLabel}
             </Button>
           </Link>
           <Button 
-            size="lg" 
             variant="outline" 
             className="rounded-lg w-full sm:w-auto border-primary text-primary hover:bg-accent hover:border-primary/80 touch-manipulation min-h-[44px] text-base sm:text-lg"
             onClick={() => setIsVideoOpen(true)}

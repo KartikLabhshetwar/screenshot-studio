@@ -165,10 +165,13 @@
   * {
     @apply border-border outline-ring/50;
   }
+  html {
+    height: 100%;
+  }
   body {
     @apply bg-background text-foreground;
-    /* Prevent horizontal scroll on mobile */
-    overflow-x: hidden;
+    min-height: 100%;
+    width: 100%;
   }
   /* Glass morphism utility classes */
   .glass {
@@ -228,5 +231,12 @@
   }
   *::-webkit-scrollbar-corner {
     background: transparent;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
   }
 }

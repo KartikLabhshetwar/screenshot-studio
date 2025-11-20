@@ -12,7 +12,6 @@ import { ExportDialog } from '@/components/canvas/dialogs/ExportDialog';
 import { StyleTabs } from './style-tabs';
 import { Button } from '@/components/ui/button';
 import { Download } from 'lucide-react';
-import { PresetSelector } from '@/components/presets/PresetSelector';
 import { useExport } from '@/hooks/useExport';
 import { FaGithub } from 'react-icons/fa';
 
@@ -50,7 +49,6 @@ export function SidebarLeft({
       >
         <SidebarHeader className="p-4 sm:p-5 border-b border-sidebar-border min-w-0 bg-sidebar/50 shrink-0">
           <div className="flex flex-col gap-3">
-            <PresetSelector />
             <div className="flex flex-col gap-2.5">
               <Button
                 onClick={() => setExportDialogOpen(true)}

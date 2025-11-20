@@ -7,41 +7,85 @@ import { aspectRatios } from '@/lib/constants/aspect-ratios';
 import { useImageStore } from '@/lib/store';
 import { AspectRatioPicker } from './aspect-ratio-picker';
 import { Button } from '@/components/ui/button';
-import { GlassInputWrapper } from '@/components/ui/glass-input-wrapper';
 import * as React from 'react';
+import { ChevronDown } from 'lucide-react';
+
+const popularRatios = ['1_1', '9_16', '16_9', '4_5', 'og_image'];
 
 export const AspectRatioDropdown = () => {
-  const { selectedAspectRatio } = useImageStore();
+  const { selectedAspectRatio, setAspectRatio } = useImageStore();
   const current = aspectRatios.find((ar) => ar.id === selectedAspectRatio);
   const [open, setOpen] = React.useState(false);
 
+  const handleQuickSelect = (id: string) => {
+    setAspectRatio(id);
+  };
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <GlassInputWrapper intensity="default" className="w-full">
+      <div className="space-y-3">
+        <PopoverTrigger asChild>
           <Button
-            aria-label="Select aspect ratio"
             variant="outline"
-            className="w-full justify-start border-0 bg-transparent hover:bg-transparent shadow-none"
+            className="w-full justify-between h-auto py-2.5 px-3 border-border/50 hover:border-border hover:bg-accent/50"
           >
-            <span className="flex items-center gap-2">
-              <span
-                className="bg-primary rounded border shrink-0"
+            <div className="flex items-center gap-2.5 flex-1 min-w-0">
+              <div
+                className="bg-primary/80 rounded shrink-0 border border-primary/30"
                 style={{
-                  width: '20px',
-                  height: `${20 * (current?.ratio || 1)}px`,
-                  maxHeight: '20px',
-                  minHeight: '8px',
+                  width: '24px',
+                  height: `${24 * (current?.ratio || 1)}px`,
+                  maxHeight: '24px',
+                  minHeight: '10px',
                 }}
               />
-              <span className="text-sm font-medium flex-1 text-left">
-                {current ? `${current.name} (${current.width}:${current.height})` : 'Aspect Ratio'}
-              </span>
-            </span>
+              <div className="flex-1 min-w-0 text-left">
+                <div className="text-sm font-medium text-foreground truncate">
+                  {current?.name || 'Aspect Ratio'}
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  {current ? `${current.width}:${current.height}` : 'Select ratio'}
+                </div>
+              </div>
+            </div>
+            <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0 ml-2" />
           </Button>
-        </GlassInputWrapper>
-      </PopoverTrigger>
-      <PopoverContent className="p-4 w-[400px] max-h-[600px]" align="start">
+        </PopoverTrigger>
+
+        <div className="flex items-center gap-1.5">
+          <span className="text-xs text-muted-foreground">Quick:</span>
+          <div className="flex items-center gap-1.5 flex-1">
+            {popularRatios.map((id) => {
+              const ratio = aspectRatios.find((ar) => ar.id === id);
+              if (!ratio) return null;
+              const isSelected = selectedAspectRatio === id;
+              return (
+                <button
+                  key={id}
+                  onClick={() => handleQuickSelect(id)}
+                  className={`relative rounded-md border transition-all ${
+                    isSelected
+                      ? 'border-primary bg-primary/10'
+                      : 'border-border/50 hover:border-border hover:bg-accent/50'
+                  }`}
+                  style={{
+                    width: '32px',
+                    height: `${32 * ratio.ratio}px`,
+                    maxHeight: '32px',
+                    minHeight: '12px',
+                  }}
+                  title={`${ratio.name} (${ratio.width}:${ratio.height})`}
+                >
+                  {isSelected && (
+                    <div className="absolute inset-0 bg-primary/20 rounded-md" />
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+      <PopoverContent className="p-0 w-[420px] max-h-[600px]" align="start">
         <AspectRatioPicker onSelect={() => setOpen(false)} />
       </PopoverContent>
     </Popover>

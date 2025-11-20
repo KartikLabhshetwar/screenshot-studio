@@ -154,6 +154,8 @@ interface EditorState {
     softness: number;
     color: string;
     intensity: number;
+    offsetX: number;
+    offsetY: number;
   };
 
   // Pattern state
@@ -237,6 +239,8 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     softness: 10,
     color: "rgba(0, 0, 0, 0.3)",
     intensity: 1,
+    offsetX: 0,
+    offsetY: 4,
   },
 
   pattern: {
@@ -341,7 +345,7 @@ export function useEditorStoreSync() {
     if (bgConfig.type === "gradient") {
       const gradientStr =
         gradientColors[bgConfig.value as GradientKey] ||
-        gradientColors.sunset_vibes;
+        gradientColors.vibrant_orange_pink;
       const { colorA, colorB, direction } = parseGradientColors(gradientStr);
       if (
         editorStore.background.mode !== "gradient" ||
@@ -396,23 +400,33 @@ export function useEditorStoreSync() {
 
     // Sync shadow
     const shadow = imageStore.imageShadow;
+    const offsetX = shadow.offsetX || 0;
+    const offsetY = shadow.offsetY || 0;
+    const elevation = Math.max(Math.abs(offsetX), Math.abs(offsetY)) || 4;
+
+    let side: "bottom" | "right" | "bottom-right" = "bottom";
+    if (Math.abs(offsetX) > Math.abs(offsetY)) {
+      side = "right";
+    } else if (Math.abs(offsetX) > 0 && Math.abs(offsetY) > 0) {
+      side = "bottom-right";
+    }
+
     if (
       editorStore.shadow.enabled !== shadow.enabled ||
       editorStore.shadow.softness !== shadow.blur ||
-      editorStore.shadow.color !== shadow.color
+      editorStore.shadow.color !== shadow.color ||
+      editorStore.shadow.offsetX !== offsetX ||
+      editorStore.shadow.offsetY !== offsetY
     ) {
       editorStore.setShadow({
         enabled: shadow.enabled,
         softness: shadow.blur,
         color: shadow.color,
-        elevation: Math.max(Math.abs(shadow.offsetX), Math.abs(shadow.offsetY)),
-        side:
-          shadow.offsetX > 0
-            ? "right"
-            : shadow.offsetY > 0
-            ? "bottom"
-            : "bottom",
+        elevation,
+        side,
         intensity: 1,
+        offsetX,
+        offsetY,
       });
     }
 
@@ -511,7 +525,7 @@ interface ImageState {
 export const useImageStore = create<ImageState>((set, get) => ({
   uploadedImageUrl: null,
   imageName: null,
-  selectedGradient: "sunset_vibes",
+  selectedGradient: "vibrant_orange_pink",
   borderRadius: 10,
   backgroundBorderRadius: 10,
   selectedAspectRatio: "16_9",
@@ -537,12 +551,12 @@ export const useImageStore = create<ImageState>((set, get) => ({
     title: "",
   },
   imageShadow: {
-    enabled: false,
-    blur: 10,
+    enabled: true,
+    blur: 24,
     offsetX: 0,
-    offsetY: 4,
-    spread: 0,
-    color: "rgba(0, 0, 0, 0.3)",
+    offsetY: 6,
+    spread: 3,
+    color: "rgba(0, 0, 0, 0.25)",
   },
   perspective3D: {
     perspective: 200, // em units, converted to px
@@ -566,7 +580,15 @@ export const useImageStore = create<ImageState>((set, get) => ({
         value: "backgrounds/backgrounds/assets/asset-20",
         opacity: 1,
       },
-      selectedGradient: "orange_fire",
+      selectedGradient: "pink_orange",
+      imageShadow: {
+        enabled: true,
+        blur: 24,
+        offsetX: 0,
+        offsetY: 6,
+        spread: 3,
+        color: "rgba(0, 0, 0, 0.25)",
+      },
       perspective3D: {
         perspective: 200,
         rotateX: 0,

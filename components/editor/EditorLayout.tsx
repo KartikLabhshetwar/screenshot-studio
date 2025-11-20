@@ -17,6 +17,13 @@ function EditorMain() {
   const [leftPanelOpen, setLeftPanelOpen] = React.useState(false);
   const [rightPanelOpen, setRightPanelOpen] = React.useState(false);
 
+  React.useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, []);
+
   return (
     <div className="h-screen flex flex-col bg-background overflow-hidden">
       <EditorStoreSync />

@@ -99,7 +99,7 @@ export function Navigation({
             <SiX className="h-5 w-5 text-current" />
           </Link>
           <Link href={ctaHref} className="flex items-center">
-            <Button className="bg-primary text-primary-foreground hover:bg-primary/90 text-sm px-3 sm:px-4 py-2 touch-manipulation">
+            <Button variant="integration" className="text-sm px-3 sm:px-4 py-2">
               {ctaLabel}
             </Button>
           </Link>

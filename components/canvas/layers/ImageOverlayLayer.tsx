@@ -40,6 +40,22 @@ export function ImageOverlayLayer({
     }
   }, [selectedOverlayId, imageOverlays]);
 
+  useEffect(() => {
+    imageOverlays.forEach((overlay) => {
+      const node = overlayRefs.current[overlay.id];
+      if (!node || !loadedOverlayImages[overlay.id]) return;
+
+      const isArrow = typeof overlay.src === 'string' && overlay.src.startsWith('/arrow/');
+      
+      if (isArrow) {
+        node.filters([Konva.Filters.Brighten, Konva.Filters.Invert]);
+        node.brightness(-1);
+        node.cache();
+        layerRef.current?.batchDraw();
+      }
+    });
+  }, [imageOverlays, loadedOverlayImages]);
+
   return (
     <Layer ref={layerRef}>
       {imageOverlays.map((overlay) => {
@@ -54,6 +70,12 @@ export function ImageOverlayLayer({
             ref={(node) => {
               if (node) {
                 overlayRefs.current[overlay.id] = node;
+                const isArrow = typeof overlay.src === 'string' && overlay.src.startsWith('/arrow/');
+                if (isArrow && loadedOverlayImages[overlay.id]) {
+                  node.filters([Konva.Filters.Brighten, Konva.Filters.Invert]);
+                  node.brightness(-1);
+                  node.cache();
+                }
               } else {
                 delete overlayRefs.current[overlay.id];
               }
@@ -96,6 +118,10 @@ export function ImageOverlayLayer({
                 scaleX: node.scaleX(),
                 scaleY: node.scaleY(),
               });
+              const isArrow = typeof overlay.src === 'string' && overlay.src.startsWith('/arrow/');
+              if (isArrow) {
+                node.cache();
+              }
             }}
             onTransformEnd={(e) => {
               const node = e.target;
@@ -115,6 +141,11 @@ export function ImageOverlayLayer({
                 size: newSize,
                 rotation: node.rotation(),
               });
+
+              const isArrow = typeof overlay.src === 'string' && overlay.src.startsWith('/arrow/');
+              if (isArrow) {
+                node.cache();
+              }
             }}
             onMouseEnter={(e) => {
               const container = e.target.getStage()?.container();

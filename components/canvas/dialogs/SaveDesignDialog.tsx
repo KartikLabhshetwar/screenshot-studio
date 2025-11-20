@@ -125,6 +125,8 @@ export function SaveDesignDialog({ open, onOpenChange, designId, designName }: S
           <Button
             onClick={handleSave}
             disabled={isSaving || !name.trim()}
+            variant="integration"
+            showArrow={false}
           >
             {isSaving ? "Saving..." : designId ? "Update" : "Save"}
           </Button>

@@ -39,6 +39,42 @@ interface Perspective3DOverlayProps {
   imageOpacity: number;
 }
 
+function calculateSafeScale(
+  width: number,
+  height: number,
+  rotateX: number,
+  rotateY: number,
+  rotateZ: number,
+  canvasW: number,
+  canvasH: number
+): number {
+  const maxRotation = Math.max(
+    Math.abs(rotateX),
+    Math.abs(rotateY),
+    Math.abs(rotateZ)
+  )
+
+  if (maxRotation === 0) return 1
+
+  const rotationRad = (maxRotation * Math.PI) / 180
+  const cosRotation = Math.abs(Math.cos(rotationRad))
+  const sinRotation = Math.abs(Math.sin(rotationRad))
+
+  const projectedWidth = width * cosRotation + height * sinRotation
+  const projectedHeight = height * cosRotation + width * sinRotation
+  const maxProjected = Math.max(projectedWidth, projectedHeight)
+
+  const padding = 10
+  const availableWidth = canvasW - padding * 2
+  const availableHeight = canvasH - padding * 2
+
+  const scaleX = availableWidth / maxProjected
+  const scaleY = availableHeight / maxProjected
+  const safeScale = Math.min(scaleX, scaleY)
+
+  return Math.max(0.6, Math.min(1.2, safeScale))
+}
+
 export function Perspective3DOverlay({
   has3DTransform,
   perspective3D,
@@ -63,15 +99,59 @@ export function Perspective3DOverlay({
 }: Perspective3DOverlayProps) {
   if (!has3DTransform) return null;
 
+  const safeScale = calculateSafeScale(
+    framedW,
+    framedH,
+    perspective3D.rotateX,
+    perspective3D.rotateY,
+    perspective3D.rotateZ + screenshot.rotation,
+    canvasW,
+    canvasH
+  )
+
   const perspective3DTransform = `
     translate(${perspective3D.translateX}%, ${perspective3D.translateY}%)
-    scale(${perspective3D.scale})
+    scale(${perspective3D.scale * safeScale})
     rotateX(${perspective3D.rotateX}deg)
     rotateY(${perspective3D.rotateY}deg)
     rotateZ(${perspective3D.rotateZ + screenshot.rotation}deg)
   `
     .replace(/\s+/g, ' ')
     .trim();
+
+  const colorMatch = shadow.color.match(/rgba?\(([^)]+)\)/)
+  let shadowColor = shadow.color
+  let shadowOpacity = shadow.intensity
+  
+  if (colorMatch) {
+    const parts = colorMatch[1].split(',').map(s => s.trim())
+    if (parts.length === 4) {
+      shadowOpacity = parseFloat(parts[3]) || shadow.intensity
+      shadowColor = `rgba(${parts[0]}, ${parts[1]}, ${parts[2]}, ${Math.min(1, Math.max(0, shadowOpacity))})`
+    } else if (parts.length === 3) {
+      shadowColor = `rgba(${parts[0]}, ${parts[1]}, ${parts[2]}, ${Math.min(1, Math.max(0, shadow.intensity))})`
+    }
+  } else if (shadow.color.startsWith('#')) {
+    const hex = shadow.color.replace('#', '')
+    const r = parseInt(hex.slice(0, 2), 16)
+    const g = parseInt(hex.slice(2, 4), 16)
+    const b = parseInt(hex.slice(4, 6), 16)
+    shadowColor = `rgba(${r}, ${g}, ${b}, ${Math.min(1, Math.max(0, shadow.intensity))})`
+  } else {
+    shadowColor = `rgba(0, 0, 0, ${Math.min(1, Math.max(0, shadow.intensity))})`
+  }
+
+  const shadowFilter = shadow.enabled
+    ? `drop-shadow(${
+        shadow.side === 'bottom'
+          ? `0px ${shadow.elevation}px`
+          : shadow.side === 'right'
+          ? `${shadow.elevation}px 0px`
+          : shadow.side === 'bottom-right'
+          ? `${shadow.elevation * 0.707}px ${shadow.elevation * 0.707}px`
+          : '0px 0px'
+      } ${shadow.softness}px ${shadowColor})`
+    : `drop-shadow(0px 8px 16px rgba(0, 0, 0, 0.2))`;
 
   return (
     <div
@@ -91,6 +171,7 @@ export function Perspective3DOverlay({
         zIndex: 15,
         pointerEvents: 'none',
         overflow: 'hidden',
+        clipPath: `inset(0 0 0 0)`,
       }}
     >
       <div
@@ -104,18 +185,8 @@ export function Perspective3DOverlay({
           transformOrigin: 'center center',
           willChange: 'transform',
           transition: 'transform 0.125s linear',
-          ...(shadow.enabled && {
-            filter: `drop-shadow(${
-              shadow.side === 'bottom'
-                ? `0px ${shadow.elevation}px`
-                : shadow.side === 'right'
-                ? `${shadow.elevation}px 0px`
-                : shadow.side === 'bottom-right'
-                ? `${shadow.elevation * 0.707}px ${shadow.elevation * 0.707}px`
-                : '0px 0px'
-            } ${shadow.softness}px ${shadow.color})`,
-            opacity: shadow.intensity,
-          }),
+          filter: shadowFilter,
+          opacity: 1,
         }}
       >
         <div

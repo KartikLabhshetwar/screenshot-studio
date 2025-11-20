@@ -22,7 +22,6 @@ const ClientCanvas = dynamic(() => import('@/components/canvas/ClientCanvas'), {
 export function EditorCanvas() {
   const { screenshot } = useEditorStore()
   const { uploadedImageUrl, selectedAspectRatio, clearImage } = useImageStore()
-  const [copySuccess, setCopySuccess] = useState(false)
   const [exportDialogOpen, setExportDialogOpen] = useState(false)
   const { copyImage, isExporting, settings: exportSettings, exportImage, updateScale } = useExport(selectedAspectRatio)
 
@@ -43,40 +42,33 @@ export function EditorCanvas() {
           <Button
             onClick={() => setExportDialogOpen(true)}
             disabled={!uploadedImageUrl}
-            className="h-9 justify-center gap-2 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm hover:shadow-md transition-all font-medium px-4"
+            variant="integration"
+            showArrow={false}
+            className="h-9 justify-center gap-2 px-4"
           >
             <Download className="size-4" />
             <span>Download</span>
           </Button>
           <Button
-            onClick={() => {
-              copyImage()
-                .then(() => {
-                  setCopySuccess(true)
-                  setTimeout(() => setCopySuccess(false), 2000)
-                })
-                .catch((error) => {
-                  console.error('Failed to copy:', error)
-                  alert('Failed to copy image to clipboard. Please try again.')
-                })
-            }}
+            onClick={() => copyImage()}
             disabled={!uploadedImageUrl || isExporting}
-            className="h-9 justify-center gap-2 rounded-lg bg-muted hover:bg-muted/80 text-foreground shadow-sm hover:shadow-md transition-all font-medium border border-border px-4"
+            variant="secondary"
+            className="h-9 justify-center gap-2 px-4"
           >
             <Copy className="size-4" />
-            <span>{copySuccess ? 'Copied!' : 'Copy'}</span>
+            <span>Copy</span>
           </Button>
           <Button
             onClick={clearImage}
             disabled={!uploadedImageUrl}
-            variant="outline"
-            className="h-9 justify-center gap-2 rounded-lg hover:bg-destructive/10 text-destructive hover:text-destructive border-destructive/20 hover:border-destructive/40 transition-all font-medium px-4"
+            variant="destructive"
+            className="h-9 justify-center gap-2 px-4"
           >
             <Trash2 className="size-4" />
             <span>Remove Image</span>
           </Button>
         </div>
-        <div className="flex-1 flex items-center justify-center overflow-auto p-3 sm:p-4 md:p-6">
+        <div className="flex-1 flex items-center justify-center overflow-x-auto overflow-y-hidden p-3 sm:p-4 md:p-6">
           <ClientCanvas />
         </div>
       </div>

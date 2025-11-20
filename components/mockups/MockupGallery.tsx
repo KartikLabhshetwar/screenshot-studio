@@ -65,31 +65,31 @@ export function MockupGallery() {
       </div>
 
       <Tabs value={activeType} onValueChange={(v) => setActiveType(v as 'iphone' | 'macbook' | 'imac' | 'iwatch')}>
-        <TabsList className="w-full grid grid-cols-4 gap-1 p-1 h-auto bg-muted/50 rounded-lg">
+        <TabsList className="w-full grid grid-cols-4 rounded-none bg-transparent h-12 p-1.5 gap-1.5">
           <TabsTrigger 
             value="macbook" 
-            className="text-xs gap-1.5 px-3 py-2.5 h-auto border-0 rounded-md transition-all data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-none hover:bg-muted"
+            className="data-[state=active]:bg-background data-[state=active]:shadow-lg data-[state=active]:shadow-black/20 rounded-md border-0 data-[state=active]:border-0 transition-all duration-200 text-xs gap-1.5"
           >
             <Laptop className="h-3.5 w-3.5" />
             <span>MacBook</span>
           </TabsTrigger>
           <TabsTrigger 
             value="imac" 
-            className="text-xs gap-1.5 px-3 py-2.5 h-auto border-0 rounded-md transition-all data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-none hover:bg-muted"
+            className="data-[state=active]:bg-background data-[state=active]:shadow-lg data-[state=active]:shadow-black/20 rounded-md border-0 data-[state=active]:border-0 transition-all duration-200 text-xs gap-1.5"
           >
             <Monitor className="h-3.5 w-3.5" />
             <span>iMac</span>
           </TabsTrigger>
           <TabsTrigger 
             value="iwatch" 
-            className="text-xs gap-1.5 px-3 py-2.5 h-auto border-0 rounded-md transition-all data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-none hover:bg-muted"
+            className="data-[state=active]:bg-background data-[state=active]:shadow-lg data-[state=active]:shadow-black/20 rounded-md border-0 data-[state=active]:border-0 transition-all duration-200 text-xs gap-1.5"
           >
             <Watch className="h-3.5 w-3.5" />
             <span>Watch</span>
           </TabsTrigger>
           <TabsTrigger 
             value="iphone" 
-            className="text-xs gap-1.5 px-3 py-2.5 h-auto border-0 rounded-md transition-all data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-none hover:bg-muted"
+            className="data-[state=active]:bg-background data-[state=active]:shadow-lg data-[state=active]:shadow-black/20 rounded-md border-0 data-[state=active]:border-0 transition-all duration-200 text-xs gap-1.5"
           >
             <Smartphone className="h-3.5 w-3.5" />
             <span>iPhone</span>

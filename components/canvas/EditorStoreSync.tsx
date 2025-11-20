@@ -61,7 +61,7 @@ export function EditorStoreSync() {
     // Sync background
     const bgConfig = imageStore.backgroundConfig
     if (bgConfig.type === 'gradient') {
-      const gradientStr = gradientColors[bgConfig.value as GradientKey] || gradientColors.sunset_vibes
+      const gradientStr = gradientColors[bgConfig.value as GradientKey] || gradientColors.vibrant_orange_pink
       const { colorA, colorB, direction } = parseGradientColors(gradientStr)
       if (
         editorStore.background.mode !== 'gradient' ||
@@ -111,18 +111,53 @@ export function EditorStoreSync() {
 
     // Sync shadow
     const shadow = imageStore.imageShadow
+    const offsetX = shadow.offsetX || 0
+    const offsetY = shadow.offsetY || 0
+    const elevation = Math.max(Math.abs(offsetX), Math.abs(offsetY)) || 4
+    
+    let side: 'bottom' | 'right' | 'bottom-right' = 'bottom'
+    if (Math.abs(offsetX) > Math.abs(offsetY)) {
+      side = 'right'
+    } else if (Math.abs(offsetX) > 0 && Math.abs(offsetY) > 0) {
+      side = 'bottom-right'
+    }
+    
+    const colorMatch = shadow.color.match(/rgba?\(([^)]+)\)/)
+    let shadowColor = shadow.color
+    let intensity = 1
+    if (colorMatch) {
+      const parts = colorMatch[1].split(',').map(s => s.trim())
+      if (parts.length === 4) {
+        intensity = parseFloat(parts[3]) || 0.3
+        shadowColor = `rgba(${parts[0]}, ${parts[1]}, ${parts[2]}, 1)`
+      } else if (parts.length === 3) {
+        shadowColor = `rgb(${parts[0]}, ${parts[1]}, ${parts[2]})`
+        intensity = 0.3
+      }
+    } else if (shadow.color.startsWith('#')) {
+      shadowColor = shadow.color
+      intensity = 0.3
+    }
+    
     if (
       editorStore.shadow.enabled !== shadow.enabled ||
       editorStore.shadow.softness !== shadow.blur ||
-      editorStore.shadow.color !== shadow.color
+      editorStore.shadow.color !== shadowColor ||
+      editorStore.shadow.elevation !== elevation ||
+      editorStore.shadow.side !== side ||
+      editorStore.shadow.intensity !== intensity ||
+      editorStore.shadow.offsetX !== offsetX ||
+      editorStore.shadow.offsetY !== offsetY
     ) {
       editorStore.setShadow({
         enabled: shadow.enabled,
         softness: shadow.blur,
-        color: shadow.color,
-        elevation: Math.max(Math.abs(shadow.offsetX), Math.abs(shadow.offsetY)) || 10,
-        side: shadow.offsetX > 0 ? 'right' : shadow.offsetY > 0 ? 'bottom' : 'bottom',
-        intensity: 1,
+        color: shadowColor,
+        elevation,
+        side,
+        intensity,
+        offsetX,
+        offsetY,
       })
     }
 

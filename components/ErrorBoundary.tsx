@@ -48,6 +48,8 @@ export class ErrorBoundary extends React.Component<
                   this.setState({ hasError: false, error: null });
                   window.location.reload();
                 }}
+                variant="integration"
+                showArrow={false}
                 className="w-full"
               >
                 Reload Page
