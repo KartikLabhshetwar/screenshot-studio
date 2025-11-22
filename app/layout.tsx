@@ -18,19 +18,31 @@ export const metadata: Metadata = {
     default: "Stage",
     template: "%s | Stage",
   },
-  description: "Create stunning showcase images for your projects with customizable templates and layouts. A fully in-browser canvas editor for adding images, text, and backgrounds—no external services required.",
-  keywords: ["image editor", "canvas editor", "design tool", "image showcase", "template builder", "in-browser editor", "client-side export"],
+  description:
+    "Create stunning showcase images for your projects with customizable templates and layouts. A fully in-browser canvas editor for adding images, text, and backgrounds—no external services required.",
+  keywords: [
+    "image editor",
+    "canvas editor",
+    "design tool",
+    "image showcase",
+    "template builder",
+    "in-browser editor",
+    "client-side export",
+  ],
   authors: [{ name: "Stage" }],
   creator: "Stage",
   publisher: "Stage",
-  metadataBase: new URL(process.env.BETTER_AUTH_URL || "https://stage-psi-one.vercel.app"),
+  metadataBase: new URL(
+    process.env.BETTER_AUTH_URL || "https://stage-psi-one.vercel.app"
+  ),
   openGraph: {
     type: "website",
     locale: "en_US",
     url: "/",
     siteName: "Stage",
     title: "Stage - Image Showcase Builder",
-    description: "Create stunning showcase images for your projects with customizable templates and layouts",
+    description:
+      "Create stunning showcase images for your projects with customizable templates and layouts",
     images: [
       {
         url: "https://stage-psi-one.vercel.app/og.jpeg",
@@ -43,7 +55,8 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Stage - Image Showcase Builder",
-    description: "Create stunning showcase images for your projects with customizable templates and layouts",
+    description:
+      "Create stunning showcase images for your projects with customizable templates and layouts",
     images: ["https://stage-psi-one.vercel.app/og.jpeg"],
     creator: "@stage",
   },
@@ -80,7 +93,11 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <head>
-      <script defer src="https://cloud.umami.is/script.js" data-website-id="11f36f2b-1ef5-4014-bfdb-089aa4770c53"></script>
+        <script
+          defer
+          src="https://cloud.umami.is/script.js"
+          data-website-id="11f36f2b-1ef5-4014-bfdb-089aa4770c53"
+        ></script>
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
