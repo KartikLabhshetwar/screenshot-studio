@@ -295,7 +295,7 @@ export function Perspective3DControls() {
         </Button>
       </div>
 
-      <div className="flex overflow-x-auto scroll-m-0 space-x-3 p-1.5 -mx-1.5">
+      <div className="grid grid-cols-2 gap-2 overflow-y-auto scroll-m-0 p-1 max-h-64">
         {PRESETS.map((preset, index) => {
           const isSelected = selectedPresetIndex === index;
           return (
@@ -303,14 +303,14 @@ export function Perspective3DControls() {
               key={preset.name}
               onClick={() => applyPreset(preset, index)}
               className={cn(
-                'flex items-center justify-center bg-[rgb(192,192,192)] shrink-0 w-16 h-16 rounded-sm overflow-hidden transition-all cursor-pointer',
+                'flex items-center justify-center bg-[rgb(192,192,192)] w-full aspect-square rounded-sm overflow-hidden transition-all cursor-pointer',
                 'hover:opacity-80 active:scale-95',
                 isSelected && 'border-2 border-gray-800 dark:border-gray-300'
               )}
               style={getPerspectiveStyle(preset)}
             >
               <div
-                className="w-10 h-10 bg-white shadow-[0_4px_12px_rgba(0,0,0,0.25)]"
+                className="w-16 h-16 bg-white shadow-[0_4px_12px_rgba(0,0,0,0.25)]"
                 style={getTransformStyle(preset)}
               />
             </button>

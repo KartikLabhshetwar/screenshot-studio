@@ -378,7 +378,7 @@ export function EditorRightPanel() {
                                 <Label className="text-xs font-medium text-muted-foreground capitalize">
                                   {categoryDisplayName} Wallpapers
                                 </Label>
-                                <div className="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1">
+                                <div className="grid grid-cols-2 gap-2 overflow-y-auto pb-2 max-h-64">
                                   {categoryBackgrounds.map((publicId: string, idx: number) => {
                                     const thumbnailUrl = getCldImageUrl({
                                       src: publicId,
@@ -397,7 +397,7 @@ export function EditorRightPanel() {
                                           setBackgroundValue(publicId);
                                           setBackgroundType('image');
                                         }}
-                                        className={`relative aspect-video rounded-lg overflow-hidden border-2 transition-all shrink-0 w-32 ${
+                                        className={`relative aspect-video rounded-lg overflow-hidden border-2 transition-all ${
                                           backgroundConfig.value === publicId
                                             ? 'border-primary ring-2 ring-ring shadow-sm'
                                             : 'border-border hover:border-border/80'

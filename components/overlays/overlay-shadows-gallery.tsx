@@ -54,13 +54,9 @@ export function OverlayShadowsGallery() {
         <h3 className="font-semibold text-sm text-foreground">Overlay Shadows</h3>
       </div>
 
-      <div className="overflow-x-auto scrollbar-hide p-1.5">
+      <div className="overflow-y-auto scrollbar-hide p-1.5 max-h-64">
         <div
-          className="grid grid-flow-col gap-2 w-max"
-          style={{
-            gridTemplateRows: 'repeat(2, minmax(2rem, 1fr))',
-            gridAutoFlow: 'column dense',
-          }}
+          className="grid grid-cols-4 gap-2"
         >
           <button
             onClick={handleRemoveShadows}

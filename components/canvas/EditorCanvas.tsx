@@ -68,7 +68,7 @@ export function EditorCanvas() {
             <span>Remove Image</span>
           </Button>
         </div>
-        <div className="flex-1 flex items-center justify-center overflow-x-auto overflow-y-hidden p-3 sm:p-4 md:p-6">
+        <div className="flex-1 flex items-center justify-center overflow-y-auto overflow-x-hidden p-3 sm:p-4 md:p-6">
           <ClientCanvas />
         </div>
       </div>

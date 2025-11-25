@@ -172,6 +172,8 @@
     @apply bg-background text-foreground;
     min-height: 100%;
     width: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
   }
   /* Glass morphism utility classes */
   .glass {
