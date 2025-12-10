@@ -7,6 +7,7 @@ import { useImageStore } from '@/lib/store'
 import { Trash2, Eye, EyeOff } from 'lucide-react'
 import { getMockupDefinition } from '@/lib/constants/mockups'
 import Image from 'next/image'
+import { useWheelInput } from '@/hooks/useWheelInput'
 
 export function MockupControls() {
   const {
@@ -27,21 +28,18 @@ export function MockupControls() {
     : null
 
   const handleUpdateSize = (value: number[]) => {
-    if (selectedMockup) {
-      updateMockup(selectedMockup.id, { size: value[0] })
-    }
+    if (!selectedMockup) return;
+    updateMockup(selectedMockup.id, { size: value[0] })
   }
 
   const handleUpdateRotation = (value: number[]) => {
-    if (selectedMockup) {
-      updateMockup(selectedMockup.id, { rotation: value[0] })
-    }
+    if (!selectedMockup) return;
+    updateMockup(selectedMockup.id, { rotation: value[0] })
   }
 
   const handleUpdateOpacity = (value: number[]) => {
-    if (selectedMockup) {
-      updateMockup(selectedMockup.id, { opacity: value[0] })
-    }
+    if (!selectedMockup) return;
+    updateMockup(selectedMockup.id, { opacity: value[0] })
   }
 
   const handleToggleVisibility = (id: string) => {
@@ -52,15 +50,55 @@ export function MockupControls() {
   }
 
   const handleUpdatePosition = (axis: 'x' | 'y', value: number[]) => {
-    if (selectedMockup) {
-      updateMockup(selectedMockup.id, {
-        position: {
-          ...selectedMockup.position,
-          [axis]: value[0],
-        },
-      })
-    }
+    if (!selectedMockup) return;
+    updateMockup(selectedMockup.id, {
+      position: {
+        ...selectedMockup.position,
+        [axis]: value[0],
+      },
+    })
   }
+  
+  const { ref: sizeRef } = useWheelInput({
+    value: selectedMockup?.size ?? 600,
+    onChange: (val) => handleUpdateSize([val]),
+    min: 200,
+    max: 1200,
+    step: 10,
+  });
+  
+  const { ref: rotationRef } = useWheelInput({
+    value: selectedMockup?.rotation ?? 0,
+    onChange: (val) => handleUpdateRotation([val]),
+    min: 0,
+    max: 360,
+    step: 1,
+  });
+  
+  const { ref: opacityRef } = useWheelInput({
+    value: selectedMockup?.opacity ?? 1,
+    onChange: (val) => handleUpdateOpacity([val]),
+    min: 0,
+    max: 1,
+    step: 0.01,
+  });
+  
+  const { ref: posXRef } = useWheelInput({
+    value: selectedMockup?.position.x ?? 0,
+    onChange: (val) => handleUpdatePosition('x', [val]),
+    min: 0,
+    max: 1600,
+    step: 1,
+  });
+  
+  const { ref: posYRef } = useWheelInput({
+    value: selectedMockup?.position.y ?? 0,
+    onChange: (val) => handleUpdatePosition('y', [val]),
+    min: 0,
+    max: 1000,
+    step: 1,
+  });
+
 
   return (
     <div className="space-y-5">
@@ -150,7 +188,7 @@ export function MockupControls() {
               Edit Mockup
             </p>
 
-            <div className="p-3 rounded-xl bg-muted border border-border">
+            <div ref={sizeRef} className="p-3 rounded-xl bg-muted border border-border">
               <Slider
                 value={[selectedMockup.size]}
                 onValueChange={handleUpdateSize}
@@ -162,7 +200,7 @@ export function MockupControls() {
               />
             </div>
 
-            <div className="p-3 rounded-xl bg-muted border border-border">
+            <div ref={rotationRef} className="p-3 rounded-xl bg-muted border border-border">
               <Slider
                 value={[selectedMockup.rotation]}
                 onValueChange={handleUpdateRotation}
@@ -174,7 +212,7 @@ export function MockupControls() {
               />
             </div>
 
-            <div className="p-3 rounded-xl bg-muted border border-border">
+            <div ref={opacityRef} className="p-3 rounded-xl bg-muted border border-border">
               <Slider
                 value={[selectedMockup.opacity]}
                 onValueChange={handleUpdateOpacity}
@@ -188,7 +226,7 @@ export function MockupControls() {
 
             <div className="space-y-4">
               <p className="text-sm font-semibold text-foreground">Position</p>
-              <div className="p-3 rounded-lg bg-muted/50 border border-border/50">
+              <div ref={posXRef} className="p-3 rounded-lg bg-muted/50 border border-border/50">
                 <Slider
                   value={[selectedMockup.position.x]}
                   onValueChange={(value) => handleUpdatePosition('x', value)}
@@ -200,7 +238,7 @@ export function MockupControls() {
                 />
               </div>
 
-              <div className="p-3 rounded-lg bg-muted/50 border border-border/50">
+              <div ref={posYRef} className="p-3 rounded-lg bg-muted/50 border border-border/50">
                 <Slider
                   value={[selectedMockup.position.y]}
                   onValueChange={(value) => handleUpdatePosition('y', value)}
