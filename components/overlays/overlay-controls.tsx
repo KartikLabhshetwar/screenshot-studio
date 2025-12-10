@@ -24,33 +24,32 @@ export function OverlayControls() {
   )
 
   const handleUpdateSize = (value: number[]) => {
+    if (!selectedOverlay) return;
     if (selectedOverlay) {
       updateImageOverlay(selectedOverlay.id, { size: value[0] })
     }
   }
 
   const handleUpdateRotation = (value: number[]) => {
+    if (!selectedOverlay) return;
     if (selectedOverlay) {
       updateImageOverlay(selectedOverlay.id, { rotation: value[0] })
     }
   }
 
   const handleUpdateOpacity = (value: number[]) => {
-    if (selectedOverlay) {
-      updateImageOverlay(selectedOverlay.id, { opacity: value[0] })
-    }
+    if (!selectedOverlay) return;
+    updateImageOverlay(selectedOverlay.id, { opacity: value[0] })
   }
 
   const handleToggleFlipX = () => {
-    if (selectedOverlay) {
-      updateImageOverlay(selectedOverlay.id, { flipX: !selectedOverlay.flipX })
-    }
+    if (!selectedOverlay) return;
+    updateImageOverlay(selectedOverlay.id, { flipX: !selectedOverlay.flipX })
   }
 
   const handleToggleFlipY = () => {
-    if (selectedOverlay) {
-      updateImageOverlay(selectedOverlay.id, { flipY: !selectedOverlay.flipY })
-    }
+    if (!selectedOverlay) return;
+    updateImageOverlay(selectedOverlay.id, { flipY: !selectedOverlay.flipY })
   }
 
   const handleToggleVisibility = (id: string) => {
@@ -61,14 +60,13 @@ export function OverlayControls() {
   }
 
   const handleUpdatePosition = (axis: 'x' | 'y', value: number[]) => {
-    if (selectedOverlay) {
-      updateImageOverlay(selectedOverlay.id, {
-        position: {
-          ...selectedOverlay.position,
-          [axis]: value[0],
-        },
-      })
-    }
+    if (!selectedOverlay) return;
+    updateImageOverlay(selectedOverlay.id, {
+      position: {
+        ...selectedOverlay.position,
+        [axis]: value[0],
+      },
+    })
   }
   
   const { ref: sizeRef } = useWheelInput({

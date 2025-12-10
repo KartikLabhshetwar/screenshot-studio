@@ -28,21 +28,18 @@ export function MockupControls() {
     : null
 
   const handleUpdateSize = (value: number[]) => {
-    if (selectedMockup) {
-      updateMockup(selectedMockup.id, { size: value[0] })
-    }
+    if (!selectedMockup) return;
+    updateMockup(selectedMockup.id, { size: value[0] })
   }
 
   const handleUpdateRotation = (value: number[]) => {
-    if (selectedMockup) {
-      updateMockup(selectedMockup.id, { rotation: value[0] })
-    }
+    if (!selectedMockup) return;
+    updateMockup(selectedMockup.id, { rotation: value[0] })
   }
 
   const handleUpdateOpacity = (value: number[]) => {
-    if (selectedMockup) {
-      updateMockup(selectedMockup.id, { opacity: value[0] })
-    }
+    if (!selectedMockup) return;
+    updateMockup(selectedMockup.id, { opacity: value[0] })
   }
 
   const handleToggleVisibility = (id: string) => {
@@ -53,14 +50,13 @@ export function MockupControls() {
   }
 
   const handleUpdatePosition = (axis: 'x' | 'y', value: number[]) => {
-    if (selectedMockup) {
-      updateMockup(selectedMockup.id, {
-        position: {
-          ...selectedMockup.position,
-          [axis]: value[0],
-        },
-      })
-    }
+    if (!selectedMockup) return;
+    updateMockup(selectedMockup.id, {
+      position: {
+        ...selectedMockup.position,
+        [axis]: value[0],
+      },
+    })
   }
   
   const { ref: sizeRef } = useWheelInput({
