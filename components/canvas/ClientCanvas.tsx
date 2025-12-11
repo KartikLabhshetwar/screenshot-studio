@@ -48,6 +48,7 @@ function CanvasRenderer({ image }: { image: HTMLImageElement }) {
     mockups,
     updateTextOverlay,
     updateImageOverlay,
+    removeImageOverlay,
   } = useImageStore();
 
   const hasMockups = mockups.length > 0 && mockups.some((m) => m.isVisible);
@@ -82,6 +83,20 @@ function CanvasRenderer({ image }: { image: HTMLImageElement }) {
     containerHeight
   );
   const loadedOverlayImages = useOverlayImages(imageOverlays);
+
+  useEffect(() => {                                           // deleting overlays when backspace or delete is pressed
+    const handleKeyDown = (e: KeyboardEvent) => {            
+      if (e.key == 'Delete' || e.key == 'Backspace'){ 
+        if (selectedOverlayId){
+          e.preventDefault()
+          removeImageOverlay(selectedOverlayId);
+          setSelectedOverlayId(null);
+        }
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  },[selectedOverlayId, removeImageOverlay])
 
   useEffect(() => {
     const updateStage = () => {
