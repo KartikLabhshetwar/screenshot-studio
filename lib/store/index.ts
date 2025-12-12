@@ -2,6 +2,7 @@
 
 import React from 'react'
 import { create } from 'zustand'
+import { temporal } from 'zundo'
 import { exportImageWithGradient } from './export-utils'
 import { GradientKey } from '@/lib/constants/gradient-colors'
 import { AspectRatioKey } from '@/lib/constants/aspect-ratios'
@@ -486,7 +487,7 @@ export interface ImageState {
   exportImage: () => Promise<void>
 }
 
-export const useImageStore = create<ImageState>((set, get) => ({
+export const useImageStore = create<ImageState>()(temporal((set, get) => ({
   uploadedImageUrl: null,
   imageName: null,
   selectedGradient: 'vibrant_orange_pink',
@@ -790,3 +791,4 @@ export const useImageStore = create<ImageState>((set, get) => ({
     }
   },
 }))
+)
