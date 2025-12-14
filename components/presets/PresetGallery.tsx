@@ -191,7 +191,7 @@ export function PresetGallery({ onPresetSelect }: PresetGalleryProps) {
                         <img
                           src={previewImageUrl}
                           alt={preset.name}
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-contain"
                         />
                         {preset.imageBorder.enabled && (
                           <div
