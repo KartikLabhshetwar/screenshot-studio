@@ -6,6 +6,7 @@ import { presets, type PresetConfig } from '@/lib/constants/presets';
 import { getBackgroundCSS } from '@/lib/constants/backgrounds';
 import { getCldImageUrl } from '@/lib/cloudinary';
 import { cloudinaryPublicIds } from '@/lib/cloudinary-backgrounds';
+import { Frame3DOverlay, type FrameConfig } from '@/components/canvas/frames/Frame3DOverlay';
 import { aspectRatios } from '@/lib/constants/aspect-ratios';
 import { getAspectRatioCSS } from '@/lib/aspect-ratio-utils';
 import { cn } from '@/lib/utils';
@@ -138,7 +139,7 @@ export function PresetGallery({ onPresetSelect }: PresetGalleryProps) {
     return null;
   };
 
-  // Maps preset aspectRatio id to CSS aspect-ratio string
+// Maps preset aspectRatio id to CSS aspect-ratio string
 
   const getPresetAspectRatioCSS = (aspectRatioKey: string): string => {
     const aspectRatio = aspectRatios.find((ar) => ar.id === aspectRatioKey);
@@ -146,30 +147,75 @@ export function PresetGallery({ onPresetSelect }: PresetGalleryProps) {
     return getAspectRatioCSS(aspectRatio.width, aspectRatio.height);
   };
 
-  // Computes the visual frame style for a preset preview.
-  // Handles border padding, border radius, opacity, and optional 3D transforms
+// handler for ultra wide aspect ratios
 
-  const getImageFrameStyle = (preset: PresetConfig): React.CSSProperties => {
+  const isUltraWideAspectRatio = (aspectRatioKey: string): boolean => {
+    const ultraWideRatios = ['twitter_banner', 'linkedin_banner'];
+    return ultraWideRatios.includes(aspectRatioKey);
+  };
+
+// helper functions to calculate frame dimensions
+
+  const calculateFrameDimensions = (preset: PresetConfig) => {
     const hasFrame = preset.imageBorder.enabled && preset.imageBorder.type !== 'none';
-    const framePadding = hasFrame
-    ? preset.imageBorder.padding ?? Math.max(4, preset.imageBorder.width * 2)
-    : 0; // If a visual frame exists, we add internal padding so borders don't overlap the image
-    const frameRadius = preset.imageBorder.borderRadius ?? preset.borderRadius;
+    const imageScale = hasFrame ? preset.imageScale * 0.88 : preset.imageScale;
+    const frameOffset = hasFrame && (preset.imageBorder.type === 'arc-light' || preset.imageBorder.type === 'arc-dark')
+    ? Math.max(0, preset.imageBorder.width || 8)
+    : 0;
+
+    const isWindowFrame = ['macos-light', 'macos-dark', 'windows-light', 'windows-dark'].includes(preset.imageBorder.type);
+    const isMacosFrame = preset.imageBorder.type === 'macos-light' || preset.imageBorder.type === 'macos-dark';
+    const isWindowsFrame = preset.imageBorder.type === 'windows-light' || preset.imageBorder.type === 'windows-dark';
+    const isPhotograph = preset.imageBorder.type === 'photograph';
+
+    const polaroidPadding = 8;
+    const polaroidBottom = 60;
+    const windowPadding = hasFrame && isWindowFrame ? 0 : (hasFrame && isPhotograph ? polaroidPadding : 0);
+    const windowHeader = hasFrame && isMacosFrame ? 40 : (hasFrame && isWindowsFrame ? 28 : (hasFrame && isPhotograph ? polaroidBottom - polaroidPadding : 0));
 
     return {
-    width: `${preset.imageScale}%`,
-    aspectRatio: getPresetAspectRatioCSS(preset.aspectRatio),
-    borderRadius: `${frameRadius}px`,
-    opacity: preset.imageOpacity,
-    padding: framePadding,
-    boxSizing: 'border-box',
-    transform: preset.perspective3D ? get3DTransform(preset.perspective3D) : undefined,
-    transformStyle: preset.perspective3D ? 'preserve-3d' : undefined,
+      imageScale,
+      frameOffset,
+      windowPadding,
+      windowHeader,
+      hasFrame,
     };
   };
 
-  // Converts preset 3D config into a single CSS transform string
-  // Kept separate to avoid cluttering render logic
+// Returns the style object for the image frame preview based on preset settings
+
+  const getImageFrameStyle = (preset: PresetConfig): React.CSSProperties => {
+    const { imageScale, frameOffset, windowPadding } = calculateFrameDimensions(preset);
+    const isUltraWide = isUltraWideAspectRatio(preset.aspectRatio);
+
+    const adjustedScale = isUltraWide ? imageScale * 0.6 : imageScale;
+    const totalPadding = frameOffset + windowPadding;
+
+    return {
+      width: `${adjustedScale}%`,
+      borderRadius: `${preset.borderRadius}px`,
+      opacity: preset.imageOpacity,
+      padding: totalPadding,
+      boxSizing: 'border-box',
+      transform: preset.perspective3D ? get3DTransform(preset.perspective3D) : undefined,
+      transformStyle: preset.perspective3D ? 'preserve-3d' : undefined,
+    };
+  };
+
+// Convert preset.imageBorder to FrameConfig format
+
+  const getFrameConfig = (preset: PresetConfig): FrameConfig => {
+      return {
+        enabled: preset.imageBorder.enabled,
+        type: preset.imageBorder.type,
+        width: preset.imageBorder.width,
+        color: preset.imageBorder.color,
+        padding: preset.imageBorder.padding,
+        title: preset.imageBorder.title,
+      };
+  };
+
+// Converts preset 3D config into a single CSS transform string
 
   const get3DTransform = (perspective3D: PresetConfig["perspective3D"]) => {
     if (!perspective3D) return undefined;
@@ -185,57 +231,6 @@ export function PresetGallery({ onPresetSelect }: PresetGalleryProps) {
     return `perspective(${perspective}px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) rotateZ(${rotateZ}deg) translateX(${translateX}px) translateY(${translateY}px) scale(${scale})`;
   };
 
-  const getBorderStyle = (border: PresetConfig["imageBorder"]) => {
-    if (!border.enabled || border.type === "none") return {};
-    const baseStyle: React.CSSProperties = {
-      borderWidth: `${border.width}px`,
-      borderColor: border.color,
-    };
-
-    switch (border.type) {
-      case "glassy":
-        return {
-          ...baseStyle,
-          borderStyle: "solid",
-          backdropFilter: "blur(10px)",
-          backgroundColor: "rgba(255, 255, 255, 0.1)",
-        };
-      case "solid":
-        return {
-          ...baseStyle,
-          borderStyle: "solid",
-        };
-      case "dotted":
-        return {
-          ...baseStyle,
-          borderStyle: "dotted",
-        };
-      default:
-        return baseStyle; // For complex borders (infinite-mirror, window, etc.), use simplified CSS
-    }
-  };
-
-  // Renders a procedural SVG noise overlay to simulate film grain.
-
-  const getNoiseOverlay = (noise: number, borderRadius:number) => {
-    if (!noise || noise === 0) return null;
-    // Create a noise texture using CSS
-    const noiseOpacity = noise / 100;
-    return (
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`, 
-          opacity: noiseOpacity,
-          mixBlendMode: "overlay",
-          borderRadius: `${borderRadius}px`, 
-          overflow: 'hidden', 
-          position: 'absolute', 
-          inset: 0
-        }}
-      />
-    );
-  };
 
   const previewImageUrl = uploadedImageUrl || (screenshot?.src ?? null);
 
@@ -247,7 +242,6 @@ export function PresetGallery({ onPresetSelect }: PresetGalleryProps) {
             const isActive = isPresetActive(preset);
             const aspectRatioCSS = getPresetAspectRatioCSS(preset.aspectRatio);
             const imageFrameStyle = getImageFrameStyle(preset);
-            const borderStyle = getBorderStyle(preset.imageBorder);
 
             return (
               <button
@@ -266,12 +260,11 @@ export function PresetGallery({ onPresetSelect }: PresetGalleryProps) {
                   style={getBackgroundCSS(preset.backgroundConfig)}
                 >
                   <div
-                  className="relative w-full"
-                  style={{
-                    aspectRatio: aspectRatioCSS,
-                    borderRadius: `${preset.backgroundBorderRadius}px`,
-                  }}
-                >
+                    className="relative w-full overflow-hidden"
+                    style={{
+                      aspectRatio: aspectRatioCSS,
+                    }}
+                  >
                   <div
                     className="absolute inset-0"
                     style={getBackgroundCSS(preset.backgroundConfig)}
@@ -286,64 +279,59 @@ export function PresetGallery({ onPresetSelect }: PresetGalleryProps) {
                       }}
                     />
                   )}
-                  </div>
-                  {preset.backgroundBlur && preset.backgroundBlur > 0 && (
-                    <div
-                      className="absolute inset-0"
-                      style={{
-                      backdropFilter: `blur(${preset.backgroundBlur}px)`,
-                      borderRadius: `${preset.borderRadius}px`,
-                      overflow:'hidden'
-                      }}
-                    />
-                  )}
-                  {getNoiseOverlay(preset.backgroundNoise ?? 0, preset.borderRadius)}  
-
+                  </div> 
                   {previewImageUrl && (
                     <div
                       className="absolute inset-0 flex items-center justify-center p-4"
+                      style={{
+                        zIndex: 2,
+                        padding: isUltraWideAspectRatio(preset.aspectRatio) ? '8px' : '16',
+                      }}
                     >
                       <div
-                        className="relative overflow-hidden shadow-lg rounded-lg"
+                        className="relative overflow-hidden shadow-lg"
                         style={{
                           ...imageFrameStyle,
                           boxShadow: preset.imageShadow.enabled
                           ? `${preset.imageShadow.offsetX}px ${preset.imageShadow.offsetY}px ${preset.imageShadow.blur}px ${preset.imageShadow.spread}px ${preset.imageShadow.color}`
                           : undefined,
-                          borderRadius:`${preset.borderRadius}px`,
-                          ...borderStyle,
                         }}
                       >
-                        
-                      {/* infinite mirror effect: 
-                      the Konva version draws several expanded rectangles. for the preview we approximate the same depth effect using a small stack, of scaled border rings with decreasing opacity */}
-                       {preset.imageBorder.enabled && preset.imageBorder.type === 'infinite-mirror' && (
-                        <div className="pointer-events-none absolute inset-0">
-                          {[0, 1, 2].map((i) => (
-                           <div
-                             key={i}
-                             className="absolute inset-0 rounded-[inherit]"
-                             style={{
-                              border: `${preset.imageBorder.width}px solid ${preset.imageBorder.color}`,
-                              opacity: 0.3 - i * 0.07,
-                              transform: `scale(${1 + i * 0.06})`,
-                             }}
-                           />
-                         ))}
-                        </div>
-                        )}
-                      <div 
-                        className="w-full h-full overflow-hidden "
-                        style={{ 
-                          borderRadius: 'inherit'
-                        }}
-                      >
+                        <Frame3DOverlay
+                          frame={getFrameConfig(preset)}
+                          showFrame={preset.imageBorder.enabled && preset.imageBorder.type !== 'none'}
+                          framedW={100}
+                          framedH={100}
+                          frameOffset={calculateFrameDimensions(preset).frameOffset}
+                          windowPadding={calculateFrameDimensions(preset).windowPadding}
+                          windowHeader={calculateFrameDimensions(preset).windowHeader}
+                          eclipseBorder={0}
+                          imageScaledW={100}
+                          imageScaledH={100}
+                          screenshotRadius={preset.borderRadius - 12}
+                        />
+                        <div 
+                          className="w-full h-full overflow-hidden "
+                          style={{ 
+                            borderRadius: 'inherit',
+                            position: 'relative',
+                            zIndex: 1,
+                            paddingTop: calculateFrameDimensions(preset).windowHeader > 0 
+                            ? `${calculateFrameDimensions(preset).windowHeader}px` 
+                            : undefined,
+                          }}
+                        >
                         <img
                           src={previewImageUrl}
                           alt={preset.name}
                           className="w-full h-full object-contain"
                           style={{
-                            borderRadius:'inherit',
+                            borderRadius: preset.imageBorder.type === 'macos-light' || 
+                            preset.imageBorder.type === 'macos-dark' ||
+                            preset.imageBorder.type === 'windows-light' ||
+                            preset.imageBorder.type === 'windows-dark'
+                            ? `0 0 ${preset.borderRadius}px ${preset.borderRadius}px`
+                            : `${preset.borderRadius}px ${preset.borderRadius}px ${preset.borderRadius}px ${preset.borderRadius}px`,
                           }}
                         />
                         </div>
