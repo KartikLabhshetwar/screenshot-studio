@@ -5,7 +5,7 @@ import { useEditorStore } from "@/lib/store";
 import { useImageStore } from "@/lib/store";
 import { UploadDropzone } from "@/components/controls/UploadDropzone";
 import { Button } from "@/components/ui/button";
-import { Download, Copy, Trash2 } from "lucide-react";
+import { Download, Copy, Trash2, Plus } from "lucide-react";
 import { useExport } from "@/hooks/useExport";
 import { useState } from "react";
 import { ExportDialog } from "@/components/canvas/dialogs/ExportDialog";
@@ -117,8 +117,40 @@ export function EditorCanvas() {
               <span>Download</span>
             </Button>
 
+
             {slides.length > 0 && (
-              <Button onClick={() => setExportOpen(true)}>Export Video</Button>
+              <label className="cursor-pointer">
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  className="hidden"
+                  onChange={(e) => {
+                    if (e.target.files?.length) {
+                      useImageStore.getState().addImages(Array.from(e.target.files));
+                    }
+                  }}
+                />
+                <Button 
+                  variant="outline" 
+                  className="h-9 justify-center gap-2 rounded-lg bg-muted hover:bg-muted/80 text-foreground shadow-sm hover:shadow-md transition-all font-medium border border-border px-4" 
+                  asChild
+                >
+                  <span>
+                    <Plus className="size-4" />
+                    <span>Add Slide</span>
+                  </span>
+                </Button>
+              </label>
+            )}
+
+            {slides.length > 0 && (
+              <Button 
+                onClick={() => setExportOpen(true)}
+                className="h-9 justify-center gap-2 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm hover:shadow-md transition-all font-medium px-4"
+              >
+                Export Video
+              </Button>
             )}
 
             <ExportSlideshowDialog
