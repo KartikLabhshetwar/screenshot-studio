@@ -119,7 +119,7 @@ export function EditorCanvas() {
 
 
             {slides.length > 0 && (
-              <label className="cursor-pointer">
+              <label className="cursor-pointer inline-flex">
                 <input
                   type="file"
                   accept="image/*"
@@ -131,16 +131,10 @@ export function EditorCanvas() {
                     }
                   }}
                 />
-                <Button 
-                  variant="outline" 
-                  className="h-9 justify-center gap-2 rounded-lg bg-muted hover:bg-muted/80 text-foreground shadow-sm hover:shadow-md transition-all font-medium border border-border px-4" 
-                  asChild
-                >
-                  <span>
-                    <Plus className="size-4" />
-                    <span>Add Slide</span>
-                  </span>
-                </Button>
+                <span className="h-9 inline-flex items-center justify-center gap-2 rounded-lg bg-muted hover:bg-muted/80 text-foreground shadow-sm hover:shadow-md transition-all font-medium border border-border px-4 text-sm">
+                  <Plus className="size-4" />
+                  <span>Add Slide</span>
+                </span>
               </label>
             )}
 

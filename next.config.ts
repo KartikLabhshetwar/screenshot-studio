@@ -26,7 +26,22 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
-        source: "/:path*",
+        // Apply COEP/COOP only to editor routes that need SharedArrayBuffer
+        source: "/home/:path*",
+        headers: [
+          {
+            key: "Cross-Origin-Opener-Policy",
+            value: "same-origin",
+          },
+          {
+            key: "Cross-Origin-Embedder-Policy",
+            value: "credentialless",
+          },
+        ],
+      },
+      {
+        // Also apply to API routes
+        source: "/api/:path*",
         headers: [
           {
             key: "Cross-Origin-Opener-Policy",
