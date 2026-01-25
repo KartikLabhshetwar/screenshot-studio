@@ -336,7 +336,7 @@ export function EditorRightPanel() {
                       <Label className="text-xs font-medium text-muted-foreground">
                         Gradient
                       </Label>
-                      <div className="grid grid-cols-5 gap-2.5 max-h-64 overflow-y-auto pr-2">
+                      <div className="grid grid-cols-5 gap-2.5 max-h-64">
                         {(Object.keys(gradientColors) as GradientKey[]).map(
                           (key) => (
                             <button
