@@ -23,10 +23,12 @@ import {
 import { getBackgroundCSS } from '@/lib/constants/backgrounds';
 import { getFontCSS } from '@/lib/constants/fonts';
 import { exportWorkerService } from '@/lib/workers/export-worker-service';
+import { processWithSharp } from './sharp-client';
+import type { ExportFormat, QualityPreset } from './types';
 
 export interface ExportOptions {
-  format: 'png';
-  quality: number;
+  format: ExportFormat;
+  qualityPreset: QualityPreset;
   scale: number;
   exportWidth: number;
   exportHeight: number;
@@ -1134,9 +1136,7 @@ async function exportKonvaStage(
   stage: Konva.Stage | null,
   targetWidth: number,
   targetHeight: number,
-  scale: number,
-  format: 'png',
-  quality: number
+  scale: number
 ): Promise<HTMLCanvasElement> {
   if (!stage) {
     throw new Error('Konva stage not found');
@@ -1152,10 +1152,11 @@ async function exportKonvaStage(
 
   // Export Konva stage at its current dimensions with high pixelRatio
   // This preserves exact positioning and includes ALL layers (background, patterns, images, text, overlays)
+  // Always export as PNG for lossless quality - Sharp will handle format conversion
   const exportPixelRatio = scale * Math.max(scaleX, scaleY);
   const dataURL = stage.toDataURL({
     mimeType: 'image/png',
-    quality: quality,
+    quality: 1.0,
     pixelRatio: exportPixelRatio,
   });
 
@@ -1284,9 +1285,7 @@ export async function exportElement(
       konvaStage,
       options.exportWidth,
       options.exportHeight,
-      options.scale,
-      options.format,
-      options.quality
+      options.scale
     );
 
     // Step 2: If 3D transforms are active, capture using modern-screenshot and composite on top
@@ -1339,26 +1338,18 @@ export async function exportElement(
     // No need to composite multiple layers since everything is in Konva now
     const finalCanvas = konvaCanvas;
 
-    // Step 4: Convert to blob and data URL
-    const mimeType = 'image/png';
+    // Step 4: Process with Sharp for format conversion and quality optimization
+    const sharpResult = await processWithSharp(
+      finalCanvas,
+      options.format,
+      options.qualityPreset
+    );
 
-    const blob = await new Promise<Blob>((resolve, reject) => {
-      finalCanvas.toBlob((blob) => {
-        if (!blob) {
-          reject(new Error('Failed to create blob from canvas'));
-          return;
-        }
-        resolve(blob);
-      }, mimeType, options.quality);
-    });
-
-    const dataURL = finalCanvas.toDataURL(mimeType, options.quality);
-
-    if (!dataURL || dataURL === 'data:,') {
+    if (!sharpResult.dataURL || sharpResult.dataURL === 'data:,') {
       throw new Error('Failed to generate image data URL');
     }
 
-    return { dataURL, blob };
+    return { dataURL: sharpResult.dataURL, blob: sharpResult.blob };
   } catch (error) {
     console.error('Export failed:', error);
     throw error;

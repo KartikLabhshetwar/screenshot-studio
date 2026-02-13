@@ -11,16 +11,17 @@ import { saveExportPreferences, getExportPreferences, saveExportedImage } from '
 import { useImageStore, useEditorStore } from '@/lib/store';
 import { getKonvaStage } from '@/components/canvas/ClientCanvas';
 import { trackEvent } from '@/lib/analytics';
+import type { ExportFormat, QualityPreset } from '@/lib/export/types';
 
 export interface ExportSettings {
-  format: 'png';
-  quality: number;
+  format: ExportFormat;
+  qualityPreset: QualityPreset;
   scale: number;
 }
 
 const DEFAULT_SETTINGS: ExportSettings = {
   format: 'png',
-  quality: 0.95,
+  qualityPreset: 'high',
   scale: 3,
 };
 
@@ -38,8 +39,8 @@ export function useExport(selectedAspectRatio: string) {
         const prefs = await getExportPreferences();
         if (prefs) {
           setSettings({
-            format: prefs.format,
-            quality: prefs.quality,
+            format: (prefs.format as ExportFormat) || 'png',
+            qualityPreset: (prefs.qualityPreset as QualityPreset) || 'high',
             scale: prefs.scale,
           });
         }
@@ -56,7 +57,7 @@ export function useExport(selectedAspectRatio: string) {
     try {
       await saveExportPreferences({
         format: newSettings.format,
-        quality: newSettings.quality,
+        qualityPreset: newSettings.qualityPreset,
         scale: newSettings.scale,
       });
     } catch (error) {
@@ -64,14 +65,14 @@ export function useExport(selectedAspectRatio: string) {
     }
   }, []);
 
-  const updateFormat = useCallback(async (format: 'png') => {
+  const updateFormat = useCallback(async (format: ExportFormat) => {
     const newSettings = { ...settings, format };
     setSettings(newSettings);
     await savePreferences(newSettings);
   }, [settings, savePreferences]);
 
-  const updateQuality = useCallback(async (quality: number) => {
-    const newSettings = { ...settings, quality };
+  const updateQualityPreset = useCallback(async (qualityPreset: QualityPreset) => {
+    const newSettings = { ...settings, qualityPreset };
     setSettings(newSettings);
     await savePreferences(newSettings);
   }, [settings, savePreferences]);
@@ -97,7 +98,7 @@ export function useExport(selectedAspectRatio: string) {
 
       const exportOptions: ExportOptions = {
         format: settings.format,
-        quality: settings.quality,
+        qualityPreset: settings.qualityPreset,
         scale: settings.scale,
         exportWidth: preset.width,
         exportHeight: preset.height,
@@ -123,13 +124,16 @@ export function useExport(selectedAspectRatio: string) {
         throw new Error('Invalid image data generated');
       }
 
+      // Determine file extension
+      const fileExtension = settings.format === 'jpeg' ? 'jpg' : 'png';
+      const fileName = `stage-${Date.now()}.${fileExtension}`;
+
       // Save blob to IndexedDB for high-quality storage
-      const fileName = `stage-${Date.now()}.${settings.format}`;
       try {
         await saveExportedImage(
           result.blob,
           settings.format,
-          settings.quality,
+          settings.qualityPreset,
           settings.scale,
           fileName
         );
@@ -141,7 +145,7 @@ export function useExport(selectedAspectRatio: string) {
       // Track export event
       trackEvent('image_exported', {
         format: settings.format,
-        quality: settings.quality,
+        qualityPreset: settings.qualityPreset,
         scale: settings.scale,
         aspectRatio: selectedAspectRatio,
         width: preset.width,
@@ -204,7 +208,7 @@ export function useExport(selectedAspectRatio: string) {
 
       const exportOptions: ExportOptions = {
         format: 'png', // Always use PNG for clipboard to preserve transparency
-        quality: 1.0,
+        qualityPreset: 'high', // Use highest quality for clipboard
         scale: 5,
         exportWidth: preset.width,
         exportHeight: preset.height,
@@ -308,7 +312,7 @@ export function useExport(selectedAspectRatio: string) {
     settings,
     isExporting,
     updateFormat,
-    updateQuality,
+    updateQualityPreset,
     updateScale,
     exportImage,
     copyImage,

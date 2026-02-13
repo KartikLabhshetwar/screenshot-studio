@@ -52,6 +52,8 @@ export function EditorCanvas() {
     settings: exportSettings,
     exportImage,
     updateScale,
+    updateFormat,
+    updateQualityPreset,
   } = useExport(selectedAspectRatio);
 
   React.useEffect(() => {
@@ -179,8 +181,12 @@ export function EditorCanvas() {
         onOpenChange={setExportDialogOpen}
         onExport={() => exportImage().then(() => {})}
         scale={exportSettings.scale}
+        format={exportSettings.format}
+        qualityPreset={exportSettings.qualityPreset}
         isExporting={isExporting}
         onScaleChange={updateScale}
+        onFormatChange={updateFormat}
+        onQualityPresetChange={updateQualityPreset}
       />
       {slides.length > 1 && (
         <div className="border-t bg-background p-2 absolute bottom-0 left-0 right-0 overflow-x-auto">

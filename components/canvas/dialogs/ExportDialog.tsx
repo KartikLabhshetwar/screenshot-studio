@@ -3,24 +3,33 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { ScaleSlider } from "@/components/export";
+import { ScaleSlider, FormatSelector, QualityPresetSelector } from "@/components/export";
+import type { ExportFormat, QualityPreset } from "@/lib/export/types";
 
 interface ExportDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onExport: () => Promise<void>;
   scale: number;
+  format: ExportFormat;
+  qualityPreset: QualityPreset;
   isExporting: boolean;
   onScaleChange: (scale: number) => void;
+  onFormatChange: (format: ExportFormat) => void;
+  onQualityPresetChange: (preset: QualityPreset) => void;
 }
 
-export function ExportDialog({ 
-  open, 
-  onOpenChange, 
+export function ExportDialog({
+  open,
+  onOpenChange,
   onExport,
   scale,
+  format,
+  qualityPreset,
   isExporting,
   onScaleChange,
+  onFormatChange,
+  onQualityPresetChange,
 }: ExportDialogProps) {
   const [error, setError] = useState<string | null>(null);
 
@@ -35,6 +44,8 @@ export function ExportDialog({
     }
   };
 
+  const formatLabel = format === 'jpeg' ? 'JPEG' : 'PNG';
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
@@ -42,6 +53,12 @@ export function ExportDialog({
           <DialogTitle className="text-lg sm:text-xl font-semibold text-foreground">Export Canvas</DialogTitle>
         </DialogHeader>
         <div className="space-y-4 sm:space-y-5">
+          <FormatSelector format={format} onFormatChange={onFormatChange} />
+          <QualityPresetSelector
+            qualityPreset={qualityPreset}
+            format={format}
+            onQualityPresetChange={onQualityPresetChange}
+          />
           <ScaleSlider scale={scale} onScaleChange={onScaleChange} />
 
           {error && (
@@ -57,7 +74,7 @@ export function ExportDialog({
             showArrow={false}
             className="w-full"
           >
-            {isExporting ? "Exporting..." : "Export as PNG"}
+            {isExporting ? "Exporting..." : `Export as ${formatLabel}`}
           </Button>
         </div>
       </DialogContent>

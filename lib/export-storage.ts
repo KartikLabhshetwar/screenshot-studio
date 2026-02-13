@@ -2,16 +2,18 @@
  * IndexedDB utility for storing exported images and user preferences
  */
 
+import type { ExportFormat, QualityPreset } from './export/types';
+
 const DB_NAME = "stage-exports";
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 const EXPORTS_STORE = "exports";
 const PREFS_STORE = "preferences";
 
 interface ExportEntry {
   id: string;
   blob: Blob;
-  format: "png";
-  quality: number;
+  format: ExportFormat;
+  qualityPreset: QualityPreset;
   scale: number;
   timestamp: number;
   fileName: string;
@@ -19,8 +21,8 @@ interface ExportEntry {
 
 interface ExportPreferences {
   id: "export-preferences";
-  format: "png";
-  quality: number;
+  format: ExportFormat;
+  qualityPreset: QualityPreset;
   scale: number;
 }
 
@@ -98,23 +100,23 @@ export async function getExportPreferences(): Promise<ExportPreferences | null> 
  */
 export async function saveExportedImage(
   blob: Blob,
-  format: "png",
-  quality: number,
+  format: ExportFormat,
+  qualityPreset: QualityPreset,
   scale: number,
   fileName: string
 ): Promise<string> {
   const db = await openDB();
   const id = `export-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-  
+
   return new Promise((resolve, reject) => {
     const transaction = db.transaction([EXPORTS_STORE], "readwrite");
     const store = transaction.objectStore(EXPORTS_STORE);
-    
+
     const entry: ExportEntry = {
       id,
       blob,
       format,
-      quality,
+      qualityPreset,
       scale,
       timestamp: Date.now(),
       fileName,

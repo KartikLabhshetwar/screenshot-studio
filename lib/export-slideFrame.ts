@@ -16,7 +16,7 @@ export async function exportSlideFrame(): Promise<HTMLImageElement> {
     "image-render-card",
     {
       format: "png",
-      quality: 1,
+      qualityPreset: "high",
       scale: 1,
       exportWidth: preset.width,
       exportHeight: preset.height,
