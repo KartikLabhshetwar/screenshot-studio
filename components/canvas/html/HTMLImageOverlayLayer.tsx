@@ -88,7 +88,7 @@ function DraggableImage({
     overlay.flipY ? 'scaleY(-1)' : '',
   ].filter(Boolean).join(' ');
 
-  // Shadows are decorative and should not block other overlays
+  // Shadows are decorative and should cover the entire canvas
   if (isShadow) {
     return (
       <div
@@ -96,12 +96,7 @@ function DraggableImage({
         data-image-overlay-id={overlay.id}
         style={{
           position: 'absolute',
-          left: `${overlay.position.x}px`,
-          top: `${overlay.position.y}px`,
-          width: `${overlay.size}px`,
-          height: `${overlay.size}px`,
-          transform: `translate(-50%, -50%) ${transform}`,
-          transformOrigin: 'center center',
+          inset: 0, // Fill entire canvas
           opacity: overlay.opacity,
           userSelect: 'none',
           zIndex: 5, // Low z-index for shadows (above background, below image)
@@ -115,7 +110,7 @@ function DraggableImage({
           style={{
             width: '100%',
             height: '100%',
-            objectFit: 'contain',
+            objectFit: 'cover', // Cover entire canvas, may crop but ensures full coverage
             display: 'block',
           }}
         />
