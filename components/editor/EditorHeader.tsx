@@ -1,58 +1,131 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import Link from "next/link";
-import Image from "next/image";
-import { SidebarTrigger } from "@/components/ui/sidebar";
-import { FaGithub } from "react-icons/fa";
-import { cn } from "@/lib/utils";
+import * as React from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
+import { FaXTwitter, FaGithub } from 'react-icons/fa6';
+import { Button } from '@/components/ui/button';
+import {
+  Download04Icon,
+  Copy01Icon,
+  AspectRatioIcon,
+} from 'hugeicons-react';
+import { useEditorStore, useImageStore } from '@/lib/store';
+import { useExport } from '@/hooks/useExport';
+import { aspectRatios } from '@/lib/constants/aspect-ratios';
+import { AspectRatioPicker } from '@/components/aspect-ratio/aspect-ratio-picker';
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from '@/components/ui/popover';
+import { ExportDialog } from '@/components/canvas/dialogs/ExportDialog';
 
-interface EditorHeaderProps {
-  className?: string;
-}
+export function EditorHeader() {
+  const { screenshot } = useEditorStore();
+  const { uploadedImageUrl, selectedAspectRatio } = useImageStore();
+  const [aspectRatioOpen, setAspectRatioOpen] = React.useState(false);
+  const [exportDialogOpen, setExportDialogOpen] = React.useState(false);
 
-export function EditorHeader({ className }: EditorHeaderProps) {
+  const currentAspectRatio = aspectRatios.find((ar) => ar.id === selectedAspectRatio);
+  const hasImage = !!screenshot.src;
+
+  const {
+    copyImage,
+    isExporting,
+    settings: exportSettings,
+    exportImage,
+    updateScale,
+    updateFormat,
+    updateQualityPreset,
+  } = useExport(selectedAspectRatio);
+
   return (
-    <header
-      className={cn(
-        "sticky top-0 z-40 w-full border-b border-border/50 bg-background/95 backdrop-blur-xl",
-        "supports-backdrop-filter:bg-background/90",
-        className
-      )}
-    >
-      <div className="container mx-auto px-4 sm:px-5 lg:px-6">
-        <div className="flex h-14 sm:h-16 items-center gap-3 sm:gap-4">
-          <SidebarTrigger className="transition-opacity hover:opacity-80 touch-manipulation rounded-lg" />
-          
-          <Link href="/landing" className="flex items-center transition-opacity hover:opacity-80 rounded-lg p-1">
-            <Image 
-              src="/logo.png" 
-              alt="Stage" 
-              width={32} 
-              height={32}
-              className="h-7 w-7 sm:h-8 sm:w-8"
-            />
-          </Link>
+    <>
+      <header className="h-14 bg-surface-2 border-b border-border/40 flex items-center justify-between px-4 shrink-0">
+        {/* Left - Logo */}
+        <Link href="/" className="flex items-center gap-2.5 hover:opacity-80 transition-opacity">
+          <Image
+            src="/logo.png"
+            alt="Stage"
+            width={28}
+            height={28}
+            className="h-7 w-7"
+          />
+          <span className="text-sm font-semibold text-foreground/90 hidden sm:block">Stage</span>
+        </Link>
 
-          <div className="flex-1" />
+        {/* Center - Action Buttons */}
+        <div className="flex items-center gap-2">
+          <Button
+            onClick={() => setExportDialogOpen(true)}
+            disabled={!hasImage}
+            variant="outline"
+            className="h-9 justify-center gap-2 rounded-lg font-medium px-4"
+          >
+            <Download04Icon size={16} />
+            <span>Save</span>
+          </Button>
 
-          <div className="flex items-center gap-2 sm:gap-3">
-            <a
-              href="https://github.com/KartikLabhshetwar/stage"
-              target="_blank"
-              rel="noopener noreferrer"
-              className={cn(
-                "p-2 rounded-lg transition-all touch-manipulation",
-                "hover:bg-accent text-muted-foreground hover:text-foreground hover:shadow-sm"
-              )}
-              aria-label="GitHub repository"
-            >
-              <FaGithub className="h-5 w-5 sm:h-5 sm:w-5 text-current" />
-            </a>
-          </div>
+          <Button
+            onClick={() => copyImage()}
+            disabled={!hasImage || isExporting}
+            variant="outline"
+            className="h-9 justify-center gap-2 rounded-lg font-medium px-4"
+          >
+            <Copy01Icon size={16} />
+            <span>Copy</span>
+          </Button>
+
+          <Popover open={aspectRatioOpen} onOpenChange={setAspectRatioOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className="h-9 justify-center gap-2 rounded-lg font-medium px-4 bg-muted/50"
+              >
+                <AspectRatioIcon size={16} />
+                <span>{currentAspectRatio ? `${currentAspectRatio.width}:${currentAspectRatio.height}` : 'auto'}</span>
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="p-0 w-[420px] max-h-[600px]" align="center">
+              <AspectRatioPicker onSelect={() => setAspectRatioOpen(false)} />
+            </PopoverContent>
+          </Popover>
         </div>
-      </div>
-    </header>
+
+        {/* Right - Social Links */}
+        <div className="flex items-center gap-1">
+          <a
+            href="https://github.com/KartikLabhshetwar/stage"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="p-2 hover:bg-muted rounded-lg transition-colors text-muted-foreground hover:text-foreground"
+          >
+            <FaGithub className="h-4 w-4" />
+          </a>
+          <a
+            href="https://x.com/code_kartik"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="p-2 hover:bg-muted rounded-lg transition-colors text-muted-foreground hover:text-foreground"
+          >
+            <FaXTwitter className="h-4 w-4" />
+          </a>
+        </div>
+      </header>
+
+      <ExportDialog
+        open={exportDialogOpen}
+        onOpenChange={setExportDialogOpen}
+        onExport={() => exportImage().then(() => {})}
+        scale={exportSettings.scale}
+        format={exportSettings.format}
+        qualityPreset={exportSettings.qualityPreset}
+        isExporting={isExporting}
+        onScaleChange={updateScale}
+        onFormatChange={updateFormat}
+        onQualityPresetChange={updateQualityPreset}
+      />
+    </>
   );
 }
-

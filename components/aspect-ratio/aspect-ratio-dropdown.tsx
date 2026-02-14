@@ -8,7 +8,7 @@ import { useImageStore } from '@/lib/store';
 import { AspectRatioPicker } from './aspect-ratio-picker';
 import { Button } from '@/components/ui/button';
 import * as React from 'react';
-import { ChevronDown } from 'lucide-react';
+import { ArrowDown01Icon } from 'hugeicons-react';
 
 const popularRatios = ['1_1', '9_16', '16_9', '4_5', 'og_image'];
 
@@ -48,7 +48,7 @@ export const AspectRatioDropdown = () => {
                 </div>
               </div>
             </div>
-            <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0 ml-2" />
+            <ArrowDown01Icon size={16} className="text-muted-foreground shrink-0 ml-2" />
           </Button>
         </PopoverTrigger>
 

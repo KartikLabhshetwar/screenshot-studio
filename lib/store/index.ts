@@ -636,13 +636,26 @@ export const useImageStore = create<ImageState>()(
     },
 
     clearImage: () => {
-      const { uploadedImageUrl } = get();
+      const { uploadedImageUrl, slides } = get();
+      // Revoke main image URL
       if (uploadedImageUrl) {
         URL.revokeObjectURL(uploadedImageUrl);
       }
+      // Revoke all slide URLs to prevent memory leaks
+      slides.forEach((slide) => {
+        if (slide.src) {
+          URL.revokeObjectURL(slide.src);
+        }
+      });
+      // Clear everything including slides to allow fresh uploads
       set({
         uploadedImageUrl: null,
         imageName: null,
+        slides: [],
+        activeSlideId: null,
+        isPreviewing: false,
+        previewIndex: 0,
+        previewStartedAt: null,
       });
     },
 

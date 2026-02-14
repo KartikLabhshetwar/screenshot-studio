@@ -1,113 +1,84 @@
 /**
- * IndexedDB utility for storing and retrieving image blobs
- * This maintains full image quality while providing persistence
+ * Simple localStorage utility for storing small image blobs as base64
+ * For larger images, the blob URL will be used directly (not persisted across sessions)
  */
 
-const DB_NAME = "canvas-images";
-const DB_VERSION = 1;
-const STORE_NAME = "images";
-
-interface ImageStorageEntry {
-  id: string;
-  blob: Blob;
-  type: string;
-  timestamp: number;
-}
+const STORAGE_KEY_PREFIX = 'stage-img-';
+const MAX_IMAGE_SIZE = 500 * 1024; // 500KB limit per image to avoid quota issues
 
 /**
- * Initialize IndexedDB database
+ * Convert blob to base64 string
  */
-async function openDB(): Promise<IDBDatabase> {
+async function blobToBase64(blob: Blob): Promise<string> {
   return new Promise((resolve, reject) => {
-    const request = indexedDB.open(DB_NAME, DB_VERSION);
-
-    request.onerror = () => reject(request.error);
-    request.onsuccess = () => resolve(request.result);
-
-    request.onupgradeneeded = (event) => {
-      const db = (event.target as IDBOpenDBRequest).result;
-      if (!db.objectStoreNames.contains(STORE_NAME)) {
-        db.createObjectStore(STORE_NAME, { keyPath: "id" });
-      }
-    };
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
   });
 }
 
 /**
- * Save an image blob to IndexedDB
- * Returns a unique ID for the image
+ * Save an image blob to localStorage (if small enough)
+ * Returns the imageId for retrieval
  */
 export async function saveImageBlob(
   blob: Blob,
   imageId: string
 ): Promise<string> {
-  const db = await openDB();
+  // Only persist small images to avoid localStorage quota issues
+  if (blob.size > MAX_IMAGE_SIZE) {
+    console.warn(`Image ${imageId} too large for localStorage (${blob.size} bytes), skipping persistence`);
+    return imageId;
+  }
 
-  return new Promise((resolve, reject) => {
-    const transaction = db.transaction([STORE_NAME], "readwrite");
-    const store = transaction.objectStore(STORE_NAME);
-
-    const entry: ImageStorageEntry = {
-      id: imageId,
-      blob: blob,
-      type: blob.type,
-      timestamp: Date.now(),
-    };
-
-    const request = store.put(entry);
-
-    request.onsuccess = () => resolve(imageId);
-    request.onerror = () => reject(request.error);
-  });
+  try {
+    const base64 = await blobToBase64(blob);
+    localStorage.setItem(`${STORAGE_KEY_PREFIX}${imageId}`, base64);
+    return imageId;
+  } catch (error) {
+    console.warn('Failed to save image to localStorage:', error);
+    return imageId;
+  }
 }
 
 /**
- * Retrieve an image blob from IndexedDB
+ * Retrieve an image blob from localStorage
  */
 export async function getImageBlob(imageId: string): Promise<Blob | null> {
-  const db = await openDB();
+  try {
+    const base64 = localStorage.getItem(`${STORAGE_KEY_PREFIX}${imageId}`);
+    if (!base64) return null;
 
-  return new Promise((resolve, reject) => {
-    const transaction = db.transaction([STORE_NAME], "readonly");
-    const store = transaction.objectStore(STORE_NAME);
-    const request = store.get(imageId);
-
-    request.onsuccess = () => {
-      const entry = request.result as ImageStorageEntry | undefined;
-      resolve(entry?.blob || null);
-    };
-
-    request.onerror = () => reject(request.error);
-  });
+    // Convert base64 back to blob
+    const response = await fetch(base64);
+    return response.blob();
+  } catch (error) {
+    console.warn('Failed to get image from localStorage:', error);
+    return null;
+  }
 }
 
 /**
- * Delete an image blob from IndexedDB
+ * Delete an image blob from localStorage
  */
 export async function deleteImageBlob(imageId: string): Promise<void> {
-  const db = await openDB();
-
-  return new Promise((resolve, reject) => {
-    const transaction = db.transaction([STORE_NAME], "readwrite");
-    const store = transaction.objectStore(STORE_NAME);
-    const request = store.delete(imageId);
-
-    request.onsuccess = () => resolve();
-    request.onerror = () => reject(request.error);
-  });
+  try {
+    localStorage.removeItem(`${STORAGE_KEY_PREFIX}${imageId}`);
+  } catch (error) {
+    console.warn('Failed to delete image from localStorage:', error);
+  }
 }
 
 /**
- * Check if an image exists in IndexedDB
+ * Check if an image exists in localStorage
  */
 export async function hasImageBlob(imageId: string): Promise<boolean> {
-  const blob = await getImageBlob(imageId);
-  return blob !== null;
+  return localStorage.getItem(`${STORAGE_KEY_PREFIX}${imageId}`) !== null;
 }
 
 /**
  * Generate a blob URL from a stored image ID
- * This recreates the blob URL from the stored blob
  */
 export async function getBlobUrlFromStored(
   imageId: string
@@ -121,18 +92,12 @@ export async function getBlobUrlFromStored(
  * Get all stored image IDs
  */
 export async function getAllImageIds(): Promise<string[]> {
-  const db = await openDB();
-
-  return new Promise((resolve, reject) => {
-    const transaction = db.transaction([STORE_NAME], "readonly");
-    const store = transaction.objectStore(STORE_NAME);
-    const request = store.getAllKeys();
-
-    request.onsuccess = () => {
-      const keys = request.result as string[];
-      resolve(keys);
-    };
-
-    request.onerror = () => reject(request.error);
-  });
+  const ids: string[] = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key?.startsWith(STORAGE_KEY_PREFIX)) {
+      ids.push(key.replace(STORAGE_KEY_PREFIX, ''));
+    }
+  }
+  return ids;
 }

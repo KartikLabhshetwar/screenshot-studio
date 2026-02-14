@@ -1,6 +1,11 @@
 "use client";
 
-import { Loader2, Check, Clock, Trash2 } from "lucide-react";
+import {
+  Loading03Icon,
+  CheckmarkCircle02Icon,
+  Clock01Icon,
+  Delete02Icon,
+} from "hugeicons-react";
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
@@ -41,12 +46,12 @@ export function DraftIndicator({
 
   const getIcon = () => {
     if (isSaving) {
-      return <Loader2 className="size-3 animate-spin" />;
+      return <Loading03Icon size={12} className="animate-spin" />;
     }
     if (lastSaved) {
-      return <Check className="size-3" />;
+      return <CheckmarkCircle02Icon size={12} />;
     }
-    return <Clock className="size-3" />;
+    return <Clock01Icon size={12} />;
   };
 
   return (
@@ -73,7 +78,7 @@ export function DraftIndicator({
               size="sm"
               className="h-7 px-2 text-xs text-destructive hover:text-primary  hover:bg-secondary/10"
             >
-              <Trash2 className="size-3 mr-1" />
+              <Delete02Icon size={12} className="mr-1" />
               <span className="hidden sm:inline">Clear Draft</span>
             </Button>
           </AlertDialogTrigger>

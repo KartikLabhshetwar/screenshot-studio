@@ -1,6 +1,6 @@
 'use client';
 
-import { Layer, Group, Image as KonvaImage, Transformer } from 'react-konva';
+import { Layer, Group, Image as KonvaImage, Transformer, Rect } from 'react-konva';
 import Konva from 'konva';
 import { useRef, useEffect } from 'react';
 import { FrameRenderer } from '../frames/FrameRenderer';
@@ -137,6 +137,25 @@ export function MainImageLayer({
           has3DTransform={has3DTransform}
         />
 
+        {/* Arc frame border - rendered BEFORE image so image covers inner overlap */}
+        {showFrame && !has3DTransform && (frame.type === 'arc-light' || frame.type === 'arc-dark') && (() => {
+          const strokeWidth = frame.width || 6;
+          const halfStroke = strokeWidth / 2;
+          return (
+            <Rect
+              x={frameOffset + windowPadding - halfStroke}
+              y={frameOffset + windowPadding + windowHeader - halfStroke}
+              width={imageScaledW + strokeWidth}
+              height={imageScaledH + strokeWidth}
+              stroke={frame.type === 'arc-light' ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.7)'}
+              strokeWidth={strokeWidth}
+              cornerRadius={screenshot.radius + halfStroke}
+              fillEnabled={false}
+              listening={false}
+            />
+          );
+        })()}
+
         <KonvaImage
           ref={mainImageRef}
           image={image}
@@ -181,6 +200,7 @@ export function MainImageLayer({
           }}
           {...shadowProps}
         />
+
       </Group>
       <Transformer
         ref={mainImageTransformerRef}

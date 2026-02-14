@@ -1,6 +1,6 @@
 'use client';
 
-import { Frame3DOverlay, type FrameConfig } from '../frames/Frame3DOverlay';
+import { Frame3DOverlay, getFrameImageStyle, type FrameConfig } from '../frames/Frame3DOverlay';
 import { type ShadowConfig } from '../utils/shadow-utils';
 
 export interface Perspective3DConfig {
@@ -179,6 +179,8 @@ export function Perspective3DOverlay({
                 showFrame && (frame.type === 'macos-light' || frame.type === 'macos-dark' || frame.type === 'windows-light' || frame.type === 'windows-dark')
                   ? `0 0 ${screenshot.radius}px ${screenshot.radius}px`
                   : `${screenshot.radius}px`,
+              // Apply frame border directly to image (arc, polaroid)
+              ...(showFrame && getFrameImageStyle(frame, screenshot.radius)),
             }}
           />
         </div>

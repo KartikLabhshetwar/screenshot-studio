@@ -95,14 +95,18 @@ export function calculateCanvasDimensions(
   const isWindowsFrame = frame.type === 'windows-light' || frame.type === 'windows-dark';
   const isPhotograph = frame.type === 'photograph';
 
-  const frameOffset =
-    showFrame && (frame.type === 'arc-light' || frame.type === 'arc-dark')
-      ? Math.max(0, frame.width || 8)
-      : 0;
-  const polaroidPadding = 8;
-  const polaroidBottom = 60;
-  const windowPadding = showFrame && isWindowFrame ? 0 : (showFrame && isPhotograph ? polaroidPadding : 0);
-  const windowHeader = showFrame && isMacosFrame ? 40 : (showFrame && isWindowsFrame ? 28 : (showFrame && isPhotograph ? polaroidBottom - polaroidPadding : 0));
+  // No frameOffset - borders are applied directly to image elements
+  const frameOffset = 0;
+
+  // Polaroid needs padding for the white border (8px sides/top)
+  const windowPadding = showFrame && isPhotograph ? 8 : 0;
+
+  // Header/footer height:
+  // - macOS: 22px title bar
+  // - Windows: 28px title bar
+  // - Polaroid: 16px extra bottom (24px total bottom - 8px already in windowPadding)
+  const windowHeader = showFrame && isMacosFrame ? 22 : (showFrame && isWindowsFrame ? 28 : (showFrame && isPhotograph ? 16 : 0));
+
   const eclipseBorder = 0;
 
   const framedW =

@@ -3,115 +3,207 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/*
+ * Minimal Dark Color Palette
+ * Ultra-dark monochromatic theme with subtle depth
+ * Inspired by modern editor aesthetics
+ */
+
 :root {
-  --background: oklch(1.0000 0 0);
-  --foreground: oklch(0.2686 0 0);
-  --card: oklch(1.0000 0 0);
-  --card-foreground: oklch(0.2686 0 0);
-  --popover: oklch(1.0000 0 0);
-  --popover-foreground: oklch(0.2686 0 0);
-  --primary: oklch(0.7686 0.1647 70.0804);
-  --primary-foreground: oklch(0 0 0);
-  --secondary: oklch(0.9670 0.0029 264.5419);
-  --secondary-foreground: oklch(0.4461 0.0263 256.8018);
-  --muted: oklch(0.9846 0.0017 247.8389);
-  --muted-foreground: oklch(0.5510 0.0234 264.3637);
-  --accent: oklch(0.9869 0.0214 95.2774);
-  --accent-foreground: oklch(0.4732 0.1247 46.2007);
-  --destructive: oklch(0.6368 0.2078 25.3313);
-  --destructive-foreground: oklch(1.0000 0 0);
-  --border: oklch(0.9276 0.0058 264.5313);
-  --input: oklch(0.9276 0.0058 264.5313);
-  --ring: oklch(0.7686 0.1647 70.0804);
-  --chart-1: oklch(0.7686 0.1647 70.0804);
-  --chart-2: oklch(0.6658 0.1574 58.3183);
-  --chart-3: oklch(0.5553 0.1455 48.9975);
-  --chart-4: oklch(0.4732 0.1247 46.2007);
-  --chart-5: oklch(0.4137 0.1054 45.9038);
-  --sidebar: oklch(0.9846 0.0017 247.8389);
-  --sidebar-foreground: oklch(0.2686 0 0);
-  --sidebar-primary: oklch(0.7686 0.1647 70.0804);
-  --sidebar-primary-foreground: oklch(1.0000 0 0);
-  --sidebar-accent: oklch(0.9869 0.0214 95.2774);
-  --sidebar-accent-foreground: oklch(0.4732 0.1247 46.2007);
-  --sidebar-border: oklch(0.9276 0.0058 264.5313);
-  --sidebar-ring: oklch(0.7686 0.1647 70.0804);
-  --font-sans: Inter, sans-serif;
+  /* Light mode - clean and minimal */
+  --background: #ffffff;
+  --foreground: #1a1a1a;
+  --card: #ffffff;
+  --card-foreground: #1a1a1a;
+  --popover: #ffffff;
+  --popover-foreground: #1a1a1a;
+  --primary: #1a1a1a;
+  --primary-foreground: #ffffff;
+  --secondary: #f5f5f5;
+  --secondary-foreground: #1a1a1a;
+  --muted: #f0f0f0;
+  --muted-foreground: #6b6b6b;
+  --accent: #f5f5f5;
+  --accent-foreground: #1a1a1a;
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+  --border: #e5e5e5;
+  --input: #e5e5e5;
+  --ring: #1a1a1a;
+
+  /* Surface levels for light mode */
+  --surface-1: #fafafa;
+  --surface-2: #f5f5f5;
+  --surface-3: #ebebeb;
+  --surface-4: #e0e0e0;
+  --surface-5: #c4c4c4;
+  --surface-6: #a3a3a3;
+
+  /* Text colors for light mode */
+  --text-primary: #1a1a1a;
+  --text-secondary: #4a4a4a;
+  --text-tertiary: #737373;
+  --text-muted: #a3a3a3;
+
+  /* Border variations for light mode */
+  --border-subtle: rgba(0, 0, 0, 0.04);
+  --border-default: rgba(0, 0, 0, 0.08);
+  --border-strong: rgba(0, 0, 0, 0.15);
+
+  /* Traffic lights */
+  --traffic-red: #ff5f57;
+  --traffic-yellow: #febc2e;
+  --traffic-green: #28c941;
+
+  /* Charts - grayscale */
+  --chart-1: #1a1a1a;
+  --chart-2: #4a4a4a;
+  --chart-3: #737373;
+  --chart-4: #a3a3a3;
+  --chart-5: #d4d4d4;
+
+  /* Sidebar */
+  --sidebar: #fafafa;
+  --sidebar-foreground: #1a1a1a;
+  --sidebar-primary: #1a1a1a;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f0f0f0;
+  --sidebar-accent-foreground: #1a1a1a;
+  --sidebar-border: #e5e5e5;
+  --sidebar-ring: #1a1a1a;
+
+  /* Typography */
+  --font-sans: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-serif: Source Serif 4, serif;
   --font-mono: JetBrains Mono, monospace;
-  --radius: 0.375rem;
-  --shadow-x: 0px;
-  --shadow-y: 4px;
-  --shadow-blur: 8px;
-  --shadow-spread: -1px;
-  --shadow-opacity: 0.1;
-  --shadow-color: hsl(0 0% 0%);
-  --shadow-2xs: 0px 4px 8px -1px hsl(0 0% 0% / 0.05);
-  --shadow-xs: 0px 4px 8px -1px hsl(0 0% 0% / 0.05);
-  --shadow-sm: 0px 4px 8px -1px hsl(0 0% 0% / 0.10), 0px 1px 2px -2px hsl(0 0% 0% / 0.10);
-  --shadow: 0px 4px 8px -1px hsl(0 0% 0% / 0.10), 0px 1px 2px -2px hsl(0 0% 0% / 0.10);
-  --shadow-md: 0px 4px 8px -1px hsl(0 0% 0% / 0.10), 0px 2px 4px -2px hsl(0 0% 0% / 0.10);
-  --shadow-lg: 0px 4px 8px -1px hsl(0 0% 0% / 0.10), 0px 4px 6px -2px hsl(0 0% 0% / 0.10);
-  --shadow-xl: 0px 4px 8px -1px hsl(0 0% 0% / 0.10), 0px 8px 10px -2px hsl(0 0% 0% / 0.10);
-  --shadow-2xl: 0px 4px 8px -1px hsl(0 0% 0% / 0.25);
+
+  --radius: 0.5rem;
+
+  /* Shadows - light mode */
+  --shadow-color: 0 0% 0%;
+  --shadow-2xs: 0px 1px 2px hsl(var(--shadow-color) / 0.03);
+  --shadow-xs: 0px 2px 4px hsl(var(--shadow-color) / 0.04);
+  --shadow-sm: 0px 2px 8px hsl(var(--shadow-color) / 0.06);
+  --shadow: 0px 4px 12px hsl(var(--shadow-color) / 0.08);
+  --shadow-md: 0px 6px 16px hsl(var(--shadow-color) / 0.1);
+  --shadow-lg: 0px 8px 24px hsl(var(--shadow-color) / 0.12);
+  --shadow-xl: 0px 12px 32px hsl(var(--shadow-color) / 0.14);
+  --shadow-2xl: 0px 16px 48px hsl(var(--shadow-color) / 0.18);
+
   --tracking-normal: 0em;
   --spacing: 0.25rem;
 }
 
 .dark {
-  --background: oklch(0.2046 0 0);
-  --foreground: oklch(0.9219 0 0);
-  --card: oklch(0.2686 0 0);
-  --card-foreground: oklch(0.9219 0 0);
-  --popover: oklch(0.2686 0 0);
-  --popover-foreground: oklch(0.9219 0 0);
-  --primary: oklch(0.7686 0.1647 70.0804);
-  --primary-foreground: oklch(0 0 0);
-  --secondary: oklch(0.2686 0 0);
-  --secondary-foreground: oklch(0.9219 0 0);
-  --muted: oklch(0.2393 0 0);
-  --muted-foreground: oklch(0.7155 0 0);
-  --accent: oklch(0.4732 0.1247 46.2007);
-  --accent-foreground: oklch(0.9243 0.1151 95.7459);
-  --destructive: oklch(0.6368 0.2078 25.3313);
-  --destructive-foreground: oklch(1.0000 0 0);
-  --border: oklch(0.3715 0 0);
-  --input: oklch(0.3715 0 0);
-  --ring: oklch(0.7686 0.1647 70.0804);
-  --chart-1: oklch(0.8369 0.1644 84.4286);
-  --chart-2: oklch(0.6658 0.1574 58.3183);
-  --chart-3: oklch(0.4732 0.1247 46.2007);
-  --chart-4: oklch(0.5553 0.1455 48.9975);
-  --chart-5: oklch(0.4732 0.1247 46.2007);
-  --sidebar: oklch(0.1684 0 0);
-  --sidebar-foreground: oklch(0.9219 0 0);
-  --sidebar-primary: oklch(0.7686 0.1647 70.0804);
-  --sidebar-primary-foreground: oklch(1.0000 0 0);
-  --sidebar-accent: oklch(0.4732 0.1247 46.2007);
-  --sidebar-accent-foreground: oklch(0.9243 0.1151 95.7459);
-  --sidebar-border: oklch(0.3715 0 0);
-  --sidebar-ring: oklch(0.7686 0.1647 70.0804);
-  --font-sans: Inter, sans-serif;
+  /*
+   * Ultra-Dark Minimal Theme
+   * Deep charcoal monochromatic palette
+   * Subtle depth through very close gray values
+   */
+
+  /* Base - Deep charcoal */
+  --background: #1a1a1a;
+  --foreground: #e5e5e5;
+
+  /* Card/Panel - Slightly elevated */
+  --card: #212121;
+  --card-foreground: #e5e5e5;
+  --popover: #212121;
+  --popover-foreground: #e5e5e5;
+
+  /* Primary - Soft white */
+  --primary: #e5e5e5;
+  --primary-foreground: #1a1a1a;
+
+  /* Secondary */
+  --secondary: #2a2a2a;
+  --secondary-foreground: #e5e5e5;
+
+  /* Muted */
+  --muted: #2a2a2a;
+  --muted-foreground: #8a8a8a;
+
+  /* Accent */
+  --accent: #2f2f2f;
+  --accent-foreground: #e5e5e5;
+
+  /* Destructive */
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+
+  /* Borders & Inputs - Very subtle */
+  --border: #333333;
+  --input: #333333;
+  --ring: #525252;
+
+  /*
+   * Surface Levels - Ultra-subtle depth progression
+   * Creates hierarchy through minimal contrast shifts
+   */
+  --surface-1: #1e1e1e;  /* Barely lifted from base */
+  --surface-2: #232323;  /* Panels, sidebars */
+  --surface-3: #2a2a2a;  /* Cards, dropdowns */
+  --surface-4: #333333;  /* Interactive elements */
+  --surface-5: #3d3d3d;  /* Hover states */
+  --surface-6: #4a4a4a;  /* Active/selected */
+
+  /*
+   * Text Hierarchy - Subtle contrast
+   */
+  --text-primary: #e5e5e5;   /* Primary text */
+  --text-secondary: #a3a3a3; /* Secondary text */
+  --text-tertiary: #737373;  /* Tertiary text */
+  --text-muted: #525252;     /* Disabled, hints */
+
+  /* Border variations - Very subtle */
+  --border-subtle: rgba(255, 255, 255, 0.04);
+  --border-default: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.12);
+
+  /* Charts - Grayscale */
+  --chart-1: #737373;
+  --chart-2: #525252;
+  --chart-3: #3d3d3d;
+  --chart-4: #2a2a2a;
+  --chart-5: #1e1e1e;
+
+  /* Sidebar - Matches base */
+  --sidebar: #1a1a1a;
+  --sidebar-foreground: #e5e5e5;
+  --sidebar-primary: #e5e5e5;
+  --sidebar-primary-foreground: #1a1a1a;
+  --sidebar-accent: #2a2a2a;
+  --sidebar-accent-foreground: #e5e5e5;
+  --sidebar-border: #333333;
+  --sidebar-ring: #525252;
+
+  /* Traffic lights */
+  --traffic-red: #ff5f57;
+  --traffic-yellow: #febc2e;
+  --traffic-green: #28c941;
+
+  /* Typography */
+  --font-sans: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-serif: Source Serif 4, serif;
   --font-mono: JetBrains Mono, monospace;
-  --radius: 0.375rem;
-  --shadow-x: 0px;
-  --shadow-y: 4px;
-  --shadow-blur: 8px;
-  --shadow-spread: -1px;
-  --shadow-opacity: 0.1;
-  --shadow-color: hsl(0 0% 0%);
-  --shadow-2xs: 0px 4px 8px -1px hsl(0 0% 0% / 0.05);
-  --shadow-xs: 0px 4px 8px -1px hsl(0 0% 0% / 0.05);
-  --shadow-sm: 0px 4px 8px -1px hsl(0 0% 0% / 0.10), 0px 1px 2px -2px hsl(0 0% 0% / 0.10);
-  --shadow: 0px 4px 8px -1px hsl(0 0% 0% / 0.10), 0px 1px 2px -2px hsl(0 0% 0% / 0.10);
-  --shadow-md: 0px 4px 8px -1px hsl(0 0% 0% / 0.10), 0px 2px 4px -2px hsl(0 0% 0% / 0.10);
-  --shadow-lg: 0px 4px 8px -1px hsl(0 0% 0% / 0.10), 0px 4px 6px -2px hsl(0 0% 0% / 0.10);
-  --shadow-xl: 0px 4px 8px -1px hsl(0 0% 0% / 0.10), 0px 8px 10px -2px hsl(0 0% 0% / 0.10);
-  --shadow-2xl: 0px 4px 8px -1px hsl(0 0% 0% / 0.25);
+
+  /* Spacing & Radius */
+  --radius: 0.5rem;
+
+  /* Shadows - Deep and subtle */
+  --shadow-color: 0 0% 0%;
+  --shadow-2xs: 0px 1px 2px hsl(var(--shadow-color) / 0.4);
+  --shadow-xs: 0px 2px 4px hsl(var(--shadow-color) / 0.45);
+  --shadow-sm: 0px 2px 8px hsl(var(--shadow-color) / 0.5);
+  --shadow: 0px 4px 12px hsl(var(--shadow-color) / 0.55);
+  --shadow-md: 0px 6px 16px hsl(var(--shadow-color) / 0.6);
+  --shadow-lg: 0px 8px 24px hsl(var(--shadow-color) / 0.65);
+  --shadow-xl: 0px 12px 32px hsl(var(--shadow-color) / 0.7);
+  --shadow-2xl: 0px 16px 48px hsl(var(--shadow-color) / 0.8);
 }
 
 @theme inline {
+  /* Base colors */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -144,13 +236,43 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Surface levels */
+  --color-surface-1: var(--surface-1);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-surface-4: var(--surface-4);
+  --color-surface-5: var(--surface-5);
+  --color-surface-6: var(--surface-6);
+
+  /* Text hierarchy */
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-tertiary: var(--text-tertiary);
+  --color-text-muted: var(--text-muted);
+
+  /* Border variations */
+  --color-border-subtle: var(--border-subtle);
+  --color-border-default: var(--border-default);
+  --color-border-strong: var(--border-strong);
+
+  /* Traffic lights */
+  --color-traffic-red: var(--traffic-red);
+  --color-traffic-yellow: var(--traffic-yellow);
+  --color-traffic-green: var(--traffic-green);
+
+  /* Typography */
   --font-sans: var(--font-sans);
   --font-mono: var(--font-mono);
   --font-serif: var(--font-serif);
+
+  /* Radius */
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+
+  /* Shadows */
   --shadow-2xs: var(--shadow-2xs);
   --shadow-xs: var(--shadow-xs);
   --shadow-sm: var(--shadow-sm);
@@ -175,61 +297,78 @@
     overflow-x: hidden;
     overflow-y: auto;
   }
-  /* Glass morphism utility classes */
+
+  /* Glass morphism - subtle for dark theme */
   .glass {
-    background: rgba(30, 40, 60, 0.7);
-    backdrop-filter: blur(20px) saturate(180%);
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(26, 26, 26, 0.85);
+    backdrop-filter: blur(20px) saturate(150%);
+    -webkit-backdrop-filter: blur(20px) saturate(150%);
+    border: 1px solid rgba(255, 255, 255, 0.06);
   }
   .light .glass {
-    background: rgba(255, 255, 255, 0.7);
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.85);
+    border: 1px solid rgba(0, 0, 0, 0.06);
   }
+
+  /* Depth utility classes */
+  .depth-1 {
+    background: var(--surface-1);
+  }
+  .depth-2 {
+    background: var(--surface-2);
+  }
+  .depth-3 {
+    background: var(--surface-3);
+  }
+  .depth-elevated {
+    background: var(--surface-3);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
+  }
+
   /* Improve touch targets on mobile */
   button, a, [role="button"] {
     @apply touch-manipulation;
   }
-  /* Ensure minimum touch target size on mobile for interactive elements */
+
   @media (max-width: 768px) {
-    button:not([class*="size"]):not([class*="h-"]), 
-    a:not([class*="size"]):not([class*="h-"]), 
+    button:not([class*="size"]):not([class*="h-"]),
+    a:not([class*="size"]):not([class*="h-"]),
     [role="button"]:not([class*="size"]):not([class*="h-"]) {
       min-height: 44px;
     }
   }
-  /* Prevent text selection on mobile interactions */
+
   input, textarea {
     @apply text-base;
-    /* Prevent zoom on iOS when focusing inputs */
     font-size: 16px;
   }
-  /* Better scrolling on mobile and transparent scrollbars */
+
   * {
     -webkit-overflow-scrolling: touch;
     scrollbar-width: thin;
-    scrollbar-color: transparent transparent;
+    scrollbar-color: var(--surface-4) transparent;
   }
-  /* Prevent double tap zoom on mobile */
+
   @media (max-width: 768px) {
     button, a, [role="button"] {
       touch-action: manipulation;
     }
   }
-  /* Webkit scrollbar styles (Chrome, Safari, Edge) */
+
+  /* Scrollbar - minimal */
   *::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: 6px;
+    height: 6px;
   }
   *::-webkit-scrollbar-track {
     background: transparent;
   }
   *::-webkit-scrollbar-thumb {
-    background: transparent;
-    border-radius: 4px;
+    background: var(--surface-4);
+    border-radius: 3px;
   }
   *::-webkit-scrollbar-thumb:hover {
-    background: transparent;
+    background: var(--surface-5);
   }
   *::-webkit-scrollbar-corner {
     background: transparent;

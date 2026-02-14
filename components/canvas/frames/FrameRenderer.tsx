@@ -42,47 +42,45 @@ export function FrameRenderer({
   }
 
   const isDark = frame.type.includes('dark');
+  const borderWidth = frame.width || 6;
 
   switch (frame.type) {
     case 'arc-light':
     case 'arc-dark':
-      return (
-        <Group>
-          <Rect
-            width={framedW}
-            height={framedH}
-            fill={isDark ? 'rgba(20, 20, 20, 0.85)' : 'rgba(255, 255, 255, 0.25)'}
-            cornerRadius={screenshotRadius}
-            {...shadowProps}
-          />
-        </Group>
-      );
+      // Arc frames: return null here - the border is rendered as part of the image
+      // in MainImageLayer to ensure proper visibility
+      return null;
 
     case 'macos-light':
     case 'macos-dark':
+      // macOS style title bar with traffic lights (22px height: 8px padding + 6px dots + 8px padding)
       return (
         <Group>
+          {/* Title bar background */}
           <Rect
             width={framedW}
-            height={40}
-            fill={isDark ? '#3d3d3d' : '#e8e8e8'}
-            cornerRadius={[12, 12, 0, 0]}
+            height={22}
+            fill={isDark ? 'rgb(40, 40, 43)' : '#e8e8e8'}
+            cornerRadius={[8, 8, 0, 0]}
             {...shadowProps}
           />
-          <Circle x={24} y={26} radius={7} fill="#ff5f57" />
-          <Circle x={48} y={26} radius={7} fill="#febc2e" />
-          <Circle x={72} y={26} radius={7} fill="#28c840" />
+          {/* Traffic lights - small dots (6px diameter, 3px radius) */}
+          <Circle x={15} y={11} radius={3} fill="rgb(255, 95, 87)" />
+          <Circle x={27} y={11} radius={3} fill="rgb(254, 188, 46)" />
+          <Circle x={39} y={11} radius={3} fill="rgb(40, 201, 65)" />
+          {/* Title text - centered */}
           <Text
-            text={frame.title || ''}
+            text={frame.title || 'file'}
             x={0}
             y={0}
             width={framedW}
-            height={40}
+            height={22}
             align="center"
             verticalAlign="middle"
-            fill={isDark ? '#ffffff' : '#4d4d4d'}
-            fontSize={14}
-            fontFamily="system-ui, -apple-system, sans-serif"
+            fill={isDark ? 'rgb(159, 159, 159)' : '#4d4d4d'}
+            fontSize={10}
+            fontFamily="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+            letterSpacing={-0.2}
           />
         </Group>
       );
@@ -142,34 +140,19 @@ export function FrameRenderer({
       );
 
     case 'photograph': {
-      const padding = 20;
-      const topArea = 60;
+      // Polaroid style: 8px sides/top, 24px bottom
+      // Draw a single white background rect, image will be rendered on top
       return (
         <Group>
           <Rect
+            x={0}
+            y={0}
             width={framedW}
             height={framedH}
-            fill="#fffef9"
-            cornerRadius={3}
-            shadowColor="rgba(0,0,0,0.15)"
-            shadowBlur={12}
-            shadowOffsetY={4}
+            fill="white"
+            cornerRadius={8}
             {...shadowProps}
           />
-          {frame.title && (
-            <Text
-              text={frame.title}
-              x={padding}
-              y={8}
-              width={framedW - padding * 2}
-              height={topArea - padding}
-              align="center"
-              verticalAlign="middle"
-              fill="#2c2c2c"
-              fontSize={18}
-              fontFamily="Caveat, cursive"
-            />
-          )}
         </Group>
       );
     }
