@@ -1,5 +1,6 @@
 "use client";
 
+import { motion } from "motion/react";
 import {
   Accordion,
   AccordionContent,
@@ -25,68 +26,87 @@ interface FAQProps {
 
 const defaultFAQs: FAQItem[] = [
   {
-    question: "What is Stage?",
-    answer: "Stage is a modern web-based canvas editor that runs entirely in your browser. Create professional-looking designs for social media, presentations, or personal projects without any design software installation required.",
+    question: "Is Stage really free?",
+    answer:
+      "Yes. Stage is 100% free with no hidden costs. Unlimited exports, all features, no watermarks. No signup required.",
   },
   {
     question: "Do I need to create an account?",
-    answer: "No account required! Stage is completely free to use. Simply visit the editor and start creating your designs immediately—no sign-up, no login, no hassle.",
+    answer:
+      "No. Just open the editor and start creating. Your work saves automatically in your browser with unlimited undo/redo.",
   },
   {
-    question: "Is Stage free to use?",
-    answer: "Yes, Stage is completely free. Create unlimited designs, export without restrictions, and access all features at no cost. Just open your browser and start designing.",
+    question: "What frames and styles are available?",
+    answer:
+      "macOS and Windows browser frames, Arc-style rounded frames, Polaroid borders, 3D perspective transforms, and customizable shadows with blur, spread, and color controls.",
   },
   {
-    question: "What can I create with Stage?",
-    answer: "You can create social media graphics (Instagram posts, stories, reels), image showcases, presentation visuals, and custom designs. Upload your images, add text overlays, customize backgrounds, apply professional presets, and export high-quality graphics.",
+    question: "What export formats are supported?",
+    answer:
+      "PNG (with transparency) or JPG. Export up to 5x resolution for crisp, high-quality output on any platform.",
   },
   {
-    question: "What export formats are available?",
-    answer: "Export your designs as PNG (with transparency support) or JPG. You can adjust the quality for JPG files and scale your exports up to 5x the original size for high-resolution output. Perfect for both digital use and printing.",
+    question: "Which aspect ratios can I use?",
+    answer:
+      "Instagram (1:1, 4:5, 9:16), YouTube (16:9), Twitter, LinkedIn, Open Graph, and standard photo ratios—all optimized for their platforms.",
   },
   {
-    question: "Which aspect ratios does Stage support?",
-    answer: "Stage supports Instagram formats (Square 1:1, Portrait 4:5, Story/Reel 9:16), social media formats (Landscape 16:9, Portrait 3:4), and standard photo formats. All formats are optimized for their respective platforms.",
+    question: "What file types can I upload?",
+    answer:
+      "PNG, JPG, JPEG, or WEBP up to 100MB. All processing happens locally in your browser—fast and completely private.",
   },
   {
-    question: "What are presets and how do I use them?",
-    answer: "Presets are one-click styling options that instantly transform your design. Stage includes 5 professional presets: Social Ready, Story Style, Minimal Clean, Bold Gradient, and Dark Elegant. Click any preset to apply it instantly to your canvas.",
+    question: "Can I add text and overlays?",
+    answer:
+      "Yes. Add multiple text layers with custom fonts, sizes, colors, and shadows. Plus decorative overlays like arrows and icons.",
   },
   {
-    question: "What image file formats can I upload?",
-    answer: "You can upload PNG, JPG, JPEG, or WEBP images. Each image can be up to 100MB in size. The editor handles all processing in your browser for fast, secure editing.",
-  },
-  {
-    question: "Can I save my designs to my computer?",
-    answer: "Yes! Export your completed designs directly to your device as PNG or JPG files. Save them anywhere you like—your desktop, cloud storage, or any folder. Your designs are yours to keep.",
-  },
-  {
-    question: "What customization options are available?",
-    answer: "For images: adjust size, opacity, borders (width, color, style), shadows, and border radius. For text: add multiple text overlays with custom fonts, colors, sizes, positions, and text shadows. For backgrounds: choose from gradients, solid colors, or upload your own background images.",
+    question: "Is my data stored on your servers?",
+    answer:
+      "No. Stage runs entirely in your browser. Your images never leave your device unless you export them yourself.",
   },
 ];
 
-export function FAQ({ title = "Frequently Asked Questions", faqs = defaultFAQs }: FAQProps) {
+export function FAQ({
+  title = "Questions",
+  faqs = defaultFAQs,
+}: FAQProps) {
   return (
-    <section className="w-full py-12 sm:py-16 px-4 sm:px-6 border-t border-border bg-background">
-      <div className="container mx-auto max-w-3xl">
-        <h2 className={`text-3xl sm:text-4xl font-bold text-center mb-8 sm:mb-12 px-2 ${instrumentSerif.className}`}>
+    <section className="py-20 sm:py-28 md:py-32 px-6 border-t border-border/40 bg-background">
+      <div className="container mx-auto max-w-2xl">
+        <motion.h2
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className={`text-3xl sm:text-4xl md:text-5xl font-bold text-center mb-12 sm:mb-16 ${instrumentSerif.className}`}
+        >
           {title}
-        </h2>
-        <Accordion type="single" collapsible className="w-full">
-          {faqs.map((faq, index) => (
-            <AccordionItem key={index} value={`item-${index}`} className="border-b border-border">
-              <AccordionTrigger className="text-left text-base sm:text-lg font-semibold py-4 sm:py-6 hover:no-underline px-2 sm:px-0">
-                {faq.question}
-              </AccordionTrigger>
-              <AccordionContent className="text-sm sm:text-base text-muted-foreground leading-relaxed px-2 sm:px-0 pb-4 sm:pb-6">
-                {faq.answer}
-              </AccordionContent>
-            </AccordionItem>
-          ))}
-        </Accordion>
+        </motion.h2>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.1 }}
+        >
+          <Accordion type="single" collapsible className="w-full">
+            {faqs.map((faq, index) => (
+              <AccordionItem
+                key={index}
+                value={`item-${index}`}
+                className="border-b border-border/40"
+              >
+                <AccordionTrigger className="text-left text-base sm:text-lg font-medium py-5 hover:no-underline hover:text-primary transition-colors gap-4">
+                  {faq.question}
+                </AccordionTrigger>
+                <AccordionContent className="text-muted-foreground leading-relaxed pb-5">
+                  {faq.answer}
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        </motion.div>
       </div>
     </section>
   );
 }
-

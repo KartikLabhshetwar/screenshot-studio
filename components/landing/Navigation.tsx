@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { GithubIcon, NewTwitterIcon } from "hugeicons-react";
+import { GithubIcon } from "hugeicons-react";
 import { motion, useSpring, useTransform } from "motion/react";
 
 interface NavigationProps {
@@ -14,34 +14,30 @@ interface NavigationProps {
 
 function useGitHubStars() {
   const [stars, setStars] = useState<number | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchStars = async () => {
       try {
-        const response = await fetch("https://api.github.com/repos/KartikLabhshetwar/stage");
+        const response = await fetch(
+          "https://api.github.com/repos/KartikLabhshetwar/stage"
+        );
         if (response.ok) {
           const data = await response.json();
           setStars(data.stargazers_count);
         }
       } catch (error) {
         console.error("Failed to fetch GitHub stars:", error);
-      } finally {
-        setIsLoading(false);
       }
     };
 
     fetchStars();
   }, []);
 
-  return { stars, isLoading };
+  return stars;
 }
 
 function AnimatedCounter({ value }: { value: number }) {
-  const spring = useSpring(0, {
-    damping: 30,
-    stiffness: 100,
-  });
+  const spring = useSpring(0, { damping: 30, stiffness: 100 });
 
   useEffect(() => {
     spring.set(value);
@@ -55,50 +51,43 @@ function AnimatedCounter({ value }: { value: number }) {
 }
 
 export function Navigation({
-  ctaLabel = "Editor",
-  ctaHref = "/home"
+  ctaLabel = "Open Editor",
+  ctaHref = "/home",
 }: NavigationProps) {
-  const { stars, isLoading } = useGitHubStars();
+  const stars = useGitHubStars();
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/95 backdrop-blur-xl supports-backdrop-filter:bg-background/90">
-      <div className="container mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
+    <nav className="sticky top-0 z-50 w-full bg-background/80 backdrop-blur-xl border-b border-border/40">
+      <div className="container mx-auto px-6 py-4 flex items-center justify-between">
         <Link href="/landing" className="flex items-center">
           <Image
             src="/logo.png"
             alt="Stage"
-            width={48}
-            height={48}
-            className="h-12 w-12"
+            width={40}
+            height={40}
+            className="h-9 w-9 sm:h-10 sm:w-10"
+            priority
           />
         </Link>
-        <div className="flex items-center gap-2 sm:gap-3">
+
+        <div className="flex items-center gap-4">
           <Link
             href="https://github.com/KartikLabhshetwar/stage"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-1.5 px-2 py-1.5 hover:bg-accent rounded-lg transition-colors touch-manipulation text-muted-foreground hover:text-foreground group"
-            aria-label="GitHub repository"
+            className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
+            aria-label="GitHub"
           >
-            <GithubIcon className="h-5 w-5 text-current" />
-            {!isLoading && stars !== null && (
-              <span className="text-sm font-medium flex items-center gap-1">
-                <span className="text-sm">★</span>
+            <GithubIcon className="w-5 h-5" />
+            {stars !== null && (
+              <span className="text-sm font-medium hidden sm:inline-flex items-center gap-1">
                 <AnimatedCounter value={stars} />
               </span>
             )}
           </Link>
-          <Link
-            href="https://x.com/code_kartik"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-1.5 px-2 py-1.5 hover:bg-accent rounded-lg transition-colors touch-manipulation text-muted-foreground hover:text-foreground group"
-            aria-label="X (Twitter) profile"
-          >
-            <NewTwitterIcon className="h-5 w-5 text-current" />
-          </Link>
-          <Link href={ctaHref} className="flex items-center">
-            <Button variant="integration" className="text-sm px-3 sm:px-4 py-2">
+
+          <Link href={ctaHref}>
+            <Button variant="integration" size="sm" className="font-medium">
               {ctaLabel}
             </Button>
           </Link>
@@ -107,4 +96,3 @@ export function Navigation({
     </nav>
   );
 }
-

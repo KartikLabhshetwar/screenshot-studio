@@ -7,6 +7,10 @@ const DB_VERSION = 1;
 const STORE_NAME = 'drafts';
 const DRAFT_KEY = 'stage-draft';
 
+// Storage limits
+const MAX_STORAGE_MB = 50; // Max storage in MB before cleanup
+const MAX_STORAGE_BYTES = MAX_STORAGE_MB * 1024 * 1024;
+
 export interface DraftStorage {
   id: string;
   editorState: OmitFunctions<EditorState>;
@@ -197,4 +201,82 @@ export async function migrateFromLocalStorage(): Promise<void> {
       // Ignore
     }
   }
+}
+
+// Get current IndexedDB storage usage estimate
+export async function getStorageUsage(): Promise<{ used: number; quota: number; percentage: number }> {
+  try {
+    if ('storage' in navigator && 'estimate' in navigator.storage) {
+      const estimate = await navigator.storage.estimate();
+      const used = estimate.usage || 0;
+      const quota = estimate.quota || 0;
+      const percentage = quota > 0 ? Math.round((used / quota) * 100) : 0;
+      return { used, quota, percentage };
+    }
+  } catch (error) {
+    console.error('Failed to estimate storage:', error);
+  }
+  return { used: 0, quota: 0, percentage: 0 };
+}
+
+// Check if storage exceeds limit and needs cleanup
+export async function checkStorageAndCleanup(): Promise<boolean> {
+  try {
+    const { used, percentage } = await getStorageUsage();
+
+    // Clean up if storage exceeds limit or usage is above 80%
+    if (used > MAX_STORAGE_BYTES || percentage > 80) {
+      console.warn(`Storage limit reached (${Math.round(used / 1024 / 1024)}MB / ${MAX_STORAGE_MB}MB). Cleaning up...`);
+      await clearAllDrafts();
+      return true; // Cleanup performed
+    }
+
+    return false; // No cleanup needed
+  } catch (error) {
+    console.error('Failed to check storage:', error);
+    return false;
+  }
+}
+
+// Get size of stored draft in bytes
+export async function getDraftSize(): Promise<number> {
+  try {
+    const draft = await getDraft();
+    if (draft) {
+      const jsonString = JSON.stringify(draft);
+      return new Blob([jsonString]).size;
+    }
+  } catch (error) {
+    console.error('Failed to get draft size:', error);
+  }
+  return 0;
+}
+
+// Format bytes to human readable string
+export function formatBytes(bytes: number): string {
+  if (bytes === 0) return '0 Bytes';
+  const k = 1024;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
+// Storage info for debugging
+export async function getStorageInfo(): Promise<{
+  draftSize: string;
+  totalUsed: string;
+  quota: string;
+  percentage: number;
+}> {
+  const [draftSize, storage] = await Promise.all([
+    getDraftSize(),
+    getStorageUsage(),
+  ]);
+
+  return {
+    draftSize: formatBytes(draftSize),
+    totalUsed: formatBytes(storage.used),
+    quota: formatBytes(storage.quota),
+    percentage: storage.percentage,
+  };
 }

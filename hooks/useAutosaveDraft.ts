@@ -14,6 +14,8 @@ import {
   blobUrlToBase64,
   deleteDraft,
   migrateFromLocalStorage,
+  checkStorageAndCleanup,
+  getStorageInfo,
 } from "@/lib/draft-storage";
 
 const AUTOSAVE_DELAY = 1000;
@@ -34,6 +36,13 @@ export function useAutosaveDraft() {
       try {
         // Migrate from localStorage to IndexedDB (one-time)
         await migrateFromLocalStorage();
+
+        // Check storage on startup and log info
+        const storageInfo = await getStorageInfo();
+        console.log('📦 IndexedDB Storage:', storageInfo);
+
+        // Cleanup if storage is too high
+        await checkStorageAndCleanup();
 
         const draft = await getDraft();
         if (!draft) {
@@ -134,6 +143,12 @@ export function useAutosaveDraft() {
       saveTimeoutRef.current = setTimeout(async () => {
         setIsSaving(true);
         try {
+          // Check storage and cleanup if needed before saving
+          const wasCleanedUp = await checkStorageAndCleanup();
+          if (wasCleanedUp) {
+            console.log('Storage was cleaned up due to limit. Continuing with save...');
+          }
+
           const {
             screenshot,
             background,

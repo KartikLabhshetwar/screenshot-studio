@@ -1,23 +1,56 @@
 import { LandingPage } from "@/components/landing/LandingPage";
 
+// Features - benefit-focused, concise
 const features = [
   {
-    title: "Image Upload & Customization",
+    title: "Drop. Style. Done.",
     description:
-      "Upload images and customize size, opacity, borders, shadows, and border radius for complete control over your visuals.",
+      "Upload any image, add backgrounds and shadows, adjust until perfect. No learning curve.",
+    icon: "upload",
   },
   {
-    title: "Text Overlays & Backgrounds",
+    title: "50+ Backgrounds Built In",
     description:
-      "Add multiple text layers with custom fonts, colors, and shadows. Choose from gradients, solid colors, or upload your own backgrounds.",
+      "Gradients, textures, and patterns ready to use. Or upload your own.",
+    icon: "layers",
   },
   {
-    title: "Professional Export",
+    title: "Export Up to 5x Resolution",
     description:
-      "Export as PNG (with transparency) with adjustable quality and scale up to 5x. All processing happens in your browser—no external services required. Perfect for social media and high-resolution output.",
+      "PNG with transparency or JPG. High-res output for any platform.",
+    icon: "export",
   },
 ];
 
+// How It Works - 3 steps
+const howItWorks = [
+  {
+    step: 1,
+    title: "Drop Your Image",
+    description: "Drag any screenshot or photo",
+  },
+  {
+    step: 2,
+    title: "Style It",
+    description: "Add backgrounds, shadows, text",
+  },
+  {
+    step: 3,
+    title: "Export",
+    description: "Download in seconds",
+  },
+];
+
+// Social proof
+const socialProof = {
+  stats: [
+    { value: "10k+", label: "Images Created" },
+    { value: "Free", label: "Forever" },
+    { value: "0", label: "Signups" },
+  ],
+};
+
+// Video testimonials
 const videoTestimonials = [
   {
     videoId: "NAS4BEP2KtA",
@@ -29,15 +62,20 @@ const videoTestimonials = [
 export default function Landing() {
   return (
     <LandingPage
-      heroTitle="Create stunning visual designs"
-      heroSubtitle="with Stage"
-      heroDescription="A fully in-browser canvas editor that brings your ideas to life. Add images, text, backgrounds, and export your creations in high quality—all without external services. Built for designers and creators."
-      ctaLabel="Try now it's free"
+      // Clean, memorable headline
+      heroTitle="Beautiful images."
+      heroSubtitle="Zero effort."
+      // One line that says it all
+      heroDescription="The free browser editor that makes your screenshots look professional."
+      // Clear CTA
+      ctaLabel="Start Creating"
       ctaHref="/home"
       features={features}
+      featuresTitle="Simple by Design"
+      howItWorks={howItWorks}
+      socialProof={socialProof}
       videoTestimonials={videoTestimonials}
-      videoTestimonialsTitle="What People Are Saying"
+      videoTestimonialsTitle="Creators Love Stage"
     />
   );
 }
-

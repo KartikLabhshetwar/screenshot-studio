@@ -23,55 +23,87 @@ export function Hero({
   title,
   subtitle,
   description,
-  ctaLabel,
+  ctaLabel = "Start Creating",
   ctaHref = "/home",
 }: HeroProps) {
   const [isVideoOpen, setIsVideoOpen] = useState(false);
   const videoEmbedUrl = "https://www.youtube.com/embed/zDux_K4SsH0";
-  const videoThumbnailUrl = "https://img.youtube.com/vi/zDux_K4SsH0/maxresdefault.jpg";
+  const videoThumbnailUrl =
+    "https://img.youtube.com/vi/zDux_K4SsH0/maxresdefault.jpg";
 
   return (
-    <main className="flex-1 flex items-center justify-center px-4 sm:px-6 py-12 sm:py-16 md:py-20 bg-background">
-      <div className="container mx-auto max-w-4xl text-center space-y-6 sm:space-y-8">
-      <div className="flex justify-center pt-2">
-        </div>
-        <h1 className={`text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight ${instrumentSerif.className} px-2`}>
+    <main
+      className="flex-1 flex items-center justify-center px-6 py-20 sm:py-28 md:py-32 lg:py-40 bg-background relative overflow-hidden"
+      role="banner"
+    >
+      {/* Subtle gradient orb for depth */}
+      <div
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/5 rounded-full blur-3xl pointer-events-none"
+        aria-hidden="true"
+      />
+
+      <div className="relative z-10 max-w-3xl mx-auto text-center">
+        {/* Headline - The star of the show */}
+        <h1
+          className={`text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.05] ${instrumentSerif.className}`}
+        >
           {title}
           {subtitle && (
             <>
               <br />
-              <span className="text-primary underline decoration-primary decoration-2 underline-offset-4">
-                {subtitle}
-              </span>
+              <span className="text-primary">{subtitle}</span>
             </>
           )}
         </h1>
 
-        <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed px-4 sm:px-2">
+        {/* Single line description */}
+        <p className="mt-6 sm:mt-8 text-lg sm:text-xl text-muted-foreground max-w-xl mx-auto">
           {description}
         </p>
 
-        
-
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-4 pt-2 sm:pt-4 px-4 sm:px-0 w-full sm:w-auto">
-          <Link href={ctaHref} className="w-full sm:w-auto">
-            <Button variant="integration" className="w-full sm:w-auto">
+        {/* Single prominent CTA */}
+        <div className="mt-10 sm:mt-12 flex flex-col sm:flex-row items-center justify-center gap-4">
+          <Link href={ctaHref}>
+            <Button
+              variant="integration"
+              size="lg"
+              className="text-base sm:text-lg px-8 py-6 min-h-[56px] font-medium"
+            >
               {ctaLabel}
             </Button>
           </Link>
-          <Button 
-            variant="outline" 
-            className="rounded-lg w-full sm:w-auto border-primary text-primary hover:bg-accent hover:border-primary/80 touch-manipulation min-h-[44px] text-base sm:text-lg"
+          <button
             onClick={() => setIsVideoOpen(true)}
+            className="text-muted-foreground hover:text-foreground transition-colors text-sm flex items-center gap-2 group"
+            aria-label="Watch demo video"
           >
-            View Demo
-          </Button>
+            <span className="w-8 h-8 rounded-full border border-current flex items-center justify-center group-hover:border-primary group-hover:text-primary transition-colors">
+              <svg
+                className="w-3 h-3 ml-0.5"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+                aria-hidden="true"
+              >
+                <path d="M6.5 5.5v9l7-4.5-7-4.5z" />
+              </svg>
+            </span>
+            <span className="group-hover:text-primary transition-colors">
+              Watch demo
+            </span>
+          </button>
         </div>
+
+        {/* Subtle trust line */}
+        <p className="mt-6 text-xs text-muted-foreground/60">
+          Free forever · No signup required
+        </p>
       </div>
+
+      {/* Video Dialog */}
       <HeroVideoDialog
         videoSrc={videoEmbedUrl}
         thumbnailSrc={videoThumbnailUrl}
-        thumbnailAlt="Demo video thumbnail"
+        thumbnailAlt="Stage editor demo"
         open={isVideoOpen}
         onOpenChange={setIsVideoOpen}
         showThumbnail={false}
@@ -80,4 +112,3 @@ export function Hero({
     </main>
   );
 }
-

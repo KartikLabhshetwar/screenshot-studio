@@ -21,37 +21,56 @@ const caveat = Caveat({
 
 export const metadata: Metadata = {
   title: {
-    default: "Stage",
+    default: "Stage - Free Online Image Editor | Create Professional Graphics in Seconds",
     template: "%s | Stage",
   },
-  description: "Create stunning showcase images for your projects with customizable templates and layouts. A fully in-browser canvas editor for adding images, text, and backgrounds—no external services required.",
-  keywords: ["image editor", "canvas editor", "design tool", "image showcase", "template builder", "in-browser editor", "client-side export"],
-  authors: [{ name: "Stage" }],
+  description: "Turn screenshots into stunning social media graphics in seconds. Free browser-based canvas editor with beautiful backgrounds, text overlays, and one-click export. No signup required.",
+  keywords: [
+    "free image editor",
+    "online image editor",
+    "screenshot beautifier",
+    "social media graphics",
+    "canvas editor",
+    "image showcase tool",
+    "browser image editor",
+    "no signup image editor",
+    "free design tool",
+    "Instagram image creator",
+    "Twitter card generator",
+    "product screenshot editor",
+    "SaaS screenshot tool",
+    "developer portfolio images",
+  ],
+  authors: [{ name: "Stage", url: "https://stagee.art" }],
   creator: "Stage",
   publisher: "Stage",
-  metadataBase: new URL(process.env.BETTER_AUTH_URL || "https://stage-psi-one.vercel.app"),
+  metadataBase: new URL(process.env.BETTER_AUTH_URL || "https://stagee.art"),
+  alternates: {
+    canonical: "/",
+  },
   openGraph: {
     type: "website",
     locale: "en_US",
     url: "/",
     siteName: "Stage",
-    title: "Stage - Image Showcase Builder",
-    description: "Create stunning showcase images for your projects with customizable templates and layouts",
+    title: "Stage - Turn Screenshots into Stunning Graphics (Free)",
+    description: "Create professional social media images in seconds. Beautiful backgrounds, text overlays, and export up to 5x resolution. 100% free, no signup.",
     images: [
       {
-        url: "https://stage-psi-one.vercel.app/og.jpeg",
+        url: "https://stagee.art/og.jpeg",
         width: 1200,
         height: 630,
-        alt: "Stage - Image Showcase Builder",
+        alt: "Stage - Free Online Image Editor for Stunning Graphics",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Stage - Image Showcase Builder",
-    description: "Create stunning showcase images for your projects with customizable templates and layouts",
-    images: ["https://stage-psi-one.vercel.app/og.jpeg"],
-    creator: "@stage",
+    title: "Stage - Turn Screenshots into Stunning Graphics",
+    description: "Create professional social media images in seconds. Free, no signup required.",
+    images: ["https://stagee.art/og.jpeg"],
+    creator: "@code_kartik",
+    site: "@code_kartik",
   },
   robots: {
     index: true,
@@ -69,6 +88,10 @@ export const metadata: Metadata = {
     shortcut: "/logo.png",
     apple: "/logo.png",
   },
+  verification: {
+    google: "your-google-verification-code",
+  },
+  category: "Design Tools",
 };
 
 export const viewport: Viewport = {
