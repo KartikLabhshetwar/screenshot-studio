@@ -7,21 +7,21 @@
 import { getR2PublicUrl } from './r2';
 
 export const demoImagePaths: string[] = [
-  "demo-images/demo-1.png",
-  "demo-images/demo-2.png",
-  "demo-images/demo-3.png",
-  "demo-images/demo-4.png",
-  "demo-images/demo-5.png",
-  "demo-images/demo-6.png",
-  "demo-images/demo-7.png",
-  "demo-images/demo-8.png",
-  "demo-images/demo-9.png",
-  "demo-images/demo-10.png",
-  "demo-images/demo-11.png",
-  "demo-images/demo-12.png",
-  "demo-images/demo-13.png",
-  "demo-images/demo-14.png",
-  "demo-images/demo-15.png",
+  "backgrounds/demo/demo-1.png",
+  "backgrounds/demo/demo-2.png",
+  "backgrounds/demo/demo-3.png",
+  "backgrounds/demo/demo-4.png",
+  "backgrounds/demo/demo-5.png",
+  "backgrounds/demo/demo-6.png",
+  "backgrounds/demo/demo-7.png",
+  "backgrounds/demo/demo-8.png",
+  "backgrounds/demo/demo-9.png",
+  "backgrounds/demo/demo-10.png",
+  "backgrounds/demo/demo-11.png",
+  "backgrounds/demo/demo-12.png",
+  "backgrounds/demo/demo-13.png",
+  "backgrounds/demo/demo-14.png",
+  "backgrounds/demo/demo-15.png",
 ];
 
 /**

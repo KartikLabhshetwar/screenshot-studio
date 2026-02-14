@@ -18,6 +18,7 @@ import { ColorPicker } from '@/components/ui/color-picker';
 import { SectionWrapper } from './SectionWrapper';
 import { Cancel01Icon, Image01Icon, ShuffleIcon } from 'hugeicons-react';
 import { cn } from '@/lib/utils';
+import { CachedImage } from '@/components/ui/cached-image';
 
 // Arrow URLs
 const ARROW_URLS = Array.from({ length: 10 }, (_, i) => `/arrow/arrow-${i + 1}.svg`);
@@ -30,13 +31,16 @@ const OVERLAY_SHADOW_IDS = [
 const OVERLAY_SHADOW_URLS = OVERLAY_SHADOW_IDS.map((id) => `/overlay-shadow/${id}.webp`);
 
 // Category display names (ordered)
-const CATEGORY_ORDER = ['assets', 'mac', 'radiant', 'mesh', 'silk'] as const;
+const CATEGORY_ORDER = ['assets', 'mac', 'radiant', 'mesh', 'silk', 'raycast', 'paper', 'pattern'] as const;
 const CATEGORY_LABELS: Record<string, string> = {
   assets: 'Abstract',
   mac: 'macOS',
   radiant: 'Radiant',
   mesh: 'Mesh',
   silk: 'Silk',
+  raycast: 'Raycast',
+  paper: 'Paper',
+  pattern: 'Pattern',
 };
 
 export function BackgroundSection() {
@@ -351,11 +355,10 @@ export function BackgroundSection() {
                     : 'border-transparent hover:border-border/50'
                 )}
               >
-                <img
+                <CachedImage
                   src={getBackgroundThumbnailUrl(imagePath)}
                   alt={`${category} ${idx + 1}`}
                   className="w-full h-full object-cover"
-                  loading="lazy"
                 />
               </button>
             ))}

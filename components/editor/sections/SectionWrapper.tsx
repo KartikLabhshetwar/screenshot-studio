@@ -23,11 +23,13 @@ export function SectionWrapper({
 
   return (
     <div className={cn('mb-1', className)}>
-      <button
-        onClick={() => setIsOpen(!isOpen)}
+      <div
         className="w-full flex items-center justify-between gap-2 py-3 px-2 hover:bg-surface-2/30 rounded-lg transition-colors group"
       >
-        <div className="flex items-center gap-2">
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="flex items-center gap-2 flex-1"
+        >
           <ArrowDown01Icon
             size={16}
             className={cn(
@@ -38,9 +40,9 @@ export function SectionWrapper({
           <span className="text-xs font-semibold uppercase tracking-wider text-text-tertiary group-hover:text-text-secondary">
             {title}
           </span>
-        </div>
-        {action && <div onClick={(e) => e.stopPropagation()}>{action}</div>}
-      </button>
+        </button>
+        {action && <div>{action}</div>}
+      </div>
 
       <div className={cn(
         'overflow-hidden transition-all duration-200',

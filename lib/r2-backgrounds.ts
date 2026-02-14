@@ -130,6 +130,19 @@ export const backgroundCategories: BackgroundCategory = {
     "backgrounds/raycast/red_distortion_4.webp",
     "backgrounds/raycast/rose-thorn.webp",
   ],
+  "pattern": [
+    "backgrounds/pattern/1.webp",
+    "backgrounds/pattern/2.webp",
+    "backgrounds/pattern/3.webp",
+    "backgrounds/pattern/4.webp",
+    "backgrounds/pattern/5.webp",
+    "backgrounds/pattern/6.webp",
+    "backgrounds/pattern/7.webp",
+    "backgrounds/pattern/8.webp",
+    "backgrounds/pattern/9.webp",
+    "backgrounds/pattern/10.webp",
+    "backgrounds/pattern/11.webp",
+  ],
 };
 
 // Flatten all background paths for easy lookup
