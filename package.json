@@ -10,7 +10,8 @@
     "lint:fix": "eslint . --fix",
     "upload-to-r2": "tsx scripts/upload-to-r2.ts",
     "upload-all-to-r2": "tsx scripts/upload-all-to-r2.ts",
-    "upload-pattern": "tsx scripts/upload-pattern-to-r2.ts"
+    "upload-pattern": "tsx scripts/upload-pattern-to-r2.ts",
+    "upload-demo": "tsx scripts/upload-demo-to-r2.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.990.0",

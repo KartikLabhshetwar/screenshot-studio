@@ -105,7 +105,14 @@ export function UploadDropzone() {
   // Handle paste event
   React.useEffect(() => {
     const handlePaste = async (e: ClipboardEvent) => {
-      if (!containerRef.current) return;
+      // Don't intercept paste if user is typing in an input/textarea
+      const target = e.target as HTMLElement;
+      const isTyping =
+        target.tagName === 'INPUT' ||
+        target.tagName === 'TEXTAREA' ||
+        target.isContentEditable;
+
+      if (isTyping) return;
 
       const items = e.clipboardData?.items;
       if (!items) return;
@@ -118,7 +125,9 @@ export function UploadDropzone() {
 
           const file = item.getAsFile();
           if (file) {
+            // Add to slideshow and set as active canvas image
             addImages([file]);
+            handleFile(file);
           }
           break;
         }
@@ -130,7 +139,7 @@ export function UploadDropzone() {
     return () => {
       document.removeEventListener("paste", handlePaste);
     };
-  }, [addImages]);
+  }, [addImages, handleFile]);
 
   const active = isDragActive || dropzoneActive;
 

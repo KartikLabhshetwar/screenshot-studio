@@ -10,17 +10,15 @@ interface MasonryItem {
   aspectRatio: string;
 }
 
+// Aspect ratios based on actual image dimensions
 const getAspectRatio = (index: number): string => {
   const demoNumber = index + 1;
 
-  if (demoNumber === 1) return "aspect-[2/3]";
-  if (demoNumber === 3 || demoNumber === 8) return "aspect-[4/3]";
+  // Square images (3240x3240)
+  if (demoNumber === 7 || demoNumber === 10) return "aspect-square";
 
-  const landingPageNumbers = [2, 4, 5, 6, 9, 10, 11, 13, 14];
-  if (landingPageNumbers.includes(demoNumber)) return "aspect-[16/9]";
-
-  const defaultRatios = ["aspect-[4/3]", "aspect-square", "aspect-[3/4]"];
-  return defaultRatios[(demoNumber - 1) % defaultRatios.length];
+  // All others are 16:9 landscape (3600x2025)
+  return "aspect-video";
 };
 
 const sampleItems: MasonryItem[] = demoImagePaths.map((imagePath, index) => ({
@@ -31,10 +29,10 @@ const sampleItems: MasonryItem[] = demoImagePaths.map((imagePath, index) => ({
 
 export function MasonryGrid() {
   return (
-    <section className="py-16 sm:py-20 md:py-24 px-6 bg-background">
-      <div className="container mx-auto max-w-6xl">
+    <section className="py-16 sm:py-20 md:py-24 px-4 sm:px-6 bg-background">
+      <div className="container mx-auto max-w-[1400px]">
         <div
-          className="columns-1 sm:columns-2 lg:columns-3 gap-4 md:gap-6"
+          className="columns-1 md:columns-2 gap-6 md:gap-10"
           style={{ columnFill: "balance" as const }}
         >
           {sampleItems.map((item, index) => (
@@ -44,7 +42,7 @@ export function MasonryGrid() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-50px" }}
               transition={{ delay: (index % 6) * 0.05, duration: 0.4 }}
-              className="relative rounded-lg overflow-hidden mb-4 md:mb-6 break-inside-avoid group"
+              className="relative rounded-2xl overflow-hidden mb-6 md:mb-10 break-inside-avoid group"
             >
               <div className={`relative w-full ${item.aspectRatio} overflow-hidden bg-muted/30`}>
                 <OptimizedImage

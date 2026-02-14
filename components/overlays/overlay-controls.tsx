@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Slider } from '@/components/ui/slider'
 import { useImageStore } from '@/lib/store'
-import { Delete02Icon, ViewIcon, ViewOffSlashIcon } from 'hugeicons-react'
+import { Delete02Icon, ViewIcon, ViewOffSlashIcon, RotateRight01Icon, RotateLeft01Icon, RefreshIcon } from 'hugeicons-react'
 import { getR2ImageUrl } from '@/lib/r2'
 import { OVERLAY_PATHS, isOverlayPath } from '@/lib/r2-overlays'
 
@@ -28,9 +28,24 @@ export function OverlayControls() {
     }
   }
 
+  // Normalize rotation to -180 to 180 range
+  const normalizeRotation = (rotation: number): number => {
+    let normalized = rotation % 360
+    if (normalized > 180) normalized -= 360
+    if (normalized < -180) normalized += 360
+    return normalized
+  }
+
   const handleUpdateRotation = (value: number[]) => {
     if (selectedOverlay) {
       updateImageOverlay(selectedOverlay.id, { rotation: value[0] })
+    }
+  }
+
+  const handleRotateBy = (degrees: number) => {
+    if (selectedOverlay) {
+      const newRotation = normalizeRotation(selectedOverlay.rotation + degrees)
+      updateImageOverlay(selectedOverlay.id, { rotation: newRotation })
     }
   }
 
@@ -177,16 +192,45 @@ export function OverlayControls() {
             </div>
 
             {/* Rotation */}
-            <div className="p-3 rounded-xl bg-muted border border-border">
+            <div className="p-3 rounded-xl bg-muted border border-border space-y-3">
               <Slider
                 value={[selectedOverlay.rotation]}
                 onValueChange={handleUpdateRotation}
-                max={360}
-                min={0}
+                max={180}
+                min={-180}
                 step={1}
                 label="Rotation"
                 valueDisplay={`${selectedOverlay.rotation}°`}
               />
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleRotateBy(-90)}
+                  className="flex-1 h-8 rounded-lg"
+                  title="Rotate -90°"
+                >
+                  <RotateLeft01Icon className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => updateImageOverlay(selectedOverlay.id, { rotation: 0 })}
+                  className="flex-1 h-8 rounded-lg"
+                  title="Reset rotation"
+                >
+                  <RefreshIcon className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleRotateBy(90)}
+                  className="flex-1 h-8 rounded-lg"
+                  title="Rotate +90°"
+                >
+                  <RotateRight01Icon className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
 
             {/* Opacity */}

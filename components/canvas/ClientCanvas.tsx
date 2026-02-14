@@ -121,8 +121,15 @@ function CanvasRenderer({ image }: { image: HTMLImageElement }) {
   // Keyboard shortcuts for delete and undo/redo
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Delete overlay
-      if (e.key === "Delete" || e.key === "Backspace") {
+      // Ignore if user is typing in an input, textarea, or contenteditable
+      const target = e.target as HTMLElement;
+      const isTyping =
+        target.tagName === 'INPUT' ||
+        target.tagName === 'TEXTAREA' ||
+        target.isContentEditable;
+
+      // Delete overlay (only when not typing)
+      if ((e.key === "Delete" || e.key === "Backspace") && !isTyping) {
         if (selectedOverlayId) {
           e.preventDefault();
           removeImageOverlay(selectedOverlayId);
@@ -130,8 +137,8 @@ function CanvasRenderer({ image }: { image: HTMLImageElement }) {
         }
       }
 
-      // Undo/Redo
-      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "z") {
+      // Undo/Redo (only when not typing)
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "z" && !isTyping) {
         e.preventDefault();
         const { undo, redo } = useImageStore.temporal.getState();
         if (e.shiftKey) {
@@ -422,8 +429,10 @@ function CanvasRenderer({ image }: { image: HTMLImageElement }) {
               x: selectedOverlay.position.x,
               y: selectedOverlay.position.y - selectedOverlay.size / 2,
             }}
+            overlay={selectedOverlay}
             onDelete={handleDeleteOverlay}
             onDuplicate={handleDuplicateOverlay}
+            onUpdate={(updates) => updateImageOverlay(selectedOverlay.id, updates)}
             containerRef={canvasContainerRef}
           />
         )}
