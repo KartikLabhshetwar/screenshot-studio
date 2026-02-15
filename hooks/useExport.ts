@@ -173,7 +173,7 @@ export function useExport(selectedAspectRatio: string) {
       });
 
       // Show success toast
-      toast('Image downloaded successfully!', {
+      toast.success('Image downloaded successfully!', {
         description: `Saved as ${fileName}`,
       });
     } catch (error) {
@@ -183,7 +183,7 @@ export function useExport(selectedAspectRatio: string) {
         : 'Failed to export image. Please try again.';
 
       // Show error toast
-      toast('Export failed', {
+      toast.error('Export failed', {
         description: errorMessage,
       });
 
@@ -285,7 +285,7 @@ export function useExport(selectedAspectRatio: string) {
         });
 
         // Show success toast
-        toast('Image copied to clipboard!', {
+        toast.success('Image copied to clipboard!', {
           description: 'You can now paste it anywhere',
         });
       } else {
@@ -298,7 +298,7 @@ export function useExport(selectedAspectRatio: string) {
         : 'Failed to copy image to clipboard. Please try again.';
 
       // Show error toast
-      toast('Copy failed', {
+      toast.error('Copy failed', {
         description: errorMessage,
       });
 
