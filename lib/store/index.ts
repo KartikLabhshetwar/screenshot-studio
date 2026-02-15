@@ -13,6 +13,17 @@ import type { Mockup } from "@/types/mockup";
 import type { TimelineState, AnimationTrack, Keyframe, AnimatableProperties, AnimationClip } from "@/types/animation";
 import { DEFAULT_TIMELINE_STATE } from "@/types/animation";
 import { clonePresetTracks, getPresetById, ANIMATION_PRESETS } from "@/lib/animation/presets";
+import {
+  trackImageUpload,
+  trackImageRemove,
+  trackBackgroundChange,
+  trackEffectApply,
+  trackFrameApply,
+  trackOverlayAdd,
+  trackOverlayRemove,
+  trackAspectRatioChange,
+  trackPresetApply,
+} from "@/lib/analytics";
 
 interface TextShadow {
   enabled: boolean;
@@ -677,6 +688,9 @@ export const useImageStore = create<ImageState>()(
         URL.revokeObjectURL(oldUrl);
       }
 
+      // Track image upload
+      trackImageUpload('file', file.size);
+
       const imageUrl = URL.createObjectURL(file);
       // Reset ALL effects to defaults when uploading a new image
       set({
@@ -748,6 +762,10 @@ export const useImageStore = create<ImageState>()(
 
     clearImage: () => {
       const { uploadedImageUrl, slides, imageOverlays } = get();
+
+      // Track image removal
+      trackImageRemove();
+
       // Revoke main image URL
       if (uploadedImageUrl) {
         URL.revokeObjectURL(uploadedImageUrl);
@@ -858,10 +876,12 @@ export const useImageStore = create<ImageState>()(
     },
 
     setAspectRatio: (aspectRatio: AspectRatioKey) => {
+      trackAspectRatioChange(aspectRatio);
       set({ selectedAspectRatio: aspectRatio });
     },
 
     setBackgroundConfig: (config: BackgroundConfig) => {
+      trackBackgroundChange(config.type, config.value as string);
       set({ backgroundConfig: config });
     },
 
@@ -933,6 +953,7 @@ export const useImageStore = create<ImageState>()(
     },
 
     addTextOverlay: (overlay) => {
+      trackOverlayAdd('text');
       const id = `text-${Date.now()}-${Math.random()
         .toString(36)
         .substr(2, 9)}`;
@@ -950,6 +971,7 @@ export const useImageStore = create<ImageState>()(
     },
 
     removeTextOverlay: (id) => {
+      trackOverlayRemove('text');
       set((state) => ({
         textOverlays: state.textOverlays.filter((overlay) => overlay.id !== id),
       }));
@@ -960,6 +982,7 @@ export const useImageStore = create<ImageState>()(
     },
 
     addImageOverlay: (overlay) => {
+      trackOverlayAdd('sticker');
       const id = `overlay-${Date.now()}-${Math.random()
         .toString(36)
         .substr(2, 9)}`;
@@ -977,6 +1000,7 @@ export const useImageStore = create<ImageState>()(
     },
 
     removeImageOverlay: (id) => {
+      trackOverlayRemove('sticker');
       set((state) => ({
         imageOverlays: state.imageOverlays.filter(
           (overlay) => overlay.id !== id
@@ -1025,6 +1049,10 @@ export const useImageStore = create<ImageState>()(
 
     setImageBorder: (border: ImageBorder | Partial<ImageBorder>) => {
       const currentBorder = get().imageBorder;
+      // Track frame changes
+      if ('type' in border && border.type && border.type !== currentBorder.type) {
+        trackFrameApply(border.type);
+      }
       set({
         imageBorder: {
           ...currentBorder,

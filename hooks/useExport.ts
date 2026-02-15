@@ -10,7 +10,12 @@ import { exportElement, type ExportOptions } from '@/lib/export/export-service';
 import { saveExportPreferences, getExportPreferences, saveExportedImage } from '@/lib/export-storage';
 import { useImageStore, useEditorStore } from '@/lib/store';
 import { getCanvasContainer } from '@/components/canvas/ClientCanvas';
-import { trackEvent } from '@/lib/analytics';
+import {
+  trackExportStart,
+  trackExportComplete,
+  trackExportError,
+  trackCopyToClipboard,
+} from '@/lib/analytics';
 import type { ExportFormat, QualityPreset } from '@/lib/export/types';
 
 export interface ExportSettings {
@@ -85,6 +90,10 @@ export function useExport(selectedAspectRatio: string) {
 
   const exportImage = useCallback(async (): Promise<void> => {
     setIsExporting(true);
+    const startTime = Date.now();
+
+    // Track export start
+    trackExportStart(settings.format, settings.qualityPreset, settings.scale);
 
     try {
       // Get HTML canvas container
@@ -142,15 +151,16 @@ export function useExport(selectedAspectRatio: string) {
         // Continue with download even if storage fails
       }
 
-      // Track export event
-      trackEvent('image_exported', {
-        format: settings.format,
-        qualityPreset: settings.qualityPreset,
-        scale: settings.scale,
-        aspectRatio: selectedAspectRatio,
-        width: preset.width,
-        height: preset.height,
-      });
+      // Track export complete
+      const durationMs = Date.now() - startTime;
+      const fileSizeKb = Math.round(result.blob.size / 1024);
+      trackExportComplete(
+        settings.format,
+        settings.qualityPreset,
+        settings.scale,
+        fileSizeKb,
+        durationMs
+      );
 
       // Download the file
       const link = document.createElement('a');
@@ -181,6 +191,9 @@ export function useExport(selectedAspectRatio: string) {
       const errorMessage = error instanceof Error
         ? error.message
         : 'Failed to export image. Please try again.';
+
+      // Track export error
+      trackExportError(settings.format, errorMessage);
 
       // Show error toast
       toast.error('Export failed', {
@@ -270,12 +283,8 @@ export function useExport(selectedAspectRatio: string) {
           })
         ]);
 
-        // Track copy event
-        trackEvent('image_copied', {
-          aspectRatio: selectedAspectRatio,
-          width: preset.width,
-          height: preset.height,
-        });
+        // Track copy success
+        trackCopyToClipboard(true);
 
         // Trigger confetti celebration
         confetti({
@@ -296,6 +305,9 @@ export function useExport(selectedAspectRatio: string) {
       const errorMessage = error instanceof Error
         ? error.message
         : 'Failed to copy image to clipboard. Please try again.';
+
+      // Track copy failure
+      trackCopyToClipboard(false);
 
       // Show error toast
       toast.error('Copy failed', {

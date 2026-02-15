@@ -22,6 +22,7 @@ import {
 import { cn } from '@/lib/utils';
 import { useImageStore } from '@/lib/store';
 import { Clock01Icon } from 'hugeicons-react';
+import { trackTabChange } from '@/lib/analytics';
 
 type TabType = 'settings' | 'edit' | 'background' | 'transforms' | 'animate' | 'presets';
 
@@ -56,7 +57,10 @@ export function UnifiedRightPanel() {
           {tabs.map((tab) => (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
+              onClick={() => {
+                trackTabChange(tab.id);
+                setActiveTab(tab.id);
+              }}
               className={cn(
                 'relative z-10 flex-1 flex flex-col items-center gap-1 py-2.5 px-2 rounded-lg transition-colors duration-150',
                 activeTab === tab.id
@@ -106,7 +110,7 @@ export function UnifiedRightPanel() {
                 Animation Coming Soon
               </h3>
               <p className="text-sm text-muted-foreground max-w-[280px]">
-                Create stunning animations with keyframes, transitions, and effects. We're working hard to bring you this feature!
+                Create stunning animations with keyframes, transitions, and effects. We&apos;re working hard to bring you this feature!
               </p>
             </div>
           )}

@@ -6,6 +6,7 @@ import { presets, type PresetConfig } from '@/lib/constants/presets';
 import { aspectRatios, type AspectRatioKey } from '@/lib/constants/aspect-ratios';
 import { getBackgroundCSS } from '@/lib/constants/backgrounds';
 import { cn } from '@/lib/utils';
+import { trackPresetApply } from '@/lib/analytics';
 
 interface PresetGalleryProps {
   onPresetSelect?: (preset: PresetConfig) => void;
@@ -180,6 +181,9 @@ export function PresetGallery({ onPresetSelect }: PresetGalleryProps) {
   ]);
 
   const applyPreset = React.useCallback((preset: PresetConfig) => {
+    // Track preset application
+    trackPresetApply(preset.id, preset.name);
+
     setBackgroundConfig(preset.backgroundConfig);
     setBackgroundType(preset.backgroundConfig.type);
     setBackgroundValue(preset.backgroundConfig.value);
