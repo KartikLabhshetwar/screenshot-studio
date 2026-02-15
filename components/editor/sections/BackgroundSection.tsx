@@ -31,13 +31,12 @@ const OVERLAY_SHADOW_IDS = [
 const OVERLAY_SHADOW_URLS = OVERLAY_SHADOW_IDS.map((id) => `/overlay-shadow/${id}.webp`);
 
 // Category display names (ordered)
-const CATEGORY_ORDER = ['assets', 'mac', 'radiant', 'mesh', 'silk', 'raycast', 'paper', 'pattern'] as const;
+const CATEGORY_ORDER = ['assets', 'mac', 'radiant', 'mesh', 'raycast', 'paper', 'pattern'] as const;
 const CATEGORY_LABELS: Record<string, string> = {
   assets: 'Abstract',
   mac: 'macOS',
   radiant: 'Radiant',
   mesh: 'Mesh',
-  silk: 'Silk',
   raycast: 'Raycast',
   paper: 'Paper',
   pattern: 'Pattern',
@@ -338,7 +337,7 @@ export function BackgroundSection() {
         <SectionWrapper
           key={category}
           title={CATEGORY_LABELS[category] || category}
-          defaultOpen={category === 'assets'}
+          defaultOpen={true}
         >
           <div className="grid grid-cols-5 gap-2">
             {(backgroundCategories[category] || []).map((imagePath: string, idx: number) => (
@@ -349,7 +348,7 @@ export function BackgroundSection() {
                   setBackgroundType('image');
                 }}
                 className={cn(
-                  'aspect-video rounded-lg overflow-hidden border-2 transition-all hover:scale-105',
+                  'aspect-video rounded-lg overflow-hidden border-2 transition-all hover:scale-105 relative',
                   backgroundConfig.value === imagePath
                     ? 'border-primary ring-1 ring-primary/30'
                     : 'border-transparent hover:border-border/50'
@@ -369,7 +368,7 @@ export function BackgroundSection() {
       {/* Magic Gradients */}
       <SectionWrapper
         title="Magic Gradients"
-        defaultOpen={false}
+        defaultOpen={true}
         action={
           <button
             onClick={(e) => {
@@ -412,7 +411,7 @@ export function BackgroundSection() {
       </SectionWrapper>
 
       {/* Gradients */}
-      <SectionWrapper title="Gradients" defaultOpen={false}>
+      <SectionWrapper title="Gradients" defaultOpen={true}>
         <div className="overflow-x-auto scrollbar-hide">
           <div
             className="grid grid-flow-col auto-cols-min gap-2 w-max"
