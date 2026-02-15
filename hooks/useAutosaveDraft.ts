@@ -16,6 +16,7 @@ import {
   migrateFromLocalStorage,
   checkStorageAndCleanup,
   getStorageInfo,
+  autoCleanIndexedDB,
 } from "@/lib/draft-storage";
 
 const AUTOSAVE_DELAY = 1000;
@@ -37,12 +38,15 @@ export function useAutosaveDraft() {
         // Migrate from localStorage to IndexedDB (one-time)
         await migrateFromLocalStorage();
 
-        // Check storage on startup and log info
+        // Auto-clean IndexedDB on startup (removes old/corrupted data)
+        const cleanupResult = await autoCleanIndexedDB();
+        if (cleanupResult.cleaned) {
+          console.log(`🧹 IndexedDB cleaned: ${cleanupResult.reason}`);
+        }
+
+        // Log storage info
         const storageInfo = await getStorageInfo();
         console.log('📦 IndexedDB Storage:', storageInfo);
-
-        // Cleanup if storage is too high
-        await checkStorageAndCleanup();
 
         const draft = await getDraft();
         if (!draft) {

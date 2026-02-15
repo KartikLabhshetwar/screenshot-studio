@@ -280,3 +280,120 @@ export async function getStorageInfo(): Promise<{
     percentage: storage.percentage,
   };
 }
+
+// Auto cleanup configuration
+const MAX_DRAFT_AGE_DAYS = 7; // Delete drafts older than 7 days
+const MAX_DRAFT_AGE_MS = MAX_DRAFT_AGE_DAYS * 24 * 60 * 60 * 1000;
+
+/**
+ * Auto-clean IndexedDB on startup:
+ * - Removes drafts older than MAX_DRAFT_AGE_DAYS
+ * - Clears storage if it exceeds limits
+ * - Deletes any corrupted or orphaned data
+ */
+export async function autoCleanIndexedDB(): Promise<{
+  cleaned: boolean;
+  reason?: string;
+}> {
+  try {
+    console.log('🧹 Running IndexedDB auto-cleanup...');
+
+    // 1. Check for old drafts and delete them
+    const draft = await getDraft();
+    if (draft) {
+      const draftAge = Date.now() - draft.timestamp;
+      if (draftAge > MAX_DRAFT_AGE_MS) {
+        console.log(`🗑️ Deleting draft older than ${MAX_DRAFT_AGE_DAYS} days`);
+        await deleteDraft();
+        return { cleaned: true, reason: 'Draft expired' };
+      }
+    }
+
+    // 2. Check storage limits
+    const cleanedForStorage = await checkStorageAndCleanup();
+    if (cleanedForStorage) {
+      return { cleaned: true, reason: 'Storage limit exceeded' };
+    }
+
+    // 3. Validate draft data integrity
+    if (draft) {
+      const isValid = validateDraftIntegrity(draft);
+      if (!isValid) {
+        console.log('🗑️ Deleting corrupted draft data');
+        await deleteDraft();
+        return { cleaned: true, reason: 'Corrupted data' };
+      }
+    }
+
+    console.log('✅ IndexedDB cleanup complete - no action needed');
+    return { cleaned: false };
+  } catch (error) {
+    console.error('Failed to auto-clean IndexedDB:', error);
+    // If cleanup fails, try to clear everything as a fallback
+    try {
+      await clearAllDrafts();
+      return { cleaned: true, reason: 'Error recovery' };
+    } catch {
+      return { cleaned: false };
+    }
+  }
+}
+
+/**
+ * Validate draft data integrity
+ */
+function validateDraftIntegrity(draft: DraftStorage): boolean {
+  try {
+    // Check required fields exist
+    if (!draft.id || !draft.timestamp) return false;
+    if (!draft.editorState || !draft.imageState) return false;
+
+    // Check timestamp is valid
+    if (isNaN(draft.timestamp) || draft.timestamp < 0) return false;
+
+    // Check for invalid base64 data (corrupted images)
+    const imageUrl = draft.imageState.uploadedImageUrl;
+    if (imageUrl && typeof imageUrl === 'string') {
+      // If it's a base64 string, validate it's properly formatted
+      if (imageUrl.startsWith('data:')) {
+        const parts = imageUrl.split(',');
+        if (parts.length !== 2) return false;
+        // Check if base64 part exists and isn't empty
+        if (!parts[1] || parts[1].length === 0) return false;
+      }
+    }
+
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Force clear all IndexedDB databases for this app
+ */
+export async function forceCleanAllIndexedDB(): Promise<void> {
+  try {
+    // Clear our main database
+    await clearAllDrafts();
+
+    // Also try to delete the entire database
+    return new Promise((resolve) => {
+      const deleteRequest = indexedDB.deleteDatabase(DB_NAME);
+      deleteRequest.onsuccess = () => {
+        console.log('🗑️ IndexedDB database deleted successfully');
+        resolve();
+      };
+      deleteRequest.onerror = () => {
+        console.error('Failed to delete IndexedDB database');
+        resolve(); // Resolve anyway
+      };
+      deleteRequest.onblocked = () => {
+        console.warn('IndexedDB deletion blocked - close other tabs');
+        resolve();
+      };
+    });
+  } catch (error) {
+    console.error('Failed to force clean IndexedDB:', error);
+  }
+}
