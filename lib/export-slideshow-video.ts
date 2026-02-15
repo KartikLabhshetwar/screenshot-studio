@@ -1,84 +1,111 @@
 import { useExportProgress } from "@/hooks/useExportProgress";
-import { renderSlidesToFrames } from "./render-slideFrame";
+import { renderSlidesToFrames, renderAnimationToFrames } from "./render-slideFrame";
+import {
+  exportVideo,
+  type VideoFormat,
+  type VideoQuality,
+} from "./export/video-encoder";
 
 const FPS = 60;
-const VIDEO_BITRATE = 25_000_000;
 
-function raf(): Promise<number> {
-  return new Promise(requestAnimationFrame);
+export interface VideoExportOptions {
+  format?: VideoFormat;
+  quality?: VideoQuality;
 }
 
-export async function exportSlideshowVideo() {
+/**
+ * Export slideshow as video (MP4 or WebM)
+ */
+export async function exportSlideshowVideo(options: VideoExportOptions = {}) {
+  const { format = "mp4", quality = "high" } = options;
   const progress = useExportProgress.getState();
 
   progress.start();
 
-  const frames = await renderSlidesToFrames();
+  try {
+    const frames = await renderSlidesToFrames();
 
-  if (!frames.length) {
-    progress.done();
-    throw new Error("No frames to export");
-  }
-
-  const totalDuration = frames.reduce((a, f) => a + f.duration, 0);
-  let elapsed = 0;
-
-  const width = frames[0].img.width;
-  const height = frames[0].img.height;
-
-  const canvas = document.createElement("canvas");
-  canvas.width = width;
-  canvas.height = height;
-  canvas.style.position = "fixed";
-  canvas.style.left = "-99999px";
-  document.body.appendChild(canvas);
-
-  const ctx = canvas.getContext("2d")!;
-  ctx.imageSmoothingEnabled = false;
-
-  const stream = canvas.captureStream(FPS);
-
-  const recorder = new MediaRecorder(stream, {
-    mimeType: "video/webm; codecs=vp8",
-    videoBitsPerSecond: VIDEO_BITRATE,
-  });
-
-  const chunks: BlobPart[] = [];
-  recorder.ondataavailable = (e) => e.data.size && chunks.push(e.data);
-
-  recorder.start();
-
-  for (const frame of frames) {
-    const totalFrames = Math.round(frame.duration * FPS);
-
-    for (let i = 0; i < totalFrames; i++) {
-      ctx.clearRect(0, 0, width, height);
-      ctx.drawImage(frame.img, 0, 0, width, height);
-      await new Promise((r) => setTimeout(r, 1000 / FPS));
-
-      elapsed += 1 / FPS;
-      progress.set(Math.min(100, (elapsed / totalDuration) * 100));
+    if (!frames.length) {
+      throw new Error("No frames to export");
     }
+
+    const width = frames[0].img.width;
+    const height = frames[0].img.height;
+
+    const { blob, format: actualFormat } = await exportVideo(frames, {
+      width,
+      height,
+      fps: FPS,
+      format,
+      quality,
+      onProgress: (p) => progress.set(p),
+    });
+
+    progress.done();
+
+    // Download the video
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `stage-video-${Date.now()}.${actualFormat}`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    return { format: actualFormat };
+  } catch (error) {
+    progress.done();
+    throw error;
   }
+}
 
-  await new Promise((r) => setTimeout(r, 300));
-  recorder.stop();
+/**
+ * Export animation as video (MP4 or WebM)
+ */
+export async function exportAnimationVideo(options: VideoExportOptions = {}) {
+  const { format = "mp4", quality = "high" } = options;
+  const progress = useExportProgress.getState();
 
-  await new Promise((r) => (recorder.onstop = r));
+  progress.start();
 
-  progress.done();
+  try {
+    const frames = await renderAnimationToFrames(FPS, (p) => {
+      // Rendering is ~60% of the work
+      progress.set(p * 0.6);
+    });
 
-  stream.getTracks().forEach((t) => t.stop());
-  canvas.remove();
+    if (!frames.length) {
+      throw new Error("No frames to export");
+    }
 
-  const blob = new Blob(chunks, { type: "video/webm" });
-  const url = URL.createObjectURL(blob);
+    const width = frames[0].img.width;
+    const height = frames[0].img.height;
 
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `slideshow-${Date.now()}.webm`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
+    const { blob, format: actualFormat } = await exportVideo(frames, {
+      width,
+      height,
+      fps: FPS,
+      format,
+      quality,
+      onProgress: (p) => progress.set(60 + p * 0.4), // Encoding is ~40% of work
+    });
+
+    progress.done();
+
+    // Download the video
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `stage-animation-${Date.now()}.${actualFormat}`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    return { format: actualFormat };
+  } catch (error) {
+    progress.done();
+    throw error;
+  }
 }

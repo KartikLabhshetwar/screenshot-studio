@@ -21,4 +21,3 @@ export function EditorContent({ children, className }: EditorContentProps) {
     </main>
   );
 }
-

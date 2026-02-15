@@ -1,16 +1,16 @@
 import { Navigation } from "./Navigation";
 import { Hero } from "./Hero";
-import { SocialProof } from "./SocialProof";
 import { HowItWorks } from "./HowItWorks";
 import { Features } from "./Features";
 import { Footer } from "./Footer";
 import { MasonryGrid } from "./MasonryGrid";
 import { FAQ } from "./FAQ";
-import { Sponsors, Sponsor } from "./Sponsors";
 import { SponsorButton } from "@/components/SponsorButton";
 import { VideoTestimonials } from "./VideoTestimonials";
 import { FinalCTA } from "./FinalCTA";
 import { StructuredData } from "./StructuredData";
+import { ValueProposition } from "./ValueProposition";
+import { Marquee } from "./Marquee";
 
 interface Feature {
   title: string;
@@ -22,10 +22,6 @@ interface HowItWorksStep {
   step: number;
   title: string;
   description: string;
-}
-
-interface SocialProofData {
-  stats?: { value: string; label: string }[];
 }
 
 interface VideoTestimonial {
@@ -45,12 +41,14 @@ interface LandingPageProps {
   features: Feature[];
   featuresTitle?: string;
   howItWorks?: HowItWorksStep[];
-  socialProof?: SocialProofData;
-  sponsors?: Sponsor[];
-  sponsorsTitle?: string;
   brandName?: string;
   videoTestimonials?: VideoTestimonial[];
   videoTestimonialsTitle?: string;
+  valueProposition?: {
+    eyebrow?: string;
+    headline?: string;
+  };
+  marqueeText?: string;
 }
 
 export function LandingPage({
@@ -62,12 +60,11 @@ export function LandingPage({
   features,
   featuresTitle,
   howItWorks,
-  socialProof,
-  sponsors,
-  sponsorsTitle,
   brandName = "Stage",
   videoTestimonials,
   videoTestimonialsTitle,
+  valueProposition,
+  marqueeText,
 }: LandingPageProps) {
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -83,9 +80,16 @@ export function LandingPage({
         ctaHref={ctaHref}
       />
 
-      {socialProof && <SocialProof stats={socialProof.stats} />}
-
       <MasonryGrid />
+
+      {/* Value Proposition Section */}
+      <ValueProposition
+        eyebrow={valueProposition?.eyebrow}
+        headline={valueProposition?.headline}
+      />
+
+      {/* Marquee Section */}
+      <Marquee text={marqueeText} />
 
       {videoTestimonials && videoTestimonials.length > 0 && (
         <VideoTestimonials
@@ -99,8 +103,6 @@ export function LandingPage({
       )}
 
       <Features features={features} title={featuresTitle} />
-
-      <Sponsors sponsors={sponsors} title={sponsorsTitle} />
 
       <FAQ />
 

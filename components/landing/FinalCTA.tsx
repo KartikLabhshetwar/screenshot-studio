@@ -24,56 +24,48 @@ export function FinalCTA({
   ctaHref,
 }: FinalCTAProps) {
   return (
-    <section className="py-24 sm:py-32 md:py-40 px-6 bg-background relative overflow-hidden">
-      {/* Subtle gradient */}
-      <div
-        className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/[0.02] to-transparent pointer-events-none"
-        aria-hidden="true"
-      />
-
-      <div className="relative z-10 container mx-auto max-w-2xl text-center">
-        <motion.h2
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className={`text-3xl sm:text-4xl md:text-5xl font-bold mb-6 ${instrumentSerif.className}`}
-        >
-          {title}
-        </motion.h2>
-
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.1 }}
-          className="text-lg text-muted-foreground mb-10"
-        >
-          {description}
-        </motion.p>
-
+    <section className="py-16 sm:py-20 px-6 bg-background">
+      <div className="max-w-screen-xl mx-auto">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ delay: 0.2 }}
+          className="bg-brand rounded-3xl px-8 sm:px-12 md:px-16 py-12 sm:py-16"
         >
-          <Link href={ctaHref}>
-            <Button
-              variant="integration"
-              size="lg"
-              className="text-base sm:text-lg px-8 py-6 min-h-[56px] font-medium"
-            >
-              {ctaLabel}
-            </Button>
-          </Link>
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-8">
+            {/* Text Content */}
+            <div className="max-w-xl">
+              <h2
+                className={`text-2xl sm:text-3xl md:text-4xl font-normal text-brand-foreground mb-3 ${instrumentSerif.className}`}
+              >
+                {title}
+              </h2>
+              <p className="text-brand-foreground/80 text-lg">
+                {description}
+              </p>
+            </div>
+
+            {/* CTA Button */}
+            <div className="flex-shrink-0">
+              <Link href={ctaHref}>
+                <Button
+                  size="lg"
+                  className="text-base sm:text-lg px-8 py-6 min-h-[56px] font-medium bg-brand-foreground text-brand hover:bg-brand-foreground/90 rounded-full"
+                >
+                  {ctaLabel}
+                </Button>
+              </Link>
+            </div>
+          </div>
         </motion.div>
 
+        {/* Subtle trust line */}
         <motion.p
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
-          transition={{ delay: 0.3 }}
-          className="mt-6 text-xs text-muted-foreground/60"
+          transition={{ delay: 0.2 }}
+          className="mt-6 text-center text-sm text-muted-foreground/60"
         >
           Free forever · No signup required
         </motion.p>

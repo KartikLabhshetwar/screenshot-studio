@@ -27,39 +27,6 @@ const nextConfig: NextConfig = {
   // Turbopack configuration (Next.js 16+ default bundler)
   turbopack: {},
 
-  // REQUIRED FOR ffmpeg.wasm (SharedArrayBuffer)
-  async headers() {
-    return [
-      {
-        // Apply COEP/COOP only to editor routes that need SharedArrayBuffer
-        source: "/home/:path*",
-        headers: [
-          {
-            key: "Cross-Origin-Opener-Policy",
-            value: "same-origin",
-          },
-          {
-            key: "Cross-Origin-Embedder-Policy",
-            value: "credentialless",
-          },
-        ],
-      },
-      {
-        // Also apply to API routes
-        source: "/api/:path*",
-        headers: [
-          {
-            key: "Cross-Origin-Opener-Policy",
-            value: "same-origin",
-          },
-          {
-            key: "Cross-Origin-Embedder-Policy",
-            value: "credentialless",
-          },
-        ],
-      },
-    ];
-  },
 };
 
 export default nextConfig;

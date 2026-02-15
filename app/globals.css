@@ -13,6 +13,11 @@
   /* Light mode - clean and minimal */
   --background: #ffffff;
   --foreground: #1a1a1a;
+
+  /* Brand accent color */
+  --brand: #c9ff2e;
+  --brand-hover: #b8e629;
+  --brand-foreground: #1a1a1a;
   --card: #ffffff;
   --card-foreground: #1a1a1a;
   --popover: #ffffff;
@@ -100,6 +105,11 @@
    * Deep charcoal monochromatic palette
    * Subtle depth through very close gray values
    */
+
+  /* Brand accent color */
+  --brand: #c9ff2e;
+  --brand-hover: #b8e629;
+  --brand-foreground: #1a1a1a;
 
   /* Base - Deep charcoal */
   --background: #1a1a1a;
@@ -203,6 +213,11 @@
 }
 
 @theme inline {
+  /* Brand colors */
+  --color-brand: var(--brand);
+  --color-brand-hover: var(--brand-hover);
+  --color-brand-foreground: var(--brand-foreground);
+
   /* Base colors */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -379,5 +394,23 @@
   }
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
+  }
+
+  /* Marquee animation */
+  @keyframes marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  .animate-marquee {
+    animation: marquee 30s linear infinite;
+  }
+
+  .animate-marquee:hover {
+    animation-play-state: paused;
   }
 }

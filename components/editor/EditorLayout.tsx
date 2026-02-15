@@ -12,13 +12,18 @@ import { Button } from "@/components/ui/button";
 import { Settings02Icon } from "hugeicons-react";
 import { useAutosaveDraft } from "@/hooks/useAutosaveDraft";
 import { MobileBanner } from "./MobileBanner";
+import { TimelineEditor } from "@/components/timeline";
+import { useImageStore } from "@/lib/store";
 
 function EditorMain() {
   const isMobile = useIsMobile();
   const [rightPanelOpen, setRightPanelOpen] = React.useState(false);
+  const { timeline, uploadedImageUrl, slides, showTimeline } = useImageStore();
 
   // enable autosave
   useAutosaveDraft();
+
+  const hasContent = !!uploadedImageUrl || slides.length > 0;
 
   React.useEffect(() => {
     document.body.style.overflow = "hidden";
@@ -54,9 +59,14 @@ function EditorMain() {
       <div className="flex-1 flex overflow-hidden">
         {/* Center Canvas - with depth */}
         <div className="flex-1 flex flex-col overflow-hidden bg-surface-1 relative">
-          <EditorContent>
-            <EditorCanvas />
-          </EditorContent>
+          <div className={`flex-1 overflow-hidden ${showTimeline ? 'pb-0' : ''}`}>
+            <EditorContent>
+              <EditorCanvas />
+            </EditorContent>
+          </div>
+
+          {/* Timeline Editor - shown when content exists and timeline is enabled */}
+          {hasContent && showTimeline && !isMobile && <TimelineEditor />}
         </div>
 
         {/* Right Panel - Desktop */}

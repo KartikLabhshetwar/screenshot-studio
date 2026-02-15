@@ -72,7 +72,7 @@ export function FAQ({
   faqs = defaultFAQs,
 }: FAQProps) {
   return (
-    <section className="py-20 sm:py-28 md:py-32 px-6 border-t border-border/40 bg-background">
+    <section className="py-20 sm:py-28 md:py-32 px-6 bg-background">
       <div className="container mx-auto max-w-2xl">
         <motion.h2
           initial={{ opacity: 0, y: 20 }}

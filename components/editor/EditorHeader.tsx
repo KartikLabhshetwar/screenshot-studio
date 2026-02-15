@@ -9,6 +9,7 @@ import {
   Download04Icon,
   Copy01Icon,
   AspectRatioIcon,
+  VideoReplayIcon,
 } from 'hugeicons-react';
 import { useEditorStore, useImageStore } from '@/lib/store';
 import { useExport } from '@/hooks/useExport';
@@ -23,7 +24,7 @@ import { ExportDialog } from '@/components/canvas/dialogs/ExportDialog';
 
 export function EditorHeader() {
   const { screenshot } = useEditorStore();
-  const { selectedAspectRatio } = useImageStore();
+  const { selectedAspectRatio, showTimeline, toggleTimeline } = useImageStore();
   const [aspectRatioOpen, setAspectRatioOpen] = React.useState(false);
   const [exportDialogOpen, setExportDialogOpen] = React.useState(false);
 
@@ -90,6 +91,18 @@ export function EditorHeader() {
               <AspectRatioPicker onSelect={() => setAspectRatioOpen(false)} />
             </PopoverContent>
           </Popover>
+
+          <Button
+            onClick={toggleTimeline}
+            disabled={!hasImage}
+            variant={showTimeline ? 'default' : 'outline'}
+            className={`h-9 justify-center gap-2 rounded-lg font-medium px-4 ${
+              showTimeline ? 'bg-brand hover:bg-brand-hover text-brand-foreground' : ''
+            }`}
+          >
+            <VideoReplayIcon size={16} />
+            <span>Animate</span>
+          </Button>
         </div>
 
         {/* Right - Social Links */}

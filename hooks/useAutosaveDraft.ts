@@ -263,6 +263,18 @@ export function useAutosaveDraft() {
             isPreviewing: false,
             previewIndex: 0,
             previewStartedAt: null,
+            timeline: {
+              duration: 3000,
+              playhead: 0,
+              isPlaying: false,
+              isLooping: true,
+              tracks: [],
+              zoom: 1,
+              snapToKeyframes: true,
+            },
+            showTimeline: false,
+            animationClips: [],
+            activeRightPanelTab: 'edit',
           };
 
           await saveDraft(editorState, imageState);

@@ -10,6 +10,9 @@ import { BackgroundConfig, BackgroundType } from "@/lib/constants/backgrounds";
 import { gradientColors } from "@/lib/constants/gradient-colors";
 import { solidColors } from "@/lib/constants/solid-colors";
 import type { Mockup } from "@/types/mockup";
+import type { TimelineState, AnimationTrack, Keyframe, AnimatableProperties, AnimationClip } from "@/types/animation";
+import { DEFAULT_TIMELINE_STATE } from "@/types/animation";
+import { clonePresetTracks, getPresetById, ANIMATION_PRESETS } from "@/lib/animation/presets";
 
 interface TextShadow {
   enabled: boolean;
@@ -550,6 +553,36 @@ export interface ImageState {
   startPreview: () => void;
   resetSlideshow: () => void;
   stopPreview: () => void;
+
+  // Timeline / Animation
+  timeline: TimelineState;
+  showTimeline: boolean;
+  animationClips: AnimationClip[];
+  setTimeline: (updates: Partial<TimelineState>) => void;
+  setShowTimeline: (show: boolean) => void;
+  toggleTimeline: () => void;
+  setPlayhead: (time: number) => void;
+  togglePlayback: () => void;
+  startPlayback: () => void;
+  stopPlayback: () => void;
+  addKeyframe: (trackId: string, keyframe: Omit<Keyframe, 'id'>) => void;
+  updateKeyframe: (trackId: string, keyframeId: string, updates: Partial<Keyframe>) => void;
+  removeKeyframe: (trackId: string, keyframeId: string) => void;
+  addTrack: (track: Omit<AnimationTrack, 'id'>) => void;
+  updateTrack: (trackId: string, updates: Partial<AnimationTrack>) => void;
+  removeTrack: (trackId: string) => void;
+  applyAnimationPreset: (presetId: string) => void;
+  clearTimeline: () => void;
+  setTimelineDuration: (duration: number) => void;
+  // Animation clips
+  addAnimationClip: (presetId: string, startTime: number) => void;
+  updateAnimationClip: (clipId: string, updates: Partial<AnimationClip>) => void;
+  removeAnimationClip: (clipId: string) => void;
+  clearAnimationClips: () => void;
+
+  // UI State
+  activeRightPanelTab: 'settings' | 'edit' | 'background' | 'transforms' | 'animate' | 'presets';
+  setActiveRightPanelTab: (tab: 'settings' | 'edit' | 'background' | 'transforms' | 'animate' | 'presets') => void;
 }
 
 export const useImageStore = create<ImageState>()(
@@ -953,7 +986,7 @@ export const useImageStore = create<ImageState>()(
       }
     },
     addImages: (files: File[]) => {
-      const { slides, slideshow } = get();
+      const { slides, slideshow, timeline } = get();
 
       const newSlides = files.map((file) => ({
         id: `slide-${crypto.randomUUID()}`,
@@ -964,11 +997,22 @@ export const useImageStore = create<ImageState>()(
 
       const allSlides = [...slides, ...newSlides];
 
+      // Calculate total slideshow duration based on slides and their durations
+      const totalSlideDuration = allSlides.reduce((sum, slide) => sum + slide.duration * 1000, 0);
+      const newTimelineDuration = Math.max(timeline.duration, totalSlideDuration);
+
       set({
         slides: allSlides,
         activeSlideId: get().activeSlideId ?? newSlides[0]?.id ?? null,
         uploadedImageUrl: allSlides[0]?.src ?? null,
         imageName: allSlides[0]?.name ?? null,
+        // Auto-show timeline when multiple slides are added
+        showTimeline: allSlides.length > 1 ? true : get().showTimeline,
+        // Extend timeline to fit all slides
+        timeline: {
+          ...timeline,
+          duration: newTimelineDuration,
+        },
       });
     },
 
@@ -1016,6 +1060,285 @@ export const useImageStore = create<ImageState>()(
         previewIndex: 0,
         previewStartedAt: null,
       });
+    },
+
+    // Timeline / Animation state
+    timeline: { ...DEFAULT_TIMELINE_STATE },
+    showTimeline: false,
+    animationClips: [],
+
+    setTimeline: (updates) => {
+      set((state) => ({
+        timeline: { ...state.timeline, ...updates },
+      }));
+    },
+
+    setShowTimeline: (show) => {
+      set({ showTimeline: show });
+    },
+
+    toggleTimeline: () => {
+      set((state) => ({ showTimeline: !state.showTimeline }));
+    },
+
+    setPlayhead: (time) => {
+      set((state) => ({
+        timeline: { ...state.timeline, playhead: Math.max(0, Math.min(time, state.timeline.duration)) },
+      }));
+    },
+
+    togglePlayback: () => {
+      set((state) => ({
+        timeline: { ...state.timeline, isPlaying: !state.timeline.isPlaying },
+      }));
+    },
+
+    startPlayback: () => {
+      set((state) => ({
+        timeline: { ...state.timeline, isPlaying: true },
+      }));
+    },
+
+    stopPlayback: () => {
+      set((state) => ({
+        timeline: { ...state.timeline, isPlaying: false },
+      }));
+    },
+
+    addKeyframe: (trackId, keyframe) => {
+      const id = `kf-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      set((state) => ({
+        timeline: {
+          ...state.timeline,
+          tracks: state.timeline.tracks.map((track) =>
+            track.id === trackId
+              ? { ...track, keyframes: [...track.keyframes, { ...keyframe, id }] }
+              : track
+          ),
+        },
+      }));
+    },
+
+    updateKeyframe: (trackId, keyframeId, updates) => {
+      set((state) => ({
+        timeline: {
+          ...state.timeline,
+          tracks: state.timeline.tracks.map((track) =>
+            track.id === trackId
+              ? {
+                  ...track,
+                  keyframes: track.keyframes.map((kf) =>
+                    kf.id === keyframeId ? { ...kf, ...updates } : kf
+                  ),
+                }
+              : track
+          ),
+        },
+      }));
+    },
+
+    removeKeyframe: (trackId, keyframeId) => {
+      set((state) => ({
+        timeline: {
+          ...state.timeline,
+          tracks: state.timeline.tracks.map((track) =>
+            track.id === trackId
+              ? { ...track, keyframes: track.keyframes.filter((kf) => kf.id !== keyframeId) }
+              : track
+          ),
+        },
+      }));
+    },
+
+    addTrack: (track) => {
+      const id = `track-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      set((state) => ({
+        timeline: {
+          ...state.timeline,
+          tracks: [...state.timeline.tracks, { ...track, id }],
+        },
+      }));
+    },
+
+    updateTrack: (trackId, updates) => {
+      set((state) => ({
+        timeline: {
+          ...state.timeline,
+          tracks: state.timeline.tracks.map((track) =>
+            track.id === trackId ? { ...track, ...updates } : track
+          ),
+        },
+      }));
+    },
+
+    removeTrack: (trackId) => {
+      set((state) => ({
+        timeline: {
+          ...state.timeline,
+          tracks: state.timeline.tracks.filter((track) => track.id !== trackId),
+        },
+      }));
+    },
+
+    applyAnimationPreset: (presetId) => {
+      const preset = getPresetById(presetId);
+      if (!preset) return;
+
+      const tracks = clonePresetTracks(preset);
+      set((state) => ({
+        timeline: {
+          ...state.timeline,
+          duration: preset.duration,
+          tracks,
+          playhead: 0,
+          isPlaying: false,
+        },
+      }));
+    },
+
+    clearTimeline: () => {
+      set({
+        timeline: { ...DEFAULT_TIMELINE_STATE },
+      });
+    },
+
+    setTimelineDuration: (duration) => {
+      set((state) => {
+        const newDuration = Math.max(500, duration);
+        // Clamp animation clips to fit within the new duration
+        const clampedClips = state.animationClips.map((clip) => {
+          // Ensure clip doesn't extend beyond new duration
+          const maxStartTime = Math.max(0, newDuration - 200); // Minimum clip duration of 200ms
+          const clampedStart = Math.min(clip.startTime, maxStartTime);
+          const maxDuration = newDuration - clampedStart;
+          const clampedDuration = Math.min(clip.duration, maxDuration);
+          return {
+            ...clip,
+            startTime: clampedStart,
+            duration: Math.max(200, clampedDuration),
+          };
+        });
+        return {
+          animationClips: clampedClips,
+          timeline: {
+            ...state.timeline,
+            duration: newDuration,
+            playhead: Math.min(state.timeline.playhead, newDuration),
+          },
+        };
+      });
+    },
+
+    // Animation clips
+    addAnimationClip: (presetId, startTime) => {
+      const preset = ANIMATION_PRESETS.find(p => p.id === presetId);
+      if (!preset) return;
+
+      const id = `clip-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      // Brand-matching green color palette
+      const colors = ['#c9ff2e', '#10B981', '#22c55e', '#84cc16', '#34d399'];
+      const color = colors[Math.floor(Math.random() * colors.length)];
+
+      const newClip: AnimationClip = {
+        id,
+        presetId,
+        name: preset.name,
+        startTime,
+        duration: preset.duration,
+        color,
+      };
+
+      // Clone preset tracks with startTime offset and link to clip
+      const tracks = clonePresetTracks(preset, { startTime, clipId: id });
+
+      set((state) => ({
+        animationClips: [...state.animationClips, newClip],
+        timeline: {
+          ...state.timeline,
+          tracks: [...state.timeline.tracks, ...tracks],
+        },
+        showTimeline: true,
+      }));
+    },
+
+    updateAnimationClip: (clipId, updates) => {
+      set((state) => {
+        const existingClip = state.animationClips.find(c => c.id === clipId);
+        if (!existingClip) return state;
+
+        const newClip = { ...existingClip, ...updates };
+
+        // If startTime or duration changed, update the corresponding track keyframes
+        const startTimeChanged = updates.startTime !== undefined && updates.startTime !== existingClip.startTime;
+        const durationChanged = updates.duration !== undefined && updates.duration !== existingClip.duration;
+
+        let updatedTracks = state.timeline.tracks;
+
+        if (startTimeChanged || durationChanged) {
+          updatedTracks = state.timeline.tracks.map((track) => {
+            if (track.clipId !== clipId) return track;
+
+            const originalDuration = track.originalDuration || existingClip.duration;
+            const newStartTime = updates.startTime ?? existingClip.startTime;
+            const newDuration = updates.duration ?? existingClip.duration;
+            const oldStartTime = existingClip.startTime;
+
+            // Calculate time scaling factor if duration changed
+            const scaleFactor = durationChanged ? newDuration / existingClip.duration : 1;
+
+            return {
+              ...track,
+              keyframes: track.keyframes.map((kf) => {
+                // First, get the relative time within the clip (remove old startTime offset)
+                const relativeTime = kf.time - oldStartTime;
+                // Scale the relative time if duration changed
+                const scaledRelativeTime = relativeTime * scaleFactor;
+                // Add the new start time offset
+                const newTime = scaledRelativeTime + newStartTime;
+
+                return {
+                  ...kf,
+                  time: Math.max(0, newTime),
+                };
+              }),
+            };
+          });
+        }
+
+        return {
+          animationClips: state.animationClips.map((clip) =>
+            clip.id === clipId ? newClip : clip
+          ),
+          timeline: {
+            ...state.timeline,
+            tracks: updatedTracks,
+          },
+        };
+      });
+    },
+
+    removeAnimationClip: (clipId) => {
+      set((state) => ({
+        animationClips: state.animationClips.filter((clip) => clip.id !== clipId),
+        timeline: {
+          ...state.timeline,
+          // Remove tracks associated with this clip
+          tracks: state.timeline.tracks.filter((track) => track.clipId !== clipId),
+        },
+      }));
+    },
+
+    clearAnimationClips: () => {
+      set({
+        animationClips: [],
+        timeline: { ...DEFAULT_TIMELINE_STATE },
+      });
+    },
+
+    // UI State
+    activeRightPanelTab: 'edit',
+    setActiveRightPanelTab: (tab) => {
+      set({ activeRightPanelTab: tab });
     },
   }))
 );

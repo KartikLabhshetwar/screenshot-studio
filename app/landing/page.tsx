@@ -41,15 +41,6 @@ const howItWorks = [
   },
 ];
 
-// Social proof
-const socialProof = {
-  stats: [
-    { value: "10k+", label: "Images Created" },
-    { value: "Free", label: "Forever" },
-    { value: "0", label: "Signups" },
-  ],
-};
-
 // Video testimonials
 const videoTestimonials = [
   {
@@ -73,7 +64,6 @@ export default function Landing() {
       features={features}
       featuresTitle="Simple by Design"
       howItWorks={howItWorks}
-      socialProof={socialProof}
       videoTestimonials={videoTestimonials}
       videoTestimonialsTitle="Creators Love Stage"
     />
