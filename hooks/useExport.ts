@@ -135,7 +135,7 @@ export function useExport(selectedAspectRatio: string) {
 
       // Determine file extension
       const fileExtension = settings.format === 'jpeg' ? 'jpg' : 'png';
-      const fileName = `stage-${Date.now()}.${fileExtension}`;
+      const fileName = `screenshot-studio-${Date.now()}.${fileExtension}`;
 
       // Save blob to IndexedDB for high-quality storage
       try {
