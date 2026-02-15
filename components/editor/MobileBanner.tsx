@@ -5,7 +5,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { Button } from '@/components/ui/button';
 import { Cancel01Icon, ComputerIcon } from 'hugeicons-react';
 
-const DISMISSED_KEY = 'stage-mobile-banner-dismissed';
+const DISMISSED_KEY = 'screenshotstudio-mobile-banner-dismissed';
 
 export function MobileBanner() {
   const isMobile = useIsMobile();

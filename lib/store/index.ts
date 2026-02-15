@@ -1025,6 +1025,10 @@ export const useImageStore = create<ImageState>()(
         uploadedImageUrl: slide.src,
         imageName: slide.name,
       });
+
+      // Also sync to editorStore for export compatibility
+      // (React useEffect sync doesn't run during imperative export)
+      useEditorStore.getState().setScreenshot({ src: slide.src });
     },
 
     removeSlide: (id) => {

@@ -4,7 +4,7 @@
 
 import type { ExportFormat, QualityPreset } from './export/types';
 
-const PREFS_KEY = 'stage-export-preferences';
+const PREFS_KEY = 'screenshotstudio-export-preferences';
 
 interface ExportPreferences {
   format: ExportFormat;

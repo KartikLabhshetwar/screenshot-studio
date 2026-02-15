@@ -23,8 +23,9 @@ function formatTime(ms: number): string {
   return `0:${seconds.toString().padStart(2, '0')}`;
 }
 
-// Time ruler component
+// Time ruler component - clickable to seek
 function TimeRuler({ duration, width }: { duration: number; width: number }) {
+  const { setPlayhead, stopPlayback } = useImageStore();
   const durationSeconds = Math.ceil(duration / 1000);
   const ticks: { time: number; label: string }[] = [];
 
@@ -32,14 +33,26 @@ function TimeRuler({ duration, width }: { duration: number; width: number }) {
     ticks.push({ time: i * 1000, label: formatTime(i * 1000) });
   }
 
+  const handleClick = (e: React.MouseEvent) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const percentage = Math.max(0, Math.min(1, x / width));
+    stopPlayback();
+    setPlayhead(percentage * duration);
+  };
+
   return (
-    <div className="relative h-6 bg-[#1a1a1a] border-b border-white/10" style={{ width }}>
+    <div
+      className="relative h-6 bg-[#1a1a1a] border-b border-white/10 cursor-pointer hover:bg-[#222]"
+      style={{ width }}
+      onClick={handleClick}
+    >
       {ticks.map(({ time, label }) => {
         const left = (time / duration) * width;
         return (
           <div
             key={time}
-            className="absolute top-0 flex flex-col items-center"
+            className="absolute top-0 flex flex-col items-center pointer-events-none"
             style={{ left }}
           >
             <span className="text-[10px] text-white/50 font-mono mt-0.5">{label}</span>
@@ -179,16 +192,16 @@ function ResizableAnimationClip({
         <span className="text-[11px] text-white font-medium truncate">{clip.name}</span>
       </div>
 
-      {/* Delete button */}
+      {/* Delete button - visible when selected, positioned inside the clip */}
       {isSelected && (
         <button
-          className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center hover:bg-red-600 shadow-lg z-10"
+          className="absolute top-1 right-1 w-5 h-5 bg-red-500/90 rounded flex items-center justify-center hover:bg-red-600 shadow-lg z-10 pointer-events-auto"
           onClick={(e) => {
             e.stopPropagation();
             removeAnimationClip(clip.id);
           }}
         >
-          <Delete02Icon size={10} className="text-white" />
+          <Delete02Icon size={12} className="text-white" />
         </button>
       )}
     </div>
@@ -197,7 +210,7 @@ function ResizableAnimationClip({
 
 // Media track with slides
 function MediaTrack({ width }: { width: number }) {
-  const { slides, uploadedImageUrl, imageName, timeline, removeSlide, setActiveSlide, activeSlideId } = useImageStore();
+  const { slides, uploadedImageUrl, imageName, timeline, removeSlide, setActiveSlide, activeSlideId, setPlayhead, stopPlayback } = useImageStore();
   const durationSeconds = timeline.duration / 1000;
 
   const mediaItems = slides.length > 0 ? slides : uploadedImageUrl ? [{

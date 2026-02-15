@@ -68,7 +68,7 @@ export const metadata: Metadata = {
     description: "Create stunning social media graphics in seconds. 100+ backgrounds, animations, 3D effects, video export. 100% free, no signup required.",
     images: [
       {
-        url: "https://screenshot-studio.com/og.jpeg",
+        url: "https://screenshot-studio.com/og.png",
         width: 1200,
         height: 630,
         alt: "Screenshot Studio - Transform Screenshots into Professional Graphics",
@@ -79,7 +79,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Screenshot Studio - Free Screenshot Beautifier",
     description: "Transform screenshots into stunning graphics. Animations, 3D effects, video export. Free, no signup.",
-    images: ["https://screenshot-studio.com/og.jpeg"],
+    images: ["https://screenshot-studio.com/og.png"],
     creator: "@code_kartik",
     site: "@code_kartik",
   },

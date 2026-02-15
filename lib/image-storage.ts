@@ -3,7 +3,7 @@
  * For larger images, the blob URL will be used directly (not persisted across sessions)
  */
 
-const STORAGE_KEY_PREFIX = 'stage-img-';
+const STORAGE_KEY_PREFIX = 'screenshotstudio-img-';
 const MAX_IMAGE_SIZE = 500 * 1024; // 500KB limit per image to avoid quota issues
 
 /**

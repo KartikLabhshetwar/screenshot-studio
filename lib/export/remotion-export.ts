@@ -121,7 +121,7 @@ export function downloadRemotionConfig(): void {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `stage-animation-config-${Date.now()}.json`;
+  a.download = `screenshotstudio-animation-config-${Date.now()}.json`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);

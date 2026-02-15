@@ -104,7 +104,7 @@ export async function exportSlideshowVideo(options: VideoExportOptions = {}) {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `stage-video-${Date.now()}.${actualFormat}`;
+    a.download = `screenshotstudio-video-${Date.now()}.${actualFormat}`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -219,7 +219,7 @@ async function exportAnimationWithFFmpeg(
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = `stage-animation-${Date.now()}.${format}`;
+  a.download = `screenshotstudio-animation-${Date.now()}.${format}`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
@@ -278,7 +278,7 @@ async function exportAnimationWithWebCodecs(
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = `stage-animation-${Date.now()}.mp4`;
+  a.download = `screenshotstudio-animation-${Date.now()}.mp4`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
@@ -322,7 +322,7 @@ async function exportAnimationWithMediaRecorder(
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = `stage-animation-${Date.now()}.${actualFormat}`;
+  a.download = `screenshotstudio-animation-${Date.now()}.${actualFormat}`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);

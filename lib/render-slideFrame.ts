@@ -8,6 +8,41 @@ function wait(ms: number) {
 }
 
 /**
+ * Force a DOM reflow/repaint to ensure CSS changes are applied
+ */
+function forceReflow(): void {
+  // Reading offsetHeight forces a synchronous reflow
+  document.body.offsetHeight;
+}
+
+/**
+ * Wait for an image URL to be preloaded
+ * This ensures the browser has the image cached before we try to render
+ */
+async function waitForImageLoad(src: string, maxWaitMs: number = 3000): Promise<void> {
+  return new Promise((resolve) => {
+    const img = new Image();
+    const timeout = setTimeout(() => {
+      console.warn('Image preload timeout, proceeding anyway');
+      resolve();
+    }, maxWaitMs);
+
+    img.onload = () => {
+      clearTimeout(timeout);
+      resolve();
+    };
+
+    img.onerror = () => {
+      clearTimeout(timeout);
+      console.warn('Image preload error, proceeding anyway');
+      resolve();
+    };
+
+    img.src = src;
+  });
+}
+
+/**
  * Yield to the main thread to keep UI responsive
  * Uses requestIdleCallback if available, otherwise setTimeout
  */
@@ -19,6 +54,32 @@ function yieldToMain(): Promise<void> {
       setTimeout(resolve, 0);
     }
   });
+}
+
+/**
+ * Calculate which slide should be active at a given time
+ * Returns the slide ID or null if no slides
+ */
+function getActiveSlideAtTime(
+  slides: { id: string; duration: number }[],
+  timeMs: number,
+  defaultDuration: number
+): string | null {
+  if (slides.length === 0) return null;
+  if (slides.length === 1) return slides[0].id;
+
+  let cumulativeTime = 0;
+
+  for (const slide of slides) {
+    const slideDurationMs = (slide.duration || defaultDuration) * 1000;
+    if (timeMs < cumulativeTime + slideDurationMs) {
+      return slide.id;
+    }
+    cumulativeTime += slideDurationMs;
+  }
+
+  // If past all slides, return the last one
+  return slides[slides.length - 1].id;
 }
 
 export async function renderSlidesToFrames() {
@@ -40,8 +101,19 @@ export async function renderSlidesToFrames() {
   for (const slide of slides) {
     setActiveSlide(slide.id);
 
-    // let React + Konva flush
-    await wait(120);
+    // Force DOM reflow to ensure slide change is rendered
+    forceReflow();
+
+    // Wait for image to load - this is critical for slide stitching
+    // The ClientCanvas component needs time to:
+    // 1. Re-render with new screenshot.src
+    // 2. Create new Image object
+    // 3. Load the image
+    // 4. Update state and re-render
+    await waitForImageLoad(slide.src, 3000);
+
+    // Additional wait for rendering to complete
+    await wait(100);
 
     const img = await exportSlideFrame();
 
@@ -64,10 +136,10 @@ export async function renderAnimationToFrames(
   onProgress?: (progress: number) => void
 ) {
   const store = useImageStore.getState();
-  const { timeline, animationClips, setPerspective3D, setImageOpacity } = store;
+  const { timeline, animationClips, slides, slideshow, setActiveSlide, setPerspective3D, setImageOpacity } = store;
   const { duration, tracks } = timeline;
 
-  if (tracks.length === 0) {
+  if (tracks.length === 0 && slides.length <= 1) {
     throw new Error("No animation tracks to render");
   }
 
@@ -79,8 +151,25 @@ export async function renderAnimationToFrames(
   // Process frames in batches to keep UI responsive
   const BATCH_SIZE = 5; // Process 5 frames before yielding
 
+  let lastSlideId: string | null = null;
+
   for (let frameIndex = 0; frameIndex < totalFrames; frameIndex++) {
     const time = frameIndex * frameIntervalMs;
+
+    // Switch to the correct slide based on time (for multi-slide animations)
+    if (slides.length > 1) {
+      const targetSlideId = getActiveSlideAtTime(slides, time, slideshow.defaultDuration);
+      if (targetSlideId && targetSlideId !== lastSlideId) {
+        setActiveSlide(targetSlideId);
+        lastSlideId = targetSlideId;
+
+        // Wait for slide image to load
+        const slide = slides.find(s => s.id === targetSlideId);
+        if (slide) {
+          await waitForImageLoad(slide.src, 3000);
+        }
+      }
+    }
 
     // Calculate interpolated properties at this time using clip-aware interpolation
     const interpolated = getClipInterpolatedProperties(
@@ -105,8 +194,11 @@ export async function renderAnimationToFrames(
       setImageOpacity(interpolated.imageOpacity);
     }
 
-    // Let React + Konva flush the changes (minimal wait)
-    await wait(8);
+    // Force DOM reflow to ensure CSS transforms are applied
+    forceReflow();
+
+    // Let React flush the changes - longer wait for transforms to render
+    await wait(50);
 
     // Capture the frame
     const img = await exportSlideFrame();
@@ -139,10 +231,10 @@ export async function renderAnimationToCanvasFrames(
   onProgress?: (progress: number) => void
 ): Promise<{ canvases: HTMLCanvasElement[]; width: number; height: number }> {
   const store = useImageStore.getState();
-  const { timeline, animationClips, setPerspective3D, setImageOpacity } = store;
+  const { timeline, animationClips, slides, slideshow, setActiveSlide, setPerspective3D, setImageOpacity } = store;
   const { duration, tracks } = timeline;
 
-  if (tracks.length === 0) {
+  if (tracks.length === 0 && slides.length <= 1) {
     throw new Error("No animation tracks to render");
   }
 
@@ -155,9 +247,25 @@ export async function renderAnimationToCanvasFrames(
 
   let width = 0;
   let height = 0;
+  let lastSlideId: string | null = null;
 
   for (let frameIndex = 0; frameIndex < totalFrames; frameIndex++) {
     const time = frameIndex * frameIntervalMs;
+
+    // Switch to the correct slide based on time (for multi-slide animations)
+    if (slides.length > 1) {
+      const targetSlideId = getActiveSlideAtTime(slides, time, slideshow.defaultDuration);
+      if (targetSlideId && targetSlideId !== lastSlideId) {
+        setActiveSlide(targetSlideId);
+        lastSlideId = targetSlideId;
+
+        // Wait for slide image to load
+        const slide = slides.find(s => s.id === targetSlideId);
+        if (slide) {
+          await waitForImageLoad(slide.src, 3000);
+        }
+      }
+    }
 
     // Calculate interpolated properties at this time using clip-aware interpolation
     const interpolated = getClipInterpolatedProperties(
@@ -182,8 +290,11 @@ export async function renderAnimationToCanvasFrames(
       setImageOpacity(interpolated.imageOpacity);
     }
 
-    // Let React flush the changes
-    await wait(16);
+    // Force DOM reflow to ensure CSS transforms are applied
+    forceReflow();
+
+    // Let React flush the changes - longer wait for transforms to render
+    await wait(50);
 
     // Capture the frame as canvas
     const canvas = await exportSlideFrameAsCanvas();
