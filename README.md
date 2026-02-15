@@ -1,5 +1,8 @@
 # Screenshot Studio
 
+<img width="3600" height="1890" alt="og" src="https://github.com/user-attachments/assets/59704a08-b6b3-4537-b4b7-0bbadd839e99" />
+
+
 A free, browser-based editor for creating stunning screenshots and visuals. No signup, no watermarks.
 
 **Live:** [https://screenshot-studio.com](https://screenshot-studio.com)
