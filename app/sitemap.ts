@@ -5,7 +5,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const lastModified = new Date()
 
   return [
-    // Homepage / Landing
+    // Homepage (highest priority)
     {
       url: baseUrl,
       lastModified,
@@ -19,13 +19,37 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'weekly',
       priority: 0.9,
     },
-    // Landing page
+    // Features hub page
     {
-      url: `${baseUrl}/landing`,
+      url: `${baseUrl}/features`,
       lastModified,
-      changeFrequency: 'weekly',
+      changeFrequency: 'monthly',
+      priority: 0.8,
+    },
+    // Individual feature pages (SEO landing pages)
+    {
+      url: `${baseUrl}/features/screenshot-beautifier`,
+      lastModified,
+      changeFrequency: 'monthly',
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/features/social-media-graphics`,
+      lastModified,
+      changeFrequency: 'monthly',
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/features/animation-maker`,
+      lastModified,
+      changeFrequency: 'monthly',
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/features/3d-effects`,
+      lastModified,
+      changeFrequency: 'monthly',
       priority: 0.8,
     },
   ]
 }
-

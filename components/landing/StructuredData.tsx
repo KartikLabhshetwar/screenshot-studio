@@ -17,13 +17,6 @@ export function StructuredData() {
           price: "0",
           priceCurrency: "USD",
         },
-        aggregateRating: {
-          "@type": "AggregateRating",
-          ratingValue: "4.9",
-          ratingCount: "50",
-          bestRating: "5",
-          worstRating: "1",
-        },
         featureList: [
           "Screenshot beautification",
           "Custom backgrounds",

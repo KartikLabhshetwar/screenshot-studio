@@ -24,6 +24,13 @@ export const metadata: Metadata = {
     default: "Screenshot Studio - Free Online Image Editor | Create Stunning Graphics in Seconds",
     template: "%s | Screenshot Studio",
   },
+  // Add your Google Search Console verification code here
+  // Get it from: https://search.google.com/search-console
+  verification: {
+    google: process.env.GOOGLE_SITE_VERIFICATION || "",
+    // yandex: "your-yandex-verification",
+    // bing: "your-bing-verification",
+  },
   description: "Transform screenshots into professional social media graphics instantly. Free browser-based editor with 100+ backgrounds, animations, 3D effects, and video export. No signup needed.",
   keywords: [
     // Primary keywords
@@ -99,6 +106,7 @@ export const metadata: Metadata = {
     shortcut: "/logo.png",
     apple: "/logo.png",
   },
+  manifest: "/manifest.json",
   category: "Design Tools",
 };
 
