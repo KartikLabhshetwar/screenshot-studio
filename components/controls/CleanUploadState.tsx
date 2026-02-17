@@ -116,8 +116,7 @@ export function CleanUploadState() {
   });
 
   React.useEffect(() => {
-    const handlePaste = async (e: ClipboardEvent) => {
-      if (!containerRef.current) return;
+    const handlePaste = (e: ClipboardEvent) => {
       const items = e.clipboardData?.items;
       if (!items) return;
       for (let i = 0; i < items.length; i++) {
