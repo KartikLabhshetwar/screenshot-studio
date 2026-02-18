@@ -518,3 +518,88 @@ export async function exportElement(
     throw error;
   }
 }
+
+/**
+ * Export element as raw canvas (no Sharp processing).
+ * Used for video frame capture where FFmpeg handles final encoding.
+ */
+export async function exportElementAsCanvas(
+  elementId: string,
+  options: ExportOptions,
+  canvasContainer: HTMLElement | null,
+  backgroundBorderRadius: number,
+  perspective3D?: any,
+  imageSrc?: string,
+): Promise<HTMLCanvasElement> {
+  await new Promise(resolve => setTimeout(resolve, 50));
+
+  const element = document.getElementById(elementId);
+  if (!element) {
+    throw new Error('Image render card not found. Please ensure an image is uploaded.');
+  }
+
+  const container = element.querySelector('[data-html-canvas="true"]') as HTMLElement;
+  if (!container) {
+    throw new Error('HTML canvas container not found');
+  }
+
+  const has3DTransform = perspective3D && imageSrc && (
+    perspective3D.rotateX !== 0 ||
+    perspective3D.rotateY !== 0 ||
+    perspective3D.rotateZ !== 0 ||
+    perspective3D.translateX !== 0 ||
+    perspective3D.translateY !== 0 ||
+    perspective3D.scale !== 1
+  );
+
+  let finalCanvas: HTMLCanvasElement;
+
+  if (has3DTransform) {
+    try {
+      finalCanvas = await capture3DTransformWithModernScreenshot(
+        container,
+        options.scale * Math.max(
+          options.exportWidth / container.clientWidth,
+          options.exportHeight / container.clientHeight
+        )
+      );
+
+      if (finalCanvas.width !== options.exportWidth * options.scale ||
+          finalCanvas.height !== options.exportHeight * options.scale) {
+        const resizedCanvas = document.createElement('canvas');
+        resizedCanvas.width = options.exportWidth * options.scale;
+        resizedCanvas.height = options.exportHeight * options.scale;
+        const ctx = resizedCanvas.getContext('2d');
+        if (ctx) {
+          ctx.imageSmoothingEnabled = true;
+          ctx.imageSmoothingQuality = 'high';
+          ctx.drawImage(
+            finalCanvas,
+            0, 0, finalCanvas.width, finalCanvas.height,
+            0, 0, resizedCanvas.width, resizedCanvas.height
+          );
+          finalCanvas = resizedCanvas;
+        }
+      }
+    } catch (error) {
+      console.warn('Failed to capture 3D transform, falling back to html2canvas:', error);
+      finalCanvas = await exportHTMLCanvas(
+        container,
+        options.exportWidth,
+        options.exportHeight,
+        options.scale,
+        backgroundBorderRadius
+      );
+    }
+  } else {
+    finalCanvas = await exportHTMLCanvas(
+      container,
+      options.exportWidth,
+      options.exportHeight,
+      options.scale,
+      backgroundBorderRadius
+    );
+  }
+
+  return finalCanvas;
+}

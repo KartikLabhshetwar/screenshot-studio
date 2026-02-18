@@ -43,6 +43,38 @@ async function waitForImageLoad(src: string, maxWaitMs: number = 3000): Promise<
 }
 
 /**
+ * Wait for the DOM to reflect the current slide's image.
+ * Polls until the <img> inside the canvas container matches the expected src,
+ * ensuring React has re-rendered after setActiveSlide.
+ */
+async function waitForDOMImageUpdate(expectedSrc: string, maxWaitMs: number = 3000): Promise<void> {
+  const start = Date.now();
+  while (Date.now() - start < maxWaitMs) {
+    const container = document.querySelector('[data-html-canvas="true"]');
+    if (container) {
+      const img = container.querySelector('img[alt="Main image"]') as HTMLImageElement | null;
+      if (img && img.complete && img.naturalWidth > 0) {
+        // Compare src — handle both exact match and resolved URL match
+        if (img.src === expectedSrc || img.src.endsWith(expectedSrc) || expectedSrc.endsWith(img.src)) {
+          return;
+        }
+        // Also try matching by creating a resolved URL
+        try {
+          const resolved = new URL(expectedSrc, window.location.href).href;
+          if (img.src === resolved) {
+            return;
+          }
+        } catch {
+          // Invalid URL, fall through to exact match
+        }
+      }
+    }
+    await new Promise((r) => setTimeout(r, 50));
+  }
+  console.warn('DOM image update timeout, proceeding anyway');
+}
+
+/**
  * Yield to the main thread to keep UI responsive
  * Uses requestIdleCallback if available, otherwise setTimeout
  */
@@ -83,8 +115,7 @@ function getActiveSlideAtTime(
 }
 
 export async function renderSlidesToFrames() {
-  const store = useImageStore.getState();
-  const { slides, setActiveSlide, slideshow, uploadedImageUrl } = store;
+  const { slides, setActiveSlide, slideshow, uploadedImageUrl } = useImageStore.getState();
 
   const frames: { img: HTMLImageElement; duration: number }[] = [];
 
@@ -105,14 +136,8 @@ export async function renderSlidesToFrames() {
     forceReflow();
 
     // Wait for image to load - this is critical for slide stitching
-    // The ClientCanvas component needs time to:
-    // 1. Re-render with new screenshot.src
-    // 2. Create new Image object
-    // 3. Load the image
-    // 4. Update state and re-render
     await waitForImageLoad(slide.src, 3000);
-
-    // Additional wait for rendering to complete
+    await waitForDOMImageUpdate(slide.src, 3000);
     await wait(100);
 
     const img = await exportSlideFrame();
@@ -125,6 +150,76 @@ export async function renderSlidesToFrames() {
   }
 
   return frames;
+}
+
+/**
+ * Stream slide frames to a callback for encoding (no memory accumulation).
+ * Each slide is captured once and the callback is invoked for each frame.
+ */
+export async function streamSlidesToEncoder(
+  fps: number,
+  onFrame: (canvas: HTMLCanvasElement, frameIndex: number) => Promise<void>,
+  onProgress?: (progress: number) => void
+): Promise<{ width: number; height: number; totalFrames: number }> {
+  // Read a fresh snapshot of the store each time
+  const { slides, setActiveSlide, slideshow, uploadedImageUrl } = useImageStore.getState();
+
+  // Make an ordered copy so iteration order is deterministic
+  const orderedSlides = [...slides];
+
+  let width = 0;
+  let height = 0;
+  let globalFrameIndex = 0;
+
+  const slideList: (typeof orderedSlides[number] | null)[] =
+    orderedSlides.length > 0 ? orderedSlides : uploadedImageUrl ? [null] : [];
+
+  // Calculate total frames up front for progress reporting
+  let totalFrames = 0;
+  for (const slide of slideList) {
+    const duration = slide ? (slide.duration || slideshow.defaultDuration || 2) : (slideshow.defaultDuration || 2);
+    totalFrames += Math.max(1, Math.round(duration * fps));
+  }
+
+  for (let si = 0; si < slideList.length; si++) {
+    const slide = slideList[si];
+
+    if (slide) {
+      // Always force-switch to this slide, even if it appears to be active already.
+      // This ensures a clean state between repeated exports.
+      setActiveSlide(slide.id);
+      forceReflow();
+      await waitForImageLoad(slide.src, 3000);
+      await waitForDOMImageUpdate(slide.src, 3000);
+      await wait(150);
+      forceReflow();
+    }
+
+    const canvas = await exportSlideFrameAsCanvas();
+
+    if (si === 0) {
+      width = canvas.width;
+      height = canvas.height;
+    }
+
+    const duration = slide ? (slide.duration || slideshow.defaultDuration || 2) : (slideshow.defaultDuration || 2);
+    const frameCount = Math.max(1, Math.round(duration * fps));
+
+    // Stream the same canvas for the duration of this slide
+    for (let i = 0; i < frameCount; i++) {
+      await onFrame(canvas, globalFrameIndex);
+      globalFrameIndex++;
+
+      // Yield periodically
+      if (globalFrameIndex % 30 === 0) {
+        await new Promise((r) => setTimeout(r, 0));
+      }
+    }
+
+    onProgress?.((si + 1) / slideList.length * 100);
+  }
+
+  return { width, height, totalFrames: globalFrameIndex };
 }
 
 /**
@@ -162,11 +257,13 @@ export async function renderAnimationToFrames(
       if (targetSlideId && targetSlideId !== lastSlideId) {
         setActiveSlide(targetSlideId);
         lastSlideId = targetSlideId;
+        forceReflow();
 
-        // Wait for slide image to load
+        // Wait for slide image to load and DOM to update
         const slide = slides.find(s => s.id === targetSlideId);
         if (slide) {
           await waitForImageLoad(slide.src, 3000);
+          await waitForDOMImageUpdate(slide.src, 3000);
         }
       }
     }
@@ -223,13 +320,14 @@ export async function renderAnimationToFrames(
 }
 
 /**
- * Render animation timeline to canvas frames for WebCodecs encoding
- * Returns array of canvases ready for encoding
+ * Stream animation frames to encoder callback (no memory accumulation).
+ * Captures each frame and immediately passes it to onFrame for encoding.
  */
-export async function renderAnimationToCanvasFrames(
-  fps: number = 60,
+export async function streamAnimationToEncoder(
+  fps: number,
+  onFrame: (canvas: HTMLCanvasElement, frameIndex: number) => Promise<void>,
   onProgress?: (progress: number) => void
-): Promise<{ canvases: HTMLCanvasElement[]; width: number; height: number }> {
+): Promise<{ width: number; height: number; totalFrames: number }> {
   const store = useImageStore.getState();
   const { timeline, animationClips, slides, slideshow, setActiveSlide, setPerspective3D, setImageOpacity } = store;
   const { duration, tracks } = timeline;
@@ -238,11 +336,8 @@ export async function renderAnimationToCanvasFrames(
     throw new Error("No animation tracks to render");
   }
 
-  const canvases: HTMLCanvasElement[] = [];
   const frameIntervalMs = 1000 / fps;
   const totalFrames = Math.ceil(duration / frameIntervalMs);
-
-  // Process frames in batches to keep UI responsive
   const BATCH_SIZE = 5;
 
   let width = 0;
@@ -258,11 +353,13 @@ export async function renderAnimationToCanvasFrames(
       if (targetSlideId && targetSlideId !== lastSlideId) {
         setActiveSlide(targetSlideId);
         lastSlideId = targetSlideId;
+        forceReflow();
 
-        // Wait for slide image to load
+        // Wait for slide image to load and DOM to update
         const slide = slides.find(s => s.id === targetSlideId);
         if (slide) {
           await waitForImageLoad(slide.src, 3000);
+          await waitForDOMImageUpdate(slide.src, 3000);
         }
       }
     }
@@ -293,18 +390,18 @@ export async function renderAnimationToCanvasFrames(
     // Force DOM reflow to ensure CSS transforms are applied
     forceReflow();
 
-    // Let React flush the changes - longer wait for transforms to render
+    // Let React flush the changes
     await wait(50);
 
-    // Capture the frame as canvas
+    // Capture and immediately stream to encoder
     const canvas = await exportSlideFrameAsCanvas();
-    canvases.push(canvas);
 
-    // Capture dimensions from first frame
     if (frameIndex === 0) {
       width = canvas.width;
       height = canvas.height;
     }
+
+    await onFrame(canvas, frameIndex);
 
     // Report progress
     if (onProgress) {
@@ -317,5 +414,5 @@ export async function renderAnimationToCanvasFrames(
     }
   }
 
-  return { canvases, width, height };
+  return { width, height, totalFrames };
 }
