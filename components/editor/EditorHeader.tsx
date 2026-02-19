@@ -21,16 +21,12 @@ import {
   PopoverContent,
 } from '@/components/ui/popover';
 import { ExportDialog } from '@/components/canvas/dialogs/ExportDialog';
-import { ExportSlideshowDialog } from '@/lib/export-slideshow-dialog';
 
 export function EditorHeader() {
   const { screenshot } = useEditorStore();
-  const { selectedAspectRatio, timeline, animationClips } = useImageStore();
+  const { selectedAspectRatio, showTimeline, toggleTimeline } = useImageStore();
   const [aspectRatioOpen, setAspectRatioOpen] = React.useState(false);
   const [exportDialogOpen, setExportDialogOpen] = React.useState(false);
-  const [animateExportOpen, setAnimateExportOpen] = React.useState(false);
-
-  const hasAnimation = timeline.tracks.length > 0 || animationClips.length > 0;
 
   const currentAspectRatio = aspectRatios.find((ar) => ar.id === selectedAspectRatio);
   const hasImage = !!screenshot.src;
@@ -97,10 +93,10 @@ export function EditorHeader() {
           </Popover>
 
           <Button
-            onClick={() => setAnimateExportOpen(true)}
-            disabled={!hasImage || !hasAnimation}
+            onClick={toggleTimeline}
+            disabled={!hasImage}
             variant="outline"
-            className="h-9 justify-center gap-2 rounded-lg font-medium px-4"
+            className={`h-9 justify-center gap-2 rounded-lg font-medium px-4 ${showTimeline ? 'bg-brand/15 border-brand/40 text-brand' : ''}`}
           >
             <VideoReplayIcon size={16} />
             <span>Animate</span>
@@ -141,10 +137,6 @@ export function EditorHeader() {
         onQualityPresetChange={updateQualityPreset}
       />
 
-      <ExportSlideshowDialog
-        open={animateExportOpen}
-        onOpenChange={setAnimateExportOpen}
-      />
     </>
   );
 }

@@ -167,8 +167,8 @@ function ResizableAnimationClip({
   return (
     <div
       className={cn(
-        'absolute top-1 bottom-1 rounded cursor-grab transition-shadow',
-        'bg-gradient-to-r from-brand/90 to-emerald-500/90',
+        'absolute top-1 bottom-1 rounded cursor-grab transition-shadow group',
+        'bg-brand/80',
         isSelected ? 'ring-2 ring-white shadow-lg' : 'hover:ring-1 hover:ring-white/50'
       )}
       style={{ left: `${leftPercent}%`, width: `${widthPercent}%` }}
@@ -192,18 +192,17 @@ function ResizableAnimationClip({
         <span className="text-[11px] text-white font-medium truncate">{clip.name}</span>
       </div>
 
-      {/* Delete button - visible when selected, positioned inside the clip */}
-      {isSelected && (
-        <button
-          className="absolute top-1 right-1 w-5 h-5 bg-red-500/90 rounded flex items-center justify-center hover:bg-red-600 shadow-lg z-10 pointer-events-auto"
-          onClick={(e) => {
-            e.stopPropagation();
-            removeAnimationClip(clip.id);
-          }}
-        >
-          <Delete02Icon size={12} className="text-white" />
-        </button>
-      )}
+      {/* Delete button - visible on hover */}
+      <button
+        className="absolute top-1 right-1 w-5 h-5 bg-red-500/90 rounded flex items-center justify-center hover:bg-red-600 shadow-lg z-10 pointer-events-auto opacity-0 group-hover:opacity-100 transition-opacity"
+        onMouseDown={(e) => e.stopPropagation()}
+        onClick={(e) => {
+          e.stopPropagation();
+          removeAnimationClip(clip.id);
+        }}
+      >
+        <Delete02Icon size={12} className="text-white" />
+      </button>
     </div>
   );
 }

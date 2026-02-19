@@ -16,7 +16,6 @@ import { useState, useEffect, useCallback } from "react";
 import React from "react";
 import { cn } from "@/lib/utils";
 import { ExportSlideshowDialog } from "@/lib/export-slideshow-dialog";
-import { ExportProgressOverlay } from "@/lib/export-progress-overlay";
 
 const ClientCanvas = dynamic(() => import("@/components/canvas/ClientCanvas"), {
   ssr: false,
@@ -40,6 +39,8 @@ export function EditorCanvas() {
     uploadedImageUrl,
     clearImage,
     showTimeline,
+    timeline,
+    animationClips,
   } = useImageStore();
 
   // Check both stores - imageStore is the source of truth (tracked by undo/redo)
@@ -124,8 +125,6 @@ export function EditorCanvas() {
 
   return (
     <>
-      <ExportProgressOverlay />
-
       <div className="flex flex-col h-full w-full relative">
         {/* Secondary toolbar for slides and image management */}
         {(slides.length > 0 || uploadedImageUrl) && (
@@ -187,7 +186,7 @@ export function EditorCanvas() {
                 </label>
               )}
 
-              {slides.length > 0 && (
+              {(slides.length > 0 || timeline.tracks.length > 0 || animationClips.length > 0) && (
                 <Button
                   onClick={() => setExportOpen(true)}
                   size="sm"

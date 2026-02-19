@@ -21,7 +21,7 @@ import {
 } from './sections';
 import { cn } from '@/lib/utils';
 import { useImageStore } from '@/lib/store';
-import { Clock01Icon } from 'hugeicons-react';
+import { AnimationPresetGallery } from '@/components/timeline/AnimationPresetGallery';
 import { trackTabChange } from '@/lib/analytics';
 
 type TabType = 'settings' | 'edit' | 'background' | 'transforms' | 'animate' | 'presets';
@@ -101,19 +101,7 @@ export function UnifiedRightPanel() {
 
           {activeTab === 'transforms' && <TransformsGallery />}
 
-          {activeTab === 'animate' && (
-            <div className="flex flex-col items-center justify-center py-16 text-center">
-              <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-brand/10">
-                <Clock01Icon className="h-8 w-8 text-brand" />
-              </div>
-              <h3 className="text-lg font-semibold text-foreground mb-2">
-                Animation Coming Soon
-              </h3>
-              <p className="text-sm text-muted-foreground max-w-[280px]">
-                Create stunning animations with keyframes, transitions, and effects. We&apos;re working hard to bring you this feature!
-              </p>
-            </div>
-          )}
+          {activeTab === 'animate' && <AnimationPresetGallery />}
 
           {activeTab === 'presets' && <PresetGallery />}
         </div>
