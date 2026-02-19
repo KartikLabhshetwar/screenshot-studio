@@ -35,32 +35,53 @@ export function isWebCodecsSupported(): boolean {
 }
 
 /**
- * Check if H.264 encoding is supported
+ * Check if H.264 encoding is supported (cached after first call)
  */
-export async function isH264Supported(): Promise<boolean> {
-  if (!isWebCodecsSupported()) return false;
+let h264SupportCache: boolean | null = null;
+let h264SupportPromise: Promise<boolean> | null = null;
 
-  try {
-    const codecs = ['avc1.640032', 'avc1.64002A', 'avc1.4d0028', 'avc1.42001E'];
-    for (const codec of codecs) {
-      const support = await VideoEncoder.isConfigSupported({
-        codec,
-        width: 1920,
-        height: 1080,
-        bitrate: 10_000_000,
-        framerate: 60,
-      });
-      if (support.supported) return true;
+export async function isH264Supported(): Promise<boolean> {
+  if (h264SupportCache !== null) return h264SupportCache;
+  if (h264SupportPromise) return h264SupportPromise;
+
+  h264SupportPromise = (async () => {
+    if (!isWebCodecsSupported()) {
+      h264SupportCache = false;
+      return false;
     }
-    return false;
-  } catch {
-    return false;
-  }
+
+    try {
+      const codecs = ['avc1.640032', 'avc1.64002A', 'avc1.4d0028', 'avc1.42001E'];
+      for (const codec of codecs) {
+        const support = await VideoEncoder.isConfigSupported({
+          codec,
+          width: 1920,
+          height: 1080,
+          bitrate: 10_000_000,
+          framerate: 60,
+        });
+        if (support.supported) {
+          h264SupportCache = true;
+          return true;
+        }
+      }
+      h264SupportCache = false;
+      return false;
+    } catch {
+      h264SupportCache = false;
+      return false;
+    }
+  })();
+
+  return h264SupportPromise;
 }
 
 /**
  * WebCodecs-based video encoder class
  */
+// Module-level cache for supported codec per resolution
+const codecCache = new Map<string, string>();
+
 export class WebCodecsVideoEncoder {
   private muxer: Muxer<ArrayBufferTarget> | null = null;
   private encoder: VideoEncoder | null = null;
@@ -102,19 +123,24 @@ export class WebCodecsVideoEncoder {
       'avc1.42001E', // Baseline Profile, Level 3.0
     ];
 
-    // First, find a supported codec for this resolution (without bitrate constraint)
-    let supportedCodec: string | null = null;
-    for (const codec of codecs) {
-      const result = await VideoEncoder.isConfigSupported({
-        codec,
-        width: this.evenWidth,
-        height: this.evenHeight,
-        bitrate: 1_000_000, // Use minimal bitrate for support check
-        framerate: fps,
-      });
-      if (result.supported) {
-        supportedCodec = codec;
-        break;
+    // Check cache first for this resolution
+    const cacheKey = `${this.evenWidth}x${this.evenHeight}@${fps}`;
+    let supportedCodec: string | null = codecCache.get(cacheKey) || null;
+
+    if (!supportedCodec) {
+      for (const codec of codecs) {
+        const result = await VideoEncoder.isConfigSupported({
+          codec,
+          width: this.evenWidth,
+          height: this.evenHeight,
+          bitrate: 1_000_000,
+          framerate: fps,
+        });
+        if (result.supported) {
+          supportedCodec = codec;
+          codecCache.set(cacheKey, codec);
+          break;
+        }
       }
     }
 
@@ -233,18 +259,17 @@ export class WebCodecsVideoEncoder {
     frame.close();
     this.frameCount++;
 
-    // Backpressure: if encoder queue is building up, wait for it to drain
-    if (this.encoder.encodeQueueSize > 5) {
-      await new Promise<void>((resolve) => {
-        const check = () => {
-          if (!this.encoder || this.encoder.encodeQueueSize <= 2) {
-            resolve();
+    // Backpressure: if encoder queue is building up, yield to the browser.
+    if (this.encoder.encodeQueueSize > 8) {
+      while (this.encoder && this.encoder.encodeQueueSize > 2) {
+        await new Promise<void>((resolve) => {
+          if (typeof requestAnimationFrame !== 'undefined') {
+            requestAnimationFrame(() => resolve());
           } else {
-            setTimeout(check, 1);
+            setTimeout(resolve, 8);
           }
-        };
-        check();
-      });
+        });
+      }
     }
   }
 

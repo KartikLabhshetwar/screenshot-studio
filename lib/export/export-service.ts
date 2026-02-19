@@ -33,13 +33,18 @@ export interface ExportResult {
 }
 
 /**
- * Convert oklch color to RGB
+ * Convert oklch color to RGB (memoized to avoid repeated DOM mutations)
  */
+const oklchCache = new Map<string, string>();
+
 function convertOklchToRGB(oklchColor: string): string {
   // If it's not oklch, return as-is
   if (!oklchColor.includes('oklch')) {
     return oklchColor;
   }
+
+  const cached = oklchCache.get(oklchColor);
+  if (cached) return cached;
 
   // Extract oklch values using regex
   const oklchMatch = oklchColor.match(/oklch\(([^)]+)\)/);
@@ -59,7 +64,9 @@ function convertOklchToRGB(oklchColor: string): string {
   const computed = window.getComputedStyle(tempEl).color;
   document.body.removeChild(tempEl);
 
-  return computed || oklchColor;
+  const result = computed || oklchColor;
+  oklchCache.set(oklchColor, result);
+  return result;
 }
 
 /**
@@ -326,7 +333,8 @@ async function applyNoiseToCanvas(
  */
 async function capture3DTransformWithModernScreenshot(
   element: HTMLElement,
-  scale: number
+  scale: number,
+  skipDelay: boolean = false
 ): Promise<HTMLCanvasElement> {
   const overlayElement = element.querySelector('[data-3d-overlay="true"]') as HTMLElement;
   if (!overlayElement) {
@@ -335,8 +343,10 @@ async function capture3DTransformWithModernScreenshot(
 
   const rect = overlayElement.getBoundingClientRect();
 
-  // Wait for styles to apply
-  await new Promise(resolve => setTimeout(resolve, 100));
+  if (!skipDelay) {
+    // Wait for styles to apply (only needed for first/single exports, not video frames)
+    await new Promise(resolve => setTimeout(resolve, 100));
+  }
 
   const canvas = await domToCanvas(element, {
     scale: scale,
@@ -354,12 +364,18 @@ async function capture3DTransformWithModernScreenshot(
  * - Border radius
  * - Transforms
  */
+
+// Reusable output canvas to avoid GC pressure from repeated allocations
+let reusableCanvas: HTMLCanvasElement | null = null;
+let reusableCtx: CanvasRenderingContext2D | null = null;
+
 async function exportHTMLCanvas(
   container: HTMLElement,
   targetWidth: number,
   targetHeight: number,
   scale: number,
-  borderRadius: number = 0
+  borderRadius: number = 0,
+  skipDelay: boolean = false
 ): Promise<HTMLCanvasElement> {
   // Get current container dimensions
   const containerRect = container.getBoundingClientRect();
@@ -371,8 +387,10 @@ async function exportHTMLCanvas(
   const scaleY = targetHeight / originalHeight;
   const exportScale = scale * Math.max(scaleX, scaleY);
 
-  // Wait for any pending renders
-  await new Promise(resolve => setTimeout(resolve, 150));
+  if (!skipDelay) {
+    // Wait for any pending renders (only needed for first/single exports, not video frames)
+    await new Promise(resolve => setTimeout(resolve, 150));
+  }
 
   // Use modern-screenshot for better CSS fidelity
   const canvas = await domToCanvas(container, {
@@ -383,9 +401,24 @@ async function exportHTMLCanvas(
   });
 
   // Scale the canvas to match export dimensions
-  const finalCanvas = document.createElement('canvas');
   const finalWidth = targetWidth * scale;
   const finalHeight = targetHeight * scale;
+
+  // Reuse canvas when dimensions match (common for video frame sequences)
+  if (skipDelay && reusableCanvas && reusableCtx &&
+      reusableCanvas.width === finalWidth && reusableCanvas.height === finalHeight) {
+    reusableCtx.clearRect(0, 0, finalWidth, finalHeight);
+    reusableCtx.imageSmoothingEnabled = true;
+    reusableCtx.imageSmoothingQuality = 'high';
+    reusableCtx.drawImage(
+      canvas,
+      0, 0, canvas.width, canvas.height,
+      0, 0, finalWidth, finalHeight
+    );
+    return reusableCanvas;
+  }
+
+  const finalCanvas = document.createElement('canvas');
   finalCanvas.width = finalWidth;
   finalCanvas.height = finalHeight;
   const ctx = finalCanvas.getContext('2d');
@@ -402,6 +435,12 @@ async function exportHTMLCanvas(
     0, 0, canvas.width, canvas.height,
     0, 0, finalWidth, finalHeight
   );
+
+  // Cache for video frame reuse
+  if (skipDelay) {
+    reusableCanvas = finalCanvas;
+    reusableCtx = ctx;
+  }
 
   return finalCanvas;
 }
@@ -531,8 +570,6 @@ export async function exportElementAsCanvas(
   perspective3D?: any,
   imageSrc?: string,
 ): Promise<HTMLCanvasElement> {
-  await new Promise(resolve => setTimeout(resolve, 50));
-
   const element = document.getElementById(elementId);
   if (!element) {
     throw new Error('Image render card not found. Please ensure an image is uploaded.');
@@ -561,7 +598,8 @@ export async function exportElementAsCanvas(
         options.scale * Math.max(
           options.exportWidth / container.clientWidth,
           options.exportHeight / container.clientHeight
-        )
+        ),
+        true // skipDelay — video frames don't need style-settle waits
       );
 
       if (finalCanvas.width !== options.exportWidth * options.scale ||
@@ -588,7 +626,8 @@ export async function exportElementAsCanvas(
         options.exportWidth,
         options.exportHeight,
         options.scale,
-        backgroundBorderRadius
+        backgroundBorderRadius,
+        true // skipDelay
       );
     }
   } else {
@@ -597,7 +636,8 @@ export async function exportElementAsCanvas(
       options.exportWidth,
       options.exportHeight,
       options.scale,
-      backgroundBorderRadius
+      backgroundBorderRadius,
+      true // skipDelay
     );
   }
 
