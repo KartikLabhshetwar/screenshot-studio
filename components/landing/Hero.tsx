@@ -44,8 +44,6 @@ export function Hero({
             width: "100%",
             height: "100%",
           }}
-          lazyLoad={undefined}
-          fov={undefined}
           pixelDensity={1}
           pointerEvents="none"
         >

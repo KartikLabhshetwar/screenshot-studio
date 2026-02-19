@@ -115,10 +115,17 @@ export function CleanUploadState() {
     },
   });
 
+  // Auto-focus the container so paste events work immediately
   React.useEffect(() => {
-    const handlePaste = async (e: ClipboardEvent) => {
-      if (!containerRef.current) return;
-      const items = e.clipboardData?.items;
+    if (containerRef.current) {
+      containerRef.current.focus();
+    }
+  }, []);
+
+  const handlePaste = React.useCallback(
+    (e: React.ClipboardEvent | ClipboardEvent) => {
+      const clipboardData = 'clipboardData' in e ? e.clipboardData : null;
+      const items = clipboardData?.items;
       if (!items) return;
       for (let i = 0; i < items.length; i++) {
         const item = items[i];
@@ -132,10 +139,16 @@ export function CleanUploadState() {
           break;
         }
       }
-    };
-    document.addEventListener('paste', handlePaste);
-    return () => document.removeEventListener('paste', handlePaste);
-  }, [addImages, handleFile]);
+    },
+    [addImages, handleFile]
+  );
+
+  // Listen on both document and the container for paste events
+  React.useEffect(() => {
+    const handler = (e: ClipboardEvent) => handlePaste(e);
+    document.addEventListener('paste', handler);
+    return () => document.removeEventListener('paste', handler);
+  }, [handlePaste]);
 
   const handleCaptureScreenshot = async () => {
     if (!screenshotUrl.trim()) {
@@ -184,7 +197,9 @@ export function CleanUploadState() {
     <div
       ref={containerRef}
       {...getRootProps()}
-      className="relative w-full h-full flex items-center justify-center"
+      tabIndex={0}
+      onPaste={handlePaste}
+      className="relative w-full h-full flex items-center justify-center outline-none"
       style={getBackgroundStyle()}
     >
       <input {...getInputProps()} />
