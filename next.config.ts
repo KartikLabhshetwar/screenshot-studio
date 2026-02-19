@@ -18,6 +18,20 @@ const nextConfig: NextConfig = {
     ],
   },
 
+  // Enable SharedArrayBuffer for multi-threaded FFmpeg WASM
+  // Requires Cross-Origin-Opener-Policy and Cross-Origin-Embedder-Policy
+  async headers() {
+    return [
+      {
+        source: "/(.*)",
+        headers: [
+          { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
+          { key: "Cross-Origin-Embedder-Policy", value: "credentialless" },
+        ],
+      },
+    ];
+  },
+
   // Proxy R2 assets through same origin to avoid CORS issues
   // (especially critical for canvas capture during video export)
   async rewrites() {
