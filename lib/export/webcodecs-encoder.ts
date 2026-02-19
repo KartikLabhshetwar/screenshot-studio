@@ -41,14 +41,18 @@ export async function isH264Supported(): Promise<boolean> {
   if (!isWebCodecsSupported()) return false;
 
   try {
-    const support = await VideoEncoder.isConfigSupported({
-      codec: 'avc1.42E01E', // H.264 Baseline
-      width: 1920,
-      height: 1080,
-      bitrate: 10_000_000,
-      framerate: 60,
-    });
-    return support.supported === true;
+    const codecs = ['avc1.640032', 'avc1.64002A', 'avc1.4d0028', 'avc1.42001E'];
+    for (const codec of codecs) {
+      const support = await VideoEncoder.isConfigSupported({
+        codec,
+        width: 1920,
+        height: 1080,
+        bitrate: 10_000_000,
+        framerate: 60,
+      });
+      if (support.supported) return true;
+    }
+    return false;
   } catch {
     return false;
   }
@@ -63,6 +67,9 @@ export class WebCodecsVideoEncoder {
   private options: Required<WebCodecsEncoderOptions>;
   private frameCount = 0;
   private isInitialized = false;
+  private encoderError: Error | null = null;
+  private evenWidth = 0;
+  private evenHeight = 0;
 
   constructor(options: WebCodecsEncoderOptions) {
     this.options = {
@@ -81,18 +88,58 @@ export class WebCodecsVideoEncoder {
     const { width, height, fps, bitrate } = this.options;
 
     // Ensure dimensions are even (required for H.264)
-    const evenWidth = width % 2 === 0 ? width : width + 1;
-    const evenHeight = height % 2 === 0 ? height : height + 1;
+    this.evenWidth = width % 2 === 0 ? width : width + 1;
+    this.evenHeight = height % 2 === 0 ? height : height + 1;
+
+    // Try H.264 codecs from highest to lowest profile/level
+    // Higher levels support larger resolutions
+    const codecs = [
+      'avc1.640032', // High Profile, Level 5.0 — up to 4K
+      'avc1.64002A', // High Profile, Level 4.2 — up to 1080p
+      'avc1.640028', // High Profile, Level 4.0
+      'avc1.4d0032', // Main Profile, Level 5.0
+      'avc1.4d0028', // Main Profile, Level 4.0
+      'avc1.42001E', // Baseline Profile, Level 3.0
+    ];
+
+    // First, find a supported codec for this resolution (without bitrate constraint)
+    let supportedCodec: string | null = null;
+    for (const codec of codecs) {
+      const result = await VideoEncoder.isConfigSupported({
+        codec,
+        width: this.evenWidth,
+        height: this.evenHeight,
+        bitrate: 1_000_000, // Use minimal bitrate for support check
+        framerate: fps,
+      });
+      if (result.supported) {
+        supportedCodec = codec;
+        break;
+      }
+    }
+
+    if (!supportedCodec) {
+      throw new Error(`VideoEncoder config not supported: ${this.evenWidth}x${this.evenHeight}`);
+    }
+
+    // Now build the actual config with the desired bitrate
+    const finalConfig: VideoEncoderConfig = {
+      codec: supportedCodec,
+      width: this.evenWidth,
+      height: this.evenHeight,
+      bitrate,
+      framerate: fps,
+    };
 
     // Create MP4 muxer
     this.muxer = new Muxer({
       target: new ArrayBufferTarget(),
       video: {
         codec: 'avc',
-        width: evenWidth,
-        height: evenHeight,
+        width: this.evenWidth,
+        height: this.evenHeight,
       },
-      fastStart: 'in-memory', // Puts moov atom at start for streaming
+      fastStart: 'in-memory',
     });
 
     // Create video encoder
@@ -102,22 +149,12 @@ export class WebCodecsVideoEncoder {
       },
       error: (error) => {
         console.error('VideoEncoder error:', error);
-        throw error;
+        this.encoderError = error;
       },
     });
 
-    // Configure encoder
-    await this.encoder.configure({
-      codec: 'avc1.42E01E', // H.264 Baseline Profile
-      width: evenWidth,
-      height: evenHeight,
-      bitrate,
-      framerate: fps,
-      latencyMode: 'quality', // Prioritize quality over latency
-      avc: {
-        format: 'avc', // Use AVC format for MP4 compatibility
-      },
-    });
+    // Configure encoder with desired bitrate
+    this.encoder.configure(finalConfig);
 
     this.isInitialized = true;
   }
@@ -129,30 +166,29 @@ export class WebCodecsVideoEncoder {
     if (!this.encoder || !this.isInitialized) {
       throw new Error('Encoder not initialized');
     }
+    if (this.encoderError) {
+      throw this.encoderError;
+    }
 
     const { fps } = this.options;
-    const timestamp = Math.round((frameIndex / fps) * 1_000_000); // microseconds
+    const timestamp = Math.round((frameIndex / fps) * 1_000_000);
+    const duration = Math.round(1_000_000 / fps);
 
-    // Convert ImageData to canvas first (VideoFrame doesn't accept ImageData directly)
-    const canvas = new OffscreenCanvas(imageData.width, imageData.height);
+    // Convert ImageData to canvas, resizing to even dimensions if needed
+    const canvas = new OffscreenCanvas(this.evenWidth, this.evenHeight);
     const ctx = canvas.getContext('2d');
     if (!ctx) throw new Error('Could not get canvas context');
     ctx.putImageData(imageData, 0, 0);
 
-    // Create VideoFrame from canvas
     const frame = new VideoFrame(canvas, {
       timestamp,
-      duration: Math.round(1_000_000 / fps), // Frame duration in microseconds
+      duration,
     });
 
-    // Encode the frame
-    // Insert keyframes every 2 seconds for seeking
     const isKeyFrame = frameIndex % (fps * 2) === 0;
     this.encoder.encode(frame, { keyFrame: isKeyFrame });
 
-    // Close the frame to release memory
     frame.close();
-
     this.frameCount++;
   }
 
@@ -166,14 +202,29 @@ export class WebCodecsVideoEncoder {
     if (!this.encoder || !this.isInitialized) {
       throw new Error('Encoder not initialized');
     }
+    if (this.encoderError) {
+      throw this.encoderError;
+    }
 
     const { fps } = this.options;
     const timestamp = Math.round((frameIndex / fps) * 1_000_000);
+    const duration = Math.round(1_000_000 / fps);
 
-    // Create VideoFrame directly from canvas (more efficient)
-    const frame = new VideoFrame(canvas, {
+    // Ensure canvas matches encoder dimensions (even width/height)
+    let source: HTMLCanvasElement | OffscreenCanvas = canvas;
+    if (canvas.width !== this.evenWidth || canvas.height !== this.evenHeight) {
+      const resized = new OffscreenCanvas(this.evenWidth, this.evenHeight);
+      const ctx = resized.getContext('2d');
+      if (ctx) {
+        ctx.drawImage(canvas, 0, 0, this.evenWidth, this.evenHeight);
+      }
+      source = resized;
+    }
+
+    // Create VideoFrame directly from canvas
+    const frame = new VideoFrame(source, {
       timestamp,
-      duration: Math.round(1_000_000 / fps),
+      duration,
     });
 
     const isKeyFrame = frameIndex % (fps * 2) === 0;
@@ -181,6 +232,20 @@ export class WebCodecsVideoEncoder {
 
     frame.close();
     this.frameCount++;
+
+    // Backpressure: if encoder queue is building up, wait for it to drain
+    if (this.encoder.encodeQueueSize > 5) {
+      await new Promise<void>((resolve) => {
+        const check = () => {
+          if (!this.encoder || this.encoder.encodeQueueSize <= 2) {
+            resolve();
+          } else {
+            setTimeout(check, 1);
+          }
+        };
+        check();
+      });
+    }
   }
 
   /**

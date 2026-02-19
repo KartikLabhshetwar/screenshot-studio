@@ -16,8 +16,6 @@ import { useState, useEffect, useCallback } from "react";
 import React from "react";
 import { cn } from "@/lib/utils";
 import { ExportSlideshowDialog } from "@/lib/export-slideshow-dialog";
-import { ExportProgressOverlay } from "@/lib/export-progress-overlay";
-import { ComingSoonDialog } from "@/components/ui/coming-soon-dialog";
 
 const ClientCanvas = dynamic(() => import("@/components/canvas/ClientCanvas"), {
   ssr: false,
@@ -40,12 +38,14 @@ export function EditorCanvas() {
     stopPreview,
     uploadedImageUrl,
     clearImage,
+    showTimeline,
+    timeline,
+    animationClips,
   } = useImageStore();
 
   // Check both stores - imageStore is the source of truth (tracked by undo/redo)
   const hasImage = !!uploadedImageUrl && !!screenshot.src;
   const [exportOpen, setExportOpen] = useState(false);
-  const [videoComingSoonOpen, setVideoComingSoonOpen] = useState(false);
 
   // Track temporal state reactively for undo/redo
   const [canUndo, setCanUndo] = React.useState(false);
@@ -125,9 +125,7 @@ export function EditorCanvas() {
 
   return (
     <>
-      <ExportProgressOverlay />
-
-      <div className="flex flex-col h-full w-full">
+      <div className="flex flex-col h-full w-full relative">
         {/* Secondary toolbar for slides and image management */}
         {(slides.length > 0 || uploadedImageUrl) && (
           <div className="flex items-center justify-between gap-2 p-2 border-b border-border/30 bg-[#1e1e1e] shrink-0">
@@ -188,9 +186,9 @@ export function EditorCanvas() {
                 </label>
               )}
 
-              {slides.length > 0 && (
+              {(slides.length > 0 || timeline.tracks.length > 0 || animationClips.length > 0) && (
                 <Button
-                  onClick={() => setVideoComingSoonOpen(true)}
+                  onClick={() => setExportOpen(true)}
                   size="sm"
                   className="h-8 justify-center gap-2 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground transition-all font-medium px-3"
                 >
@@ -198,13 +196,6 @@ export function EditorCanvas() {
                   <span>Export Video</span>
                 </Button>
               )}
-
-              <ComingSoonDialog
-                open={videoComingSoonOpen}
-                onOpenChange={setVideoComingSoonOpen}
-                feature="Video Export"
-                description="Export your slideshows as MP4 or WebM videos with custom transitions and timing. This feature is coming soon!"
-              />
 
               <ExportSlideshowDialog
                 open={exportOpen}
@@ -228,48 +219,47 @@ export function EditorCanvas() {
         <div className="flex-1 flex items-center justify-center overflow-y-auto overflow-x-hidden p-3 sm:p-4 md:p-6">
           <ClientCanvas />
         </div>
-      </div>
 
-      {slides.length > 1 && (
-        <div className="border-t border-border/30 bg-surface-2 p-2 absolute bottom-0 left-0 right-0 overflow-x-auto">
-          <div className="flex gap-2 overflow-x-auto">
-            {slides.map((slide) => (
-              <div
-                key={slide.id}
-                className={`relative w-28 shrink-0 h-16 rounded-lg overflow-hidden border cursor-pointer transition-all duration-200 ${
-                  slide.id === activeSlideId
-                    ? "ring-2 ring-foreground/50 border-foreground/30"
-                    : "border-border/30 hover:border-border"
-                }`}
-              >
-                {/* Thumbnail click */}
-                <button
-                  onClick={() => setActiveSlide(slide.id)}
-                  className="h-full w-full"
+        {/* Bottom filmstrip — only shown when timeline is NOT visible */}
+        {slides.length > 1 && !showTimeline && (
+          <div className="border-t border-border/30 bg-surface-2 p-2 shrink-0 overflow-x-auto">
+            <div className="flex gap-2 overflow-x-auto">
+              {slides.map((slide) => (
+                <div
+                  key={slide.id}
+                  className={`relative w-28 shrink-0 h-16 rounded-lg overflow-hidden border cursor-pointer transition-all duration-200 ${
+                    slide.id === activeSlideId
+                      ? "ring-2 ring-foreground/50 border-foreground/30"
+                      : "border-border/30 hover:border-border"
+                  }`}
                 >
-                  <img
-                    src={slide.src}
-                    className="h-full w-full object-cover"
-                    draggable={false}
-                  />
-                </button>
+                  <button
+                    onClick={() => setActiveSlide(slide.id)}
+                    className="h-full w-full"
+                  >
+                    <img
+                      src={slide.src}
+                      className="h-full w-full object-cover"
+                      draggable={false}
+                    />
+                  </button>
 
-                {/* Delete button */}
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    removeSlide(slide.id);
-                  }}
-                  className="absolute top-1 right-1 z-10 rounded bg-white/70 text-black hover:text-white cursor-pointer hover:bg-red-600 transition h-5 w-5 flex items-center justify-center text-xs"
-                  title="Delete slide"
-                >
-                  ✕
-                </button>
-              </div>
-            ))}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      removeSlide(slide.id);
+                    }}
+                    className="absolute top-1 right-1 z-10 rounded bg-white/70 text-black hover:text-white cursor-pointer hover:bg-red-600 transition h-5 w-5 flex items-center justify-center text-xs"
+                    title="Delete slide"
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </>
   );
 }

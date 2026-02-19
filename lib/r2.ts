@@ -13,9 +13,13 @@
 // R2_BUCKET_NAME - Your R2 bucket name
 
 /**
- * Get the public URL for an R2 object
+ * Get the public URL for an R2 object.
+ * Uses a same-origin proxy path (/r2-assets/...) to avoid CORS issues
+ * during canvas capture (e.g. video export with domToCanvas).
+ * The Next.js rewrite in next.config.ts proxies these to the actual R2 URL.
+ *
  * @param path - The object path/key in the bucket (e.g., "backgrounds/image.jpg")
- * @returns The full public URL
+ * @returns The proxied URL path
  */
 export function getR2PublicUrl(path: string): string {
   const publicUrl = process.env.NEXT_PUBLIC_R2_PUBLIC_URL;
@@ -28,10 +32,8 @@ export function getR2PublicUrl(path: string): string {
   // Remove leading slash from path if present
   const cleanPath = path.startsWith('/') ? path.slice(1) : path;
 
-  // Ensure publicUrl doesn't end with slash
-  const baseUrl = publicUrl.endsWith('/') ? publicUrl.slice(0, -1) : publicUrl;
-
-  return `${baseUrl}/${cleanPath}`;
+  // Use same-origin proxy to avoid CORS issues with canvas capture
+  return `/r2-assets/${cleanPath}`;
 }
 
 /**

@@ -74,66 +74,70 @@ async function recordFrames(
   canvas.style.cssText = "position:fixed;left:-99999px;top:0;pointer-events:none;"
   document.body.appendChild(canvas)
 
-  const ctx = canvas.getContext("2d", { alpha: false })!
-  ctx.imageSmoothingEnabled = true
-  ctx.imageSmoothingQuality = "high"
+  try {
+    const ctx = canvas.getContext("2d", { alpha: false })!
+    ctx.imageSmoothingEnabled = true
+    ctx.imageSmoothingQuality = "high"
 
-  // Setup MediaRecorder
-  const stream = canvas.captureStream(fps)
-  const recorder = new MediaRecorder(stream, {
-    mimeType,
-    videoBitsPerSecond: bitrate,
-  })
+    // Setup MediaRecorder
+    const stream = canvas.captureStream(fps)
+    const recorder = new MediaRecorder(stream, {
+      mimeType,
+      videoBitsPerSecond: bitrate,
+    })
 
-  const chunks: BlobPart[] = []
-  recorder.ondataavailable = (e) => {
-    if (e.data.size > 0) chunks.push(e.data)
-  }
+    const chunks: BlobPart[] = []
+    recorder.ondataavailable = (e) => {
+      if (e.data.size > 0) chunks.push(e.data)
+    }
 
-  recorder.start()
+    recorder.start()
 
-  // Calculate total duration for progress
-  const totalDuration = frames.reduce((sum, f) => sum + f.duration, 0)
-  let elapsed = 0
-  const frameInterval = 1000 / fps
+    // Calculate total duration for progress
+    const totalDuration = frames.reduce((sum, f) => sum + f.duration, 0)
+    let elapsed = 0
+    const frameInterval = 1000 / fps
 
-  // Render each frame with optimized timing for UI responsiveness
-  let frameCounter = 0
-  const YIELD_INTERVAL = 10 // Yield to UI every N frames
+    // Render each frame with optimized timing for UI responsiveness
+    let frameCounter = 0
+    const YIELD_INTERVAL = 10 // Yield to UI every N frames
 
-  for (const frame of frames) {
-    const frameCount = Math.round(frame.duration * fps)
+    for (const frame of frames) {
+      const frameCount = Math.round(frame.duration * fps)
 
-    for (let i = 0; i < frameCount; i++) {
-      ctx.drawImage(frame.img, 0, 0, width, height)
+      for (let i = 0; i < frameCount; i++) {
+        ctx.drawImage(frame.img, 0, 0, width, height)
 
-      // Use shorter delay for rendering (MediaRecorder captures at its own rate)
-      await new Promise((r) => setTimeout(r, Math.min(frameInterval, 16)))
+        // Use shorter delay for rendering (MediaRecorder captures at its own rate)
+        await new Promise((r) => setTimeout(r, Math.min(frameInterval, 16)))
 
-      elapsed += 1 / fps
-      onProgress?.(Math.min(99, (elapsed / totalDuration) * 100))
+        elapsed += 1 / fps
+        onProgress?.(Math.min(99, (elapsed / totalDuration) * 100))
 
-      // Periodically yield to main thread to keep UI responsive
-      frameCounter++
-      if (frameCounter % YIELD_INTERVAL === 0) {
-        await yieldToMain()
+        // Periodically yield to main thread to keep UI responsive
+        frameCounter++
+        if (frameCounter % YIELD_INTERVAL === 0) {
+          await yieldToMain()
+        }
       }
     }
+
+    // Finalize recording
+    await new Promise((r) => setTimeout(r, 200))
+    recorder.stop()
+    await new Promise<void>((r) => { recorder.onstop = () => r() })
+
+    // Cleanup stream
+    stream.getTracks().forEach((t) => t.stop())
+
+    onProgress?.(100)
+
+    const format = mimeType.includes("mp4") ? "video/mp4" : "video/webm"
+    return new Blob(chunks, { type: format })
+  } finally {
+    // Always remove canvas from DOM, even on error
+    canvas.remove()
   }
-
-  // Finalize recording
-  await new Promise((r) => setTimeout(r, 200))
-  recorder.stop()
-  await new Promise<void>((r) => { recorder.onstop = () => r() })
-
-  // Cleanup
-  stream.getTracks().forEach((t) => t.stop())
-  canvas.remove()
-
-  onProgress?.(100)
-
-  const format = mimeType.includes("mp4") ? "video/mp4" : "video/webm"
-  return new Blob(chunks, { type: format })
 }
 
 /**

@@ -12,7 +12,7 @@
  */
 
 import { FFmpeg } from '@ffmpeg/ffmpeg';
-import { fetchFile, toBlobURL } from '@ffmpeg/util';
+import { toBlobURL } from '@ffmpeg/util';
 
 export type FFmpegFormat = 'mp4' | 'webm' | 'gif';
 export type FFmpegQuality = 'high' | 'medium' | 'low';
@@ -39,6 +39,9 @@ let ffmpegInstance: FFmpeg | null = null;
 let isLoading = false;
 let loadPromise: Promise<FFmpeg> | null = null;
 
+// Mutex to prevent concurrent exports from corrupting the virtual filesystem
+let exportLock: Promise<void> = Promise.resolve();
+
 /**
  * Load FFmpeg WASM (singleton, loads only once)
  */
@@ -59,11 +62,6 @@ export async function loadFFmpeg(
 
   loadPromise = (async () => {
     const ffmpeg = new FFmpeg();
-
-    // Set up progress logging
-    ffmpeg.on('progress', ({ progress }) => {
-      onProgress?.(progress * 100);
-    });
 
     // Load FFmpeg core from CDN (smaller initial bundle)
     const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/esm';
@@ -96,7 +94,9 @@ export class FFmpegVideoEncoder {
   private ffmpeg: FFmpeg | null = null;
   private options: Required<FFmpegEncoderOptions>;
   private frameCount = 0;
-  private frames: Uint8Array[] = [];
+  private progressHandler: ((event: { progress: number }) => void) | null = null;
+  private logHandler: ((event: { message: string }) => void) | null = null;
+  private releaseLock: (() => void) | null = null;
 
   constructor(options: FFmpegEncoderOptions) {
     this.options = {
@@ -109,50 +109,46 @@ export class FFmpegVideoEncoder {
   }
 
   /**
-   * Initialize FFmpeg
+   * Initialize FFmpeg (waits for any concurrent export to finish)
    */
   async initialize(): Promise<void> {
+    // Wait for any in-progress export to finish (prevents VFS corruption)
+    let releaseLock: () => void;
+    const lockPromise = new Promise<void>((resolve) => { releaseLock = resolve; });
+    const previousLock = exportLock;
+    exportLock = lockPromise;
+    await previousLock;
+    this.releaseLock = releaseLock!;
+
     this.ffmpeg = await loadFFmpeg((p) => {
-      // Loading progress (first 10%)
       this.options.onProgress(p * 0.1);
     });
 
-    // Set up logging
-    this.ffmpeg.on('log', ({ message }) => {
+    // Set up logging with tracked handler for cleanup
+    this.logHandler = ({ message }) => {
       this.options.onLog(message);
-    });
+    };
+    this.ffmpeg.on('log', this.logHandler);
   }
 
   /**
-   * Add a frame from canvas
+   * Add a frame from canvas — writes directly to FFmpeg VFS (no memory accumulation)
    */
   async addFrame(canvas: HTMLCanvasElement): Promise<void> {
+    if (!this.ffmpeg) throw new Error('FFmpeg not initialized');
+
     // Convert canvas to PNG blob
     const blob = await new Promise<Blob>((resolve) => {
       canvas.toBlob((b) => resolve(b!), 'image/png');
     });
 
-    // Convert blob to Uint8Array
+    // Write directly to FFmpeg VFS
     const arrayBuffer = await blob.arrayBuffer();
     const data = new Uint8Array(arrayBuffer);
+    const paddedIndex = String(this.frameCount).padStart(6, '0');
+    await this.ffmpeg.writeFile(`frame_${paddedIndex}.png`, data);
 
-    this.frames.push(data);
     this.frameCount++;
-  }
-
-  /**
-   * Add a frame from ImageData
-   */
-  async addFrameFromImageData(imageData: ImageData): Promise<void> {
-    // Create canvas from ImageData
-    const canvas = document.createElement('canvas');
-    canvas.width = imageData.width;
-    canvas.height = imageData.height;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) throw new Error('Could not get canvas context');
-    ctx.putImageData(imageData, 0, 0);
-
-    await this.addFrame(canvas);
   }
 
   /**
@@ -165,15 +161,6 @@ export class FFmpegVideoEncoder {
 
     const { fps, format, quality, width, height, onProgress } = this.options;
     const crf = QUALITY_CRF[quality];
-
-    // Write all frames to FFmpeg's virtual filesystem
-    for (let i = 0; i < this.frames.length; i++) {
-      const paddedIndex = String(i).padStart(6, '0');
-      await this.ffmpeg.writeFile(`frame_${paddedIndex}.png`, this.frames[i]);
-
-      // Writing frames is 10-40% of progress
-      onProgress(10 + (i / this.frames.length) * 30);
-    }
 
     // Build FFmpeg command based on format
     let outputFile: string;
@@ -219,41 +206,71 @@ export class FFmpegVideoEncoder {
       throw new Error(`Unsupported format: ${format}`);
     }
 
-    // Set up progress tracking for encoding
-    this.ffmpeg.on('progress', ({ progress }) => {
-      // Encoding is 40-100% of progress
+    // Set up progress tracking for encoding (with tracked handler for cleanup)
+    this.progressHandler = ({ progress }) => {
       onProgress(40 + progress * 60);
-    });
-
-    // Run FFmpeg
-    await this.ffmpeg.exec(ffmpegArgs);
-
-    // Read output file
-    const data = await this.ffmpeg.readFile(outputFile);
-
-    // Clean up - delete all frames and output
-    for (let i = 0; i < this.frames.length; i++) {
-      const paddedIndex = String(i).padStart(6, '0');
-      await this.ffmpeg.deleteFile(`frame_${paddedIndex}.png`);
-    }
-    await this.ffmpeg.deleteFile(outputFile);
-
-    // Clear frames from memory
-    this.frames = [];
-
-    // Convert to blob
-    const mimeTypes: Record<FFmpegFormat, string> = {
-      mp4: 'video/mp4',
-      webm: 'video/webm',
-      gif: 'image/gif',
     };
+    this.ffmpeg.on('progress', this.progressHandler);
 
-    // Handle both Uint8Array and string return types from FFmpeg
-    const blobData = typeof data === 'string'
-      ? new TextEncoder().encode(data)
-      : new Uint8Array(data);
+    try {
+      // Run FFmpeg
+      await this.ffmpeg.exec(ffmpegArgs);
 
-    return new Blob([blobData], { type: mimeTypes[format] });
+      // Read output file
+      const data = await this.ffmpeg.readFile(outputFile);
+
+      // Convert to blob
+      const mimeTypes: Record<FFmpegFormat, string> = {
+        mp4: 'video/mp4',
+        webm: 'video/webm',
+        gif: 'image/gif',
+      };
+
+      const blobData = typeof data === 'string'
+        ? new TextEncoder().encode(data)
+        : new Uint8Array(data);
+
+      return new Blob([blobData], { type: mimeTypes[format] });
+    } finally {
+      // Always clean up: remove listeners, delete files, release lock
+      this.cleanup();
+    }
+  }
+
+  /**
+   * Clean up FFmpeg VFS, listeners, and release export lock
+   */
+  private async cleanup(): Promise<void> {
+    if (this.ffmpeg) {
+      // Remove event listeners to prevent accumulation
+      if (this.progressHandler) {
+        this.ffmpeg.off('progress', this.progressHandler);
+        this.progressHandler = null;
+      }
+      if (this.logHandler) {
+        this.ffmpeg.off('log', this.logHandler);
+        this.logHandler = null;
+      }
+
+      // Delete all frame files and output from VFS
+      for (let i = 0; i < this.frameCount; i++) {
+        const paddedIndex = String(i).padStart(6, '0');
+        try {
+          await this.ffmpeg.deleteFile(`frame_${paddedIndex}.png`);
+        } catch {
+          // File may not exist if encode was interrupted
+        }
+      }
+      try { await this.ffmpeg.deleteFile('output.mp4'); } catch {}
+      try { await this.ffmpeg.deleteFile('output.webm'); } catch {}
+      try { await this.ffmpeg.deleteFile('output.gif'); } catch {}
+    }
+
+    // Release the export lock so next export can proceed
+    if (this.releaseLock) {
+      this.releaseLock();
+      this.releaseLock = null;
+    }
   }
 
   /**

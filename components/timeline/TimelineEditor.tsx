@@ -167,8 +167,8 @@ function ResizableAnimationClip({
   return (
     <div
       className={cn(
-        'absolute top-1 bottom-1 rounded cursor-grab transition-shadow',
-        'bg-gradient-to-r from-brand/90 to-emerald-500/90',
+        'absolute top-1 bottom-1 rounded cursor-grab transition-shadow group',
+        'bg-brand/80',
         isSelected ? 'ring-2 ring-white shadow-lg' : 'hover:ring-1 hover:ring-white/50'
       )}
       style={{ left: `${leftPercent}%`, width: `${widthPercent}%` }}
@@ -192,18 +192,17 @@ function ResizableAnimationClip({
         <span className="text-[11px] text-white font-medium truncate">{clip.name}</span>
       </div>
 
-      {/* Delete button - visible when selected, positioned inside the clip */}
-      {isSelected && (
-        <button
-          className="absolute top-1 right-1 w-5 h-5 bg-red-500/90 rounded flex items-center justify-center hover:bg-red-600 shadow-lg z-10 pointer-events-auto"
-          onClick={(e) => {
-            e.stopPropagation();
-            removeAnimationClip(clip.id);
-          }}
-        >
-          <Delete02Icon size={12} className="text-white" />
-        </button>
-      )}
+      {/* Delete button - visible on hover */}
+      <button
+        className="absolute top-1 right-1 w-5 h-5 bg-red-500/90 rounded flex items-center justify-center hover:bg-red-600 shadow-lg z-10 pointer-events-auto opacity-0 group-hover:opacity-100 transition-opacity"
+        onMouseDown={(e) => e.stopPropagation()}
+        onClick={(e) => {
+          e.stopPropagation();
+          removeAnimationClip(clip.id);
+        }}
+      >
+        <Delete02Icon size={12} className="text-white" />
+      </button>
     </div>
   );
 }
@@ -270,7 +269,7 @@ function MediaTrack({ width }: { width: number }) {
                 )}
 
                 {/* Info overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end">
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end pointer-events-none">
                   <div className="flex items-center gap-1 p-1.5 text-white/80">
                     <ViewIcon size={10} />
                     <span className="text-[8px]">{itemDurationSeconds.toFixed(1)}s</span>
@@ -282,7 +281,7 @@ function MediaTrack({ width }: { width: number }) {
         </div>
 
         {/* Slide count label */}
-        <div className="absolute top-1 right-2 px-1.5 py-0.5 bg-black/50 rounded text-[9px] text-white/70">
+        <div className="absolute top-1 right-2 px-1.5 py-0.5 bg-black/50 rounded text-[9px] text-white/70 pointer-events-none">
           {mediaItems.length > 1 ? `${mediaItems.length} slides` : imageName || 'Image'} · {durationSeconds.toFixed(1)}s
         </div>
       </div>

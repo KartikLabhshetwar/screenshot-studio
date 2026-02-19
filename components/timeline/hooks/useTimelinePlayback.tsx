@@ -145,15 +145,23 @@ export function useTimelinePlayback() {
     };
   }, [isPlaying]); // Only depend on isPlaying to start/stop
 
+  // Track whether the playhead value actually changed (vs re-render from other deps)
+  const prevPlayheadRef = React.useRef(playhead);
+
   // Apply interpolated properties when playhead changes (for scrubbing)
   // Also switches slides and resets to defaults when playhead is outside any clip's time range
   React.useEffect(() => {
     if (isPlaying) return; // Skip during playback (handled in animation loop)
 
-    // Switch to the correct slide based on playhead position (for scrubbing)
-    if (slides.length > 1) {
+    // Only switch slides when the playhead actually moved (scrubbing),
+    // NOT when activeSlideId changes from a user click — otherwise
+    // clicking a slide gets immediately reverted by this effect.
+    const playheadChanged = prevPlayheadRef.current !== playhead;
+    prevPlayheadRef.current = playhead;
+
+    if (playheadChanged && slides.length > 1) {
       const targetSlideId = getActiveSlideAtTime(slides, playhead, slideshow.defaultDuration);
-      if (targetSlideId && targetSlideId !== activeSlideId) {
+      if (targetSlideId && targetSlideId !== useImageStore.getState().activeSlideId) {
         setActiveSlide(targetSlideId);
       }
     }
@@ -180,7 +188,7 @@ export function useTimelinePlayback() {
     if (interpolated.imageOpacity !== undefined) {
       setImageOpacity(interpolated.imageOpacity);
     }
-  }, [playhead, isPlaying, tracks, animationClips, slides, activeSlideId, slideshow.defaultDuration, setActiveSlide, setPerspective3D, setImageOpacity]);
+  }, [playhead, isPlaying, tracks, animationClips, slides, slideshow.defaultDuration, setActiveSlide, setPerspective3D, setImageOpacity]);
 
   // Reset to defaults when animation clips are removed
   React.useEffect(() => {

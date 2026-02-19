@@ -1,5 +1,5 @@
 import { useExportProgress } from "@/hooks/useExportProgress";
-import { renderSlidesToFrames, renderAnimationToFrames, renderAnimationToCanvasFrames } from "./render-slideFrame";
+import { streamSlidesToEncoder, renderSlidesToFrames, renderAnimationToFrames, streamAnimationToEncoder } from "./render-slideFrame";
 import {
   exportVideo,
   type VideoFormat,
@@ -16,6 +16,7 @@ import {
   isFFmpegLoaded,
   type FFmpegFormat,
 } from "./export/ffmpeg-encoder";
+import { useImageStore } from "@/lib/store";
 
 const FPS = 60;
 
@@ -68,53 +69,190 @@ export async function preloadFFmpeg(
 }
 
 /**
- * Export slideshow as video (MP4 or WebM)
+ * Save current store state for rollback on error
+ */
+function saveStoreState() {
+  const store = useImageStore.getState();
+  return {
+    perspective3D: { ...store.perspective3D },
+    imageOpacity: store.imageOpacity,
+    activeSlideId: store.activeSlideId,
+  };
+}
+
+/**
+ * Restore store state (used on export error)
+ */
+function restoreStoreState(saved: ReturnType<typeof saveStoreState>) {
+  const store = useImageStore.getState();
+  store.setPerspective3D(saved.perspective3D);
+  store.setImageOpacity(saved.imageOpacity);
+  if (saved.activeSlideId) {
+    store.setActiveSlide(saved.activeSlideId);
+  }
+}
+
+/**
+ * Trigger file download from blob
+ */
+function downloadBlob(blob: Blob, filename: string) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+/**
+ * Export slideshow as video — routes to appropriate encoder based on format
  */
 export async function exportSlideshowVideo(options: VideoExportOptions = {}) {
   const { format = "mp4", quality = "high" } = options;
   const progress = useExportProgress.getState();
+  const savedState = saveStoreState();
 
   progress.start();
 
   try {
-    const frames = await renderSlidesToFrames();
+    let result;
 
-    if (!frames.length) {
-      throw new Error("No frames to export");
+    if (format === "webm") {
+      result = await exportSlideshowWithMediaRecorder("webm", quality, progress);
+    } else if (format === "gif") {
+      result = await exportSlideshowWithFFmpeg("gif", quality, progress);
+    } else if (isWebCodecsSupported() && await isH264Supported()) {
+      result = await exportSlideshowWithWebCodecs(quality, progress);
+    } else {
+      result = await exportSlideshowWithFFmpeg("mp4", quality, progress);
     }
 
-    const width = frames[0].img.width;
-    const height = frames[0].img.height;
-
-    // For GIF, use FFmpeg; otherwise use MediaRecorder
-    const videoFormat = format === 'gif' ? 'mp4' : format;
-
-    const { blob, format: actualFormat } = await exportVideo(frames, {
-      width,
-      height,
-      fps: FPS,
-      format: videoFormat as VideoFormat,
-      quality,
-      onProgress: (p) => progress.set(p),
-    });
-
-    progress.done();
-
-    // Download the video
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `screenshotstudio-video-${Date.now()}.${actualFormat}`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-
-    return { format: actualFormat };
+    restoreStoreState(savedState);
+    return result;
   } catch (error) {
     progress.done();
+    restoreStoreState(savedState);
     throw error;
   }
+}
+
+/**
+ * Export slideshow using WebCodecs (MP4 only)
+ */
+async function exportSlideshowWithWebCodecs(
+  quality: VideoQuality,
+  progress: ReturnType<typeof useExportProgress.getState>
+) {
+  const state: { encoder: WebCodecsVideoEncoder | null; frameIndex: number } = {
+    encoder: null,
+    frameIndex: 0,
+  };
+
+  await streamSlidesToEncoder(
+    FPS,
+    async (canvas, idx) => {
+      if (!state.encoder) {
+        state.encoder = new WebCodecsVideoEncoder({
+          width: canvas.width,
+          height: canvas.height,
+          fps: FPS,
+          bitrate: QUALITY_BITRATES[quality],
+        });
+        await state.encoder.initialize();
+      }
+
+      await state.encoder.encodeFromCanvas(canvas, idx);
+      state.frameIndex++;
+
+      if (idx % 10 === 0) {
+        await new Promise((r) => setTimeout(r, 0));
+      }
+    },
+    (p) => progress.set(40 + p * 0.55)
+  );
+
+  if (!state.encoder) {
+    throw new Error("No frames to export");
+  }
+
+  const blob = await state.encoder.finalize();
+  progress.done();
+  downloadBlob(blob, `screenshotstudio-video-${Date.now()}.mp4`);
+  return { format: "mp4" as const };
+}
+
+/**
+ * Export slideshow using FFmpeg (supports MP4, WebM, GIF)
+ */
+async function exportSlideshowWithFFmpeg(
+  format: FFmpegFormat,
+  quality: VideoQuality,
+  progress: ReturnType<typeof useExportProgress.getState>
+) {
+  const state: { encoder: FFmpegVideoEncoder | null } = { encoder: null };
+
+  await streamSlidesToEncoder(
+    FPS,
+    async (canvas) => {
+      if (!state.encoder) {
+        state.encoder = new FFmpegVideoEncoder({
+          width: canvas.width,
+          height: canvas.height,
+          fps: FPS,
+          format,
+          quality,
+          onProgress: (p) => progress.set(40 + p * 0.6),
+          onLog: (msg) => console.debug('[FFmpeg]', msg),
+        });
+        await state.encoder.initialize();
+      }
+
+      await state.encoder.addFrame(canvas);
+    },
+    (p) => progress.set(p * 0.4)
+  );
+
+  if (!state.encoder) {
+    throw new Error("No frames to export");
+  }
+
+  const blob = await state.encoder.encode();
+  progress.done();
+  downloadBlob(blob, `screenshotstudio-video-${Date.now()}.${format}`);
+  return { format };
+}
+
+/**
+ * Export slideshow using MediaRecorder (native WebM support in browsers)
+ */
+async function exportSlideshowWithMediaRecorder(
+  format: VideoFormat,
+  quality: VideoQuality,
+  progress: ReturnType<typeof useExportProgress.getState>
+) {
+  const frames = await renderSlidesToFrames();
+
+  if (!frames.length) {
+    throw new Error("No frames to export");
+  }
+
+  const width = frames[0].img.width;
+  const height = frames[0].img.height;
+
+  const { blob, format: actualFormat } = await exportVideo(frames, {
+    width,
+    height,
+    fps: FPS,
+    format,
+    quality,
+    onProgress: (p) => progress.set(50 + p * 0.5),
+  });
+
+  progress.done();
+  downloadBlob(blob, `screenshotstudio-video-${Date.now()}.${actualFormat}`);
+  return { format: actualFormat };
 }
 
 /**
@@ -129,6 +267,7 @@ export async function exportSlideshowVideo(options: VideoExportOptions = {}) {
 export async function exportAnimationVideo(options: VideoExportOptions = {}) {
   const { format = "mp4", quality = "high", encoder = "auto" } = options;
   const progress = useExportProgress.getState();
+  const savedState = saveStoreState();
 
   progress.start();
 
@@ -140,149 +279,140 @@ export async function exportAnimationVideo(options: VideoExportOptions = {}) {
       // Auto-select based on format and availability
       if (format === "gif") {
         selectedEncoder = "ffmpeg"; // Only FFmpeg supports GIF
-      } else if (format === "mp4") {
-        // Prefer FFmpeg for reliability, WebCodecs for speed
-        selectedEncoder = "ffmpeg";
+      } else if (format === "webm") {
+        selectedEncoder = "mediarecorder"; // MediaRecorder natively supports WebM
+      } else if (format === "mp4" && isWebCodecsSupported()) {
+        selectedEncoder = "webcodecs"; // Prefer WebCodecs: browser-native, no WASM loading
       } else {
         selectedEncoder = "ffmpeg";
       }
     }
 
     // Route to appropriate encoder
+    let result;
     switch (selectedEncoder) {
       case "ffmpeg":
-        return await exportAnimationWithFFmpeg(format as FFmpegFormat, quality, progress);
+        result = await exportAnimationWithFFmpeg(format as FFmpegFormat, quality, progress);
+        break;
 
       case "webcodecs":
         if (format === "mp4" && isWebCodecsSupported() && await isH264Supported()) {
-          return await exportAnimationWithWebCodecs(quality, progress);
+          result = await exportAnimationWithWebCodecs(quality, progress);
+          break;
         }
         // Fall through to FFmpeg if WebCodecs unavailable
         console.warn("WebCodecs not available, falling back to FFmpeg");
-        return await exportAnimationWithFFmpeg(format as FFmpegFormat, quality, progress);
+        result = await exportAnimationWithFFmpeg(format as FFmpegFormat, quality, progress);
+        break;
 
       case "mediarecorder":
-        return await exportAnimationWithMediaRecorder(format as VideoFormat, quality, progress);
+        result = await exportAnimationWithMediaRecorder(format as VideoFormat, quality, progress);
+        break;
 
       default:
-        return await exportAnimationWithFFmpeg(format as FFmpegFormat, quality, progress);
+        result = await exportAnimationWithFFmpeg(format as FFmpegFormat, quality, progress);
+        break;
     }
+
+    restoreStoreState(savedState);
+    return result;
   } catch (error) {
     progress.done();
+    restoreStoreState(savedState);
     throw error;
   }
 }
 
 /**
- * Export animation using FFmpeg WASM (recommended)
- * Supports: MP4, WebM, GIF
+ * Export animation using FFmpeg WASM — streams frames directly to encoder
  */
 async function exportAnimationWithFFmpeg(
   format: FFmpegFormat,
   quality: VideoQuality,
   progress: ReturnType<typeof useExportProgress.getState>
 ) {
-  // Render frames to canvas
-  const { canvases, width, height } = await renderAnimationToCanvasFrames(FPS, (p) => {
-    // Rendering is ~40% of the work
-    progress.set(p * 0.4);
-  });
+  const state: { encoder: FFmpegVideoEncoder | null } = { encoder: null };
 
-  if (canvases.length === 0) {
+  await streamAnimationToEncoder(
+    FPS,
+    async (canvas) => {
+      // Initialize encoder on first frame
+      if (!state.encoder) {
+        state.encoder = new FFmpegVideoEncoder({
+          width: canvas.width,
+          height: canvas.height,
+          fps: FPS,
+          format,
+          quality,
+          onProgress: (p) => progress.set(40 + p * 0.6),
+          onLog: (msg) => console.debug('[FFmpeg]', msg),
+        });
+        await state.encoder.initialize();
+      }
+
+      await state.encoder.addFrame(canvas);
+    },
+    (p) => progress.set(p * 0.4)
+  );
+
+  if (!state.encoder) {
     throw new Error("No frames to export");
   }
 
-  // Initialize FFmpeg encoder
-  const encoder = new FFmpegVideoEncoder({
-    width,
-    height,
-    fps: FPS,
-    format,
-    quality,
-    onProgress: (p) => progress.set(40 + p * 0.6), // Encoding is 60% of work
-    onLog: (msg) => console.debug('[FFmpeg]', msg),
-  });
-
-  await encoder.initialize();
-
-  // Add all frames
-  for (const canvas of canvases) {
-    await encoder.addFrame(canvas);
-  }
-
-  // Encode to video
-  const blob = await encoder.encode();
+  const blob = await state.encoder.encode();
 
   progress.done();
 
-  // Download the video
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `screenshotstudio-animation-${Date.now()}.${format}`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
+  downloadBlob(blob, `screenshotstudio-animation-${Date.now()}.${format}`);
 
   return { format };
 }
 
 /**
- * Export animation using WebCodecs + mp4-muxer (high quality)
+ * Export animation using WebCodecs + mp4-muxer — streams frames directly
  */
 async function exportAnimationWithWebCodecs(
   quality: VideoQuality,
   progress: ReturnType<typeof useExportProgress.getState>
 ) {
-  // Render frames to canvas
-  const { canvases, width, height } = await renderAnimationToCanvasFrames(FPS, (p) => {
-    // Rendering is ~50% of the work
-    progress.set(p * 0.5);
-  });
+  const state: { encoder: WebCodecsVideoEncoder | null; frameCount: number } = {
+    encoder: null,
+    frameCount: 0,
+  };
 
-  if (canvases.length === 0) {
+  await streamAnimationToEncoder(
+    FPS,
+    async (canvas, frameIndex) => {
+      // Initialize encoder on first frame
+      if (!state.encoder) {
+        state.encoder = new WebCodecsVideoEncoder({
+          width: canvas.width,
+          height: canvas.height,
+          fps: FPS,
+          bitrate: QUALITY_BITRATES[quality],
+        });
+        await state.encoder.initialize();
+      }
+
+      await state.encoder.encodeFromCanvas(canvas, frameIndex);
+      state.frameCount++;
+
+      if (frameIndex % 10 === 0) {
+        await new Promise((r) => setTimeout(r, 0));
+      }
+    },
+    (p) => progress.set(50 + p * 0.5)
+  );
+
+  if (!state.encoder) {
     throw new Error("No frames to export");
   }
 
-  // Initialize WebCodecs encoder
-  const encoder = new WebCodecsVideoEncoder({
-    width,
-    height,
-    fps: FPS,
-    bitrate: QUALITY_BITRATES[quality],
-    onProgress: (p) => progress.set(50 + p * 0.5),
-  });
-
-  await encoder.initialize();
-
-  // Encode each frame
-  for (let i = 0; i < canvases.length; i++) {
-    await encoder.encodeFromCanvas(canvases[i], i);
-
-    // Report progress (encoding is 50% of work)
-    progress.set(50 + ((i + 1) / canvases.length) * 50);
-
-    // Yield to main thread periodically
-    if (i % 10 === 0) {
-      await new Promise((r) => setTimeout(r, 0));
-    }
-  }
-
-  // Finalize and get the MP4 blob
-  const blob = await encoder.finalize();
+  const blob = await state.encoder.finalize();
 
   progress.done();
 
-  // Download the video
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `screenshotstudio-animation-${Date.now()}.mp4`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
+  downloadBlob(blob, `screenshotstudio-animation-${Date.now()}.mp4`);
 
   return { format: "mp4" as const };
 }
@@ -318,15 +448,7 @@ async function exportAnimationWithMediaRecorder(
 
   progress.done();
 
-  // Download the video
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `screenshotstudio-animation-${Date.now()}.${actualFormat}`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
+  downloadBlob(blob, `screenshotstudio-animation-${Date.now()}.${actualFormat}`);
 
   return { format: actualFormat };
 }

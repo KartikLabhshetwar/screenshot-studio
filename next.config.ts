@@ -18,6 +18,19 @@ const nextConfig: NextConfig = {
     ],
   },
 
+  // Proxy R2 assets through same origin to avoid CORS issues
+  // (especially critical for canvas capture during video export)
+  async rewrites() {
+    const r2Url = process.env.NEXT_PUBLIC_R2_PUBLIC_URL;
+    if (!r2Url) return [];
+    return [
+      {
+        source: "/r2-assets/:path*",
+        destination: `${r2Url}/:path*`,
+      },
+    ];
+  },
+
   // REQUIRED for react-konva
   webpack: (config) => {
     config.externals = [...(config.externals || []), { canvas: "canvas" }];
