@@ -14,7 +14,10 @@ import { useImageStore } from "@/lib/store";
 import {
   exportSlideshowVideo,
   exportAnimationVideo,
+  preloadFFmpeg,
+  type VideoExportOptions,
 } from "@/lib/export-slideshow-video";
+import { isFFmpegLoaded } from "@/lib/export/ffmpeg-encoder";
 import { useExportProgress } from "@/hooks/useExportProgress";
 import { isMp4Supported, type VideoFormat, type VideoQuality } from "@/lib/export/video-encoder";
 
@@ -127,6 +130,13 @@ export function ExportSlideshowDialog({
     setMp4Supported(isMp4Supported());
   }, []);
 
+  // Preload FFmpeg WASM when dialog opens (hides 2-5s load behind UI interaction)
+  useEffect(() => {
+    if (open && !isFFmpegLoaded()) {
+      preloadFFmpeg().catch(() => {});
+    }
+  }, [open]);
+
   // Sync export mode when dialog opens
   useEffect(() => {
     if (open) {
@@ -140,11 +150,12 @@ export function ExportSlideshowDialog({
 
   const handleExport = async () => {
     try {
+      const options: VideoExportOptions = { format, quality };
       let result;
       if (exportMode === "animation") {
-        result = await exportAnimationVideo({ format, quality });
+        result = await exportAnimationVideo(options);
       } else {
-        result = await exportSlideshowVideo({ format, quality });
+        result = await exportSlideshowVideo(options);
       }
       if (result.format !== format) {
         console.info(`Exported as ${result.format} (${format} not supported)`);
