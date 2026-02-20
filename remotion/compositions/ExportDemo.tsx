@@ -46,7 +46,7 @@ export const ExportDemo: React.FC = () => {
     >
       {/* Header */}
       <div style={{ height: 56, backgroundColor: '#1e1e1e', borderBottom: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 16px', flexShrink: 0 }}>
-        <Img src={staticFile('logo.png')} style={{ width: 48, height: 48, objectFit: 'contain' }} />
+        <Img src={staticFile('logo.svg')} style={{ width: 48, height: 48, objectFit: 'contain' }} />
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <HeaderButton label="Save" />
           <HeaderButton label="Copy" />

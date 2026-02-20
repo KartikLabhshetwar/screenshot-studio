@@ -3,6 +3,7 @@ Allow: /
 Disallow: /api/
 Disallow: /_next/
 Disallow: /static/
+Disallow: /landing
 
 # Sitemap location
 Sitemap: https://screenshot-studio.com/sitemap.xml

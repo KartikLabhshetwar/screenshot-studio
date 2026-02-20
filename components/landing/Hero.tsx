@@ -28,9 +28,9 @@ export function Hero({
   ctaHref = "/home",
 }: HeroProps) {
   const [isVideoOpen, setIsVideoOpen] = useState(false);
-  const videoEmbedUrl = "https://www.youtube.com/embed/zDux_K4SsH0";
+  const videoEmbedUrl = "https://www.youtube.com/embed/SKvVPLj5ZFo";
   const videoThumbnailUrl =
-    "https://img.youtube.com/vi/zDux_K4SsH0/maxresdefault.jpg";
+    "https://img.youtube.com/vi/SKvVPLj5ZFo/maxresdefault.jpg";
 
   return (
     <main

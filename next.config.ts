@@ -6,11 +6,6 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
       {
-        // R2 public development URL (*.r2.dev)
-        protocol: "https",
-        hostname: "**.r2.dev",
-      },
-      {
         // R2 custom domain (new)
         protocol: "https",
         hostname: "assets.screenshot-studio.com",
@@ -20,14 +15,33 @@ const nextConfig: NextConfig = {
 
   // Enable SharedArrayBuffer for multi-threaded FFmpeg WASM
   // Requires Cross-Origin-Opener-Policy and Cross-Origin-Embedder-Policy
+  // Only applied to editor routes — applying globally breaks YouTube embeds on landing page
   async headers() {
     return [
       {
-        source: "/(.*)",
+        source: "/editor/:path*",
         headers: [
           { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
           { key: "Cross-Origin-Embedder-Policy", value: "credentialless" },
         ],
+      },
+      {
+        source: "/home",
+        headers: [
+          { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
+          { key: "Cross-Origin-Embedder-Policy", value: "credentialless" },
+        ],
+      },
+    ];
+  },
+
+  // Permanent redirects for SEO (301)
+  async redirects() {
+    return [
+      {
+        source: "/landing",
+        destination: "/",
+        permanent: true,
       },
     ];
   },

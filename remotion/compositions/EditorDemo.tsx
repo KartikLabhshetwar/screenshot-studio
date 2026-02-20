@@ -65,7 +65,7 @@ export const EditorDemo: React.FC = () => {
           flexShrink: 0,
         }}
       >
-        <Img src={staticFile('logo.png')} style={{ width: 48, height: 48, objectFit: 'contain' }} />
+        <Img src={staticFile('logo.svg')} style={{ width: 48, height: 48, objectFit: 'contain' }} />
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <HeaderButton label="Save" />
           <HeaderButton label="Copy" />

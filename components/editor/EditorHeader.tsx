@@ -47,7 +47,7 @@ export function EditorHeader() {
         {/* Left - Logo */}
         <Link href="/" className="flex items-center gap-2.5 hover:opacity-80 transition-opacity">
           <Image
-            src="/logo.png"
+            src="/logo.svg"
             alt="Screenshot Studio"
             width={48}
             height={48}

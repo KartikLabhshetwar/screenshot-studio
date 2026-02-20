@@ -33,7 +33,7 @@ export function StructuredData() {
         url: "https://screenshot-studio.com",
         logo: {
           "@type": "ImageObject",
-          url: "https://screenshot-studio.com/logo.png",
+          url: "https://screenshot-studio.com/logo.svg",
           width: 512,
           height: 512,
         },

@@ -91,13 +91,11 @@ export interface AnimationPreset {
 
 // Categories for organizing presets
 export type AnimationPresetCategory =
-  | 'zoom'
-  | 'pan'
-  | 'tilt'
-  | 'rotate'
-  | 'ken-burns'
-  | 'fade'
-  | 'custom';
+  | 'reveal'
+  | 'flip'
+  | 'perspective'
+  | 'orbit'
+  | 'depth';
 
 // Helper type for creating keyframes with partial properties
 export type KeyframeInput = Omit<Keyframe, 'id'>;
