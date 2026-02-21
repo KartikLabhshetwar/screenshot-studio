@@ -298,7 +298,7 @@ export function Sponsors({
                     href={sponsor.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="block h-full"
+                    className="cursor-pointer block h-full"
                   >
                     {content}
                   </Link>
@@ -321,7 +321,7 @@ export function Sponsors({
               href="https://buymeacoffee.com/code_kartik"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors font-medium"
+              className="cursor-pointer inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors font-medium"
             >
               Sponsor Screenshot Studio
             </Link>

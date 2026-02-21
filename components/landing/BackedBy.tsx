@@ -53,7 +53,7 @@ export function BackedBy() {
               href={backer.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="group block"
+              className="cursor-pointer group block"
             >
               <div className="rounded-2xl border border-border/50 bg-background/50 backdrop-blur-sm hover:border-border transition-all duration-300 overflow-hidden">
                 <div
@@ -118,7 +118,7 @@ export function BackedBy() {
                     href="https://x.com/code_kartik"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg border border-border bg-background hover:bg-foreground/5 text-sm font-medium text-foreground transition-colors"
+                    className="cursor-pointer inline-flex items-center gap-2 px-5 py-2.5 rounded-lg border border-border bg-background hover:bg-foreground/5 text-sm font-medium text-foreground transition-colors"
                   >
                     Contact Us
                   </Link>

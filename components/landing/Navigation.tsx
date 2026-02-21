@@ -56,7 +56,7 @@ function GitHubStarButton({ stars }: { stars: number | null }) {
       href="https://github.com/KartikLabhshetwar/stage"
       target="_blank"
       rel="noopener noreferrer"
-      className="group relative flex items-center gap-2 px-3 py-1.5 rounded-full transition-all duration-300 hover:scale-105"
+      className="cursor-pointer group relative flex items-center gap-2 px-3 py-1.5 rounded-full transition-all duration-300 hover:scale-105"
       aria-label="Star on GitHub"
     >
       {/* Fancy gradient background */}
@@ -168,7 +168,7 @@ export function Navigation({
         }`}
       >
         {/* Logo */}
-        <Link href="/landing" className="flex items-center">
+        <Link href="/landing" className="cursor-pointer flex items-center">
           <Image
             src="/logo.svg"
             alt="Screenshot Studio"

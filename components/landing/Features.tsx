@@ -140,7 +140,7 @@ export function Features({ features, title, eyebrow = "FEATURES" }: FeaturesProp
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.1 }}
                   onClick={() => handleFeatureClick(index)}
-                  className={`w-full text-left p-4 sm:p-5 rounded-2xl transition-all duration-300 group ${
+                  className={`cursor-pointer w-full text-left p-4 sm:p-5 rounded-2xl transition-all duration-300 group ${
                     isActive
                       ? "bg-surface-3 border border-brand/30"
                       : "hover:bg-surface-2 border border-transparent"

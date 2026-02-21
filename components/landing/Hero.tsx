@@ -155,7 +155,7 @@ export function Hero({
           <Link href={ctaHref} onClick={() => trackCTAClick('hero', ctaLabel)}>
             <Button
               size="lg"
-              className="text-base sm:text-lg px-10 py-6 min-h-[56px] font-medium bg-brand text-brand-foreground hover:bg-brand-hover rounded-full shadow-lg shadow-brand/25 hover:shadow-brand/40 transition-all duration-300"
+              className="cursor-pointer text-base sm:text-lg px-10 py-6 min-h-[56px] font-medium bg-brand text-brand-foreground hover:bg-brand-hover rounded-full shadow-lg shadow-brand/25 hover:shadow-brand/40 transition-all duration-300"
             >
               {ctaLabel}
             </Button>
@@ -165,7 +165,7 @@ export function Hero({
               trackCTAClick('hero', 'Watch demo');
               setIsVideoOpen(true);
             }}
-            className="text-foreground/70 hover:text-foreground transition-colors text-sm flex items-center gap-3 group px-6 py-3 rounded-full bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10"
+            className="cursor-pointer text-foreground/70 hover:text-foreground transition-colors text-sm flex items-center gap-3 group px-6 py-3 rounded-full bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10"
             aria-label="Watch demo video"
           >
             <span className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center group-hover:bg-brand/20 group-hover:text-brand transition-all duration-300">
