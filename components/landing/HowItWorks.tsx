@@ -24,9 +24,10 @@ export function HowItWorks({
   title = "How It Works",
 }: HowItWorksProps) {
   return (
-    <section className="py-20 sm:py-28 md:py-32 px-6 bg-background">
+    <section aria-labelledby="how-it-works-title" className="py-20 sm:py-28 md:py-32 px-6 bg-background">
       <div className="container mx-auto max-w-4xl">
         <motion.h2
+          id="how-it-works-title"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -35,7 +36,7 @@ export function HowItWorks({
           {title}
         </motion.h2>
 
-        <div className="grid md:grid-cols-3 gap-12 md:gap-8">
+        <div className="grid md:grid-cols-[auto_auto_auto] gap-12 md:gap-10 justify-center">
           {steps.map((step, index) => (
             <motion.div
               key={step.step}
