@@ -2,7 +2,7 @@
  * Hook for managing export functionality
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import confetti from 'canvas-confetti';
 import { toast } from 'sonner';
 import { getAspectRatioPreset } from '@/lib/aspect-ratio-utils';
@@ -33,6 +33,42 @@ const DEFAULT_SETTINGS: ExportSettings = {
 export function useExport(selectedAspectRatio: string) {
   const [settings, setSettings] = useState<ExportSettings>(DEFAULT_SETTINGS);
   const [isExporting, setIsExporting] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const progressIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const startSimulatedProgress = useCallback(() => {
+    setProgress(0);
+    let current = 0;
+    progressIntervalRef.current = setInterval(() => {
+      // Decelerate as we approach 90%
+      const remaining = 90 - current;
+      const increment = Math.max(0.5, remaining * 0.06);
+      current = Math.min(90, current + increment);
+      setProgress(Math.round(current));
+    }, 100);
+  }, []);
+
+  const stopSimulatedProgress = useCallback((success: boolean) => {
+    if (progressIntervalRef.current) {
+      clearInterval(progressIntervalRef.current);
+      progressIntervalRef.current = null;
+    }
+    if (success) {
+      setProgress(100);
+      setTimeout(() => setProgress(0), 400);
+    } else {
+      setProgress(0);
+    }
+  }, []);
+
+  // Cleanup interval on unmount
+  useEffect(() => {
+    return () => {
+      if (progressIntervalRef.current) {
+        clearInterval(progressIntervalRef.current);
+      }
+    };
+  }, []);
   const { backgroundConfig, backgroundBorderRadius, backgroundBlur, backgroundNoise, textOverlays, imageOverlays, perspective3D } = useImageStore();
   const backgroundOpacity = backgroundConfig?.opacity !== undefined ? backgroundConfig.opacity : 1;
   const { screenshot } = useEditorStore();
@@ -90,6 +126,7 @@ export function useExport(selectedAspectRatio: string) {
 
   const exportImage = useCallback(async (): Promise<void> => {
     setIsExporting(true);
+    startSimulatedProgress();
     const startTime = Date.now();
 
     // Track export start
@@ -175,6 +212,9 @@ export function useExport(selectedAspectRatio: string) {
         document.body.removeChild(link);
       }, 100);
 
+      // Complete the progress animation
+      stopSimulatedProgress(true);
+
       // Trigger confetti celebration
       confetti({
         particleCount: 100,
@@ -187,6 +227,7 @@ export function useExport(selectedAspectRatio: string) {
         description: `Saved as ${fileName}`,
       });
     } catch (error) {
+      stopSimulatedProgress(false);
       console.error('Export failed:', error);
       const errorMessage = error instanceof Error
         ? error.message
@@ -204,7 +245,7 @@ export function useExport(selectedAspectRatio: string) {
     } finally {
       setIsExporting(false);
     }
-  }, [selectedAspectRatio, settings, backgroundConfig, backgroundBorderRadius, backgroundBlur, backgroundNoise, backgroundOpacity, textOverlays, imageOverlays, perspective3D, screenshot.src, screenshot.radius]);
+  }, [selectedAspectRatio, settings, backgroundConfig, backgroundBorderRadius, backgroundBlur, backgroundNoise, backgroundOpacity, textOverlays, imageOverlays, perspective3D, screenshot.src, screenshot.radius, startSimulatedProgress, stopSimulatedProgress]);
 
   const copyImage = useCallback(async (): Promise<void> => {
     setIsExporting(true);
@@ -323,6 +364,7 @@ export function useExport(selectedAspectRatio: string) {
   return {
     settings,
     isExporting,
+    progress,
     updateFormat,
     updateQualityPreset,
     updateScale,

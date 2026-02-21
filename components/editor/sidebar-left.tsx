@@ -35,6 +35,7 @@ export function SidebarLeft({
   const {
     settings: exportSettings,
     isExporting,
+    progress,
     updateScale,
     updateFormat,
     updateQualityPreset,
@@ -93,6 +94,7 @@ export function SidebarLeft({
         format={exportSettings.format}
         qualityPreset={exportSettings.qualityPreset}
         isExporting={isExporting}
+        progress={progress}
         onScaleChange={updateScale}
         onFormatChange={updateFormat}
         onQualityPresetChange={updateQualityPreset}

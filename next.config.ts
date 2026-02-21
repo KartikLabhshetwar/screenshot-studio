@@ -48,14 +48,28 @@ const nextConfig: NextConfig = {
 
   // Proxy R2 assets through same origin to avoid CORS issues
   // (especially critical for canvas capture during video export)
+  // Also proxy PostHog through same origin to bypass ad blockers
   async rewrites() {
     const r2Url = process.env.NEXT_PUBLIC_R2_PUBLIC_URL;
-    if (!r2Url) return [];
     return [
+      // PostHog reverse proxy — static assets must come first
       {
-        source: "/r2-assets/:path*",
-        destination: `${r2Url}/:path*`,
+        source: "/svc/static/:path*",
+        destination: "https://us-assets.i.posthog.com/static/:path*",
       },
+      {
+        source: "/svc/:path*",
+        destination: "https://us.i.posthog.com/:path*",
+      },
+      // R2 asset proxy
+      ...(r2Url
+        ? [
+            {
+              source: "/r2-assets/:path*",
+              destination: `${r2Url}/:path*`,
+            },
+          ]
+        : []),
     ];
   },
 

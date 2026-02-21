@@ -34,6 +34,7 @@ export function EditorHeader() {
   const {
     copyImage,
     isExporting,
+    progress,
     settings: exportSettings,
     exportImage,
     updateScale,
@@ -132,6 +133,7 @@ export function EditorHeader() {
         format={exportSettings.format}
         qualityPreset={exportSettings.qualityPreset}
         isExporting={isExporting}
+        progress={progress}
         onScaleChange={updateScale}
         onFormatChange={updateFormat}
         onQualityPresetChange={updateQualityPreset}
