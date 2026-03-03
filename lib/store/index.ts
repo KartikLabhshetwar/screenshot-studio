@@ -524,6 +524,7 @@ export interface ImageState {
   };
   setUploadedImageUrl: (url: string | null, name: string | null) => void;
   setImage: (file: File) => void;
+  replaceImage: (file: File) => void;
   clearImage: () => void;
   setGradient: (gradient: GradientKey) => void;
   setBorderRadius: (radius: number) => void;
@@ -770,6 +771,20 @@ export const useImageStore = create<ImageState>()(
         timeline: { ...DEFAULT_TIMELINE_STATE },
         animationClips: [],
         showTimeline: false,
+      });
+    },
+
+    replaceImage: (file: File) => {
+      const { uploadedImageUrl: oldUrl, slides, activeSlideId } = get();
+      if (oldUrl) URL.revokeObjectURL(oldUrl);
+      const imageUrl = URL.createObjectURL(file);
+      const updatedSlides = slides.map((slide) =>
+        slide.id === activeSlideId ? { ...slide, src: imageUrl, name: file.name } : slide
+      );
+      set({
+        uploadedImageUrl: imageUrl,
+        imageName: file.name,
+        ...(slides.length > 0 ? { slides: updatedSlides } : {}),
       });
     },
 

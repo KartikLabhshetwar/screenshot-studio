@@ -22,17 +22,13 @@
  * @returns The proxied URL path
  */
 export function getR2PublicUrl(path: string): string {
-  const publicUrl = process.env.NEXT_PUBLIC_R2_PUBLIC_URL;
-
-  if (!publicUrl) {
-    console.warn('R2_PUBLIC_URL not configured. Using path as-is.');
-    return path;
-  }
-
   // Remove leading slash from path if present
   const cleanPath = path.startsWith('/') ? path.slice(1) : path;
 
-  // Use same-origin proxy to avoid CORS issues with canvas capture
+  // Always use the same-origin proxy path so next/image receives a valid URL
+  // (must start with "/"). When NEXT_PUBLIC_R2_PUBLIC_URL is not configured the
+  // Next.js rewrite in next.config.ts won't proxy the request, so the image will
+  // 404 — but that is handled gracefully by onError rather than crashing the app.
   return `/r2-assets/${cleanPath}`;
 }
 

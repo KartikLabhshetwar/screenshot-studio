@@ -11,7 +11,9 @@ import {
   Video01Icon,
   ArrowTurnBackwardIcon,
   ArrowTurnForwardIcon,
+  Image01Icon,
 } from "hugeicons-react";
+import { ALLOWED_IMAGE_TYPES, MAX_IMAGE_SIZE } from "@/lib/constants";
 import { useState, useEffect, useCallback } from "react";
 import React from "react";
 import { cn } from "@/lib/utils";
@@ -27,7 +29,7 @@ const ClientCanvas = dynamic(() => import("@/components/canvas/ClientCanvas"), {
 });
 
 export function EditorCanvas() {
-  const { screenshot } = useEditorStore();
+  const { screenshot, setScreenshot } = useEditorStore();
   const {
     slides,
     setActiveSlide,
@@ -38,6 +40,7 @@ export function EditorCanvas() {
     stopPreview,
     uploadedImageUrl,
     clearImage,
+    replaceImage,
     showTimeline,
     timeline,
     animationClips,
@@ -46,6 +49,63 @@ export function EditorCanvas() {
   // Check both stores - imageStore is the source of truth (tracked by undo/redo)
   const hasImage = !!uploadedImageUrl && !!screenshot.src;
   const [exportOpen, setExportOpen] = useState(false);
+  const [isDragOver, setIsDragOver] = useState(false);
+
+  // When an image is loaded, intercept drag/drop and paste globally so the
+  // browser never opens files in a new tab and styles are preserved on swap.
+  useEffect(() => {
+    if (!hasImage) return;
+
+    const handleDragOver = (e: DragEvent) => {
+      e.preventDefault();
+      if (e.dataTransfer?.types.includes("Files")) setIsDragOver(true);
+    };
+
+    const handleDragLeave = (e: DragEvent) => {
+      if (!e.relatedTarget) setIsDragOver(false);
+    };
+
+    const handleDrop = (e: DragEvent) => {
+      e.preventDefault();
+      setIsDragOver(false);
+      const file = Array.from(e.dataTransfer?.files ?? []).find(
+        (f) => ALLOWED_IMAGE_TYPES.includes(f.type) && f.size <= MAX_IMAGE_SIZE
+      );
+      if (!file) return;
+      replaceImage(file);
+      setScreenshot({ src: URL.createObjectURL(file) });
+    };
+
+    const handlePaste = (e: ClipboardEvent) => {
+      const target = e.target as HTMLElement;
+      if (target.tagName === "INPUT" || target.tagName === "TEXTAREA") return;
+      const items = e.clipboardData?.items;
+      if (!items) return;
+      for (const item of Array.from(items)) {
+        if (item.type.startsWith("image/")) {
+          e.preventDefault();
+          const file = item.getAsFile();
+          if (file) {
+            replaceImage(file);
+            setScreenshot({ src: URL.createObjectURL(file) });
+          }
+          break;
+        }
+      }
+    };
+
+    window.addEventListener("dragover", handleDragOver);
+    window.addEventListener("dragleave", handleDragLeave);
+    window.addEventListener("drop", handleDrop);
+    document.addEventListener("paste", handlePaste);
+
+    return () => {
+      window.removeEventListener("dragover", handleDragOver);
+      window.removeEventListener("dragleave", handleDragLeave);
+      window.removeEventListener("drop", handleDrop);
+      document.removeEventListener("paste", handlePaste);
+    };
+  }, [hasImage, replaceImage, setScreenshot]);
 
   // Track temporal state reactively for undo/redo
   const [canUndo, setCanUndo] = React.useState(false);
@@ -126,6 +186,16 @@ export function EditorCanvas() {
   return (
     <>
       <div className="flex flex-col h-full w-full relative">
+        {/* Drop-to-replace overlay — shown when dragging a file over the canvas */}
+        {isDragOver && (
+          <div className="absolute inset-0 z-50 pointer-events-none flex items-center justify-center bg-black/50 backdrop-blur-sm">
+            <div className="flex flex-col items-center gap-3 text-foreground border-2 border-dashed border-foreground/40 rounded-2xl px-12 py-10">
+              <Image01Icon size={48} className="text-foreground/70" />
+              <p className="text-lg font-semibold">Drop to replace image</p>
+              <p className="text-sm text-text-secondary">Your styles will be preserved</p>
+            </div>
+          </div>
+        )}
         {/* Secondary toolbar for slides and image management */}
         {(slides.length > 0 || uploadedImageUrl) && (
           <div className="flex items-center justify-between gap-2 p-2 border-b border-border/30 bg-[#1e1e1e] shrink-0">
