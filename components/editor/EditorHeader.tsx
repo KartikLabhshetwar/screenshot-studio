@@ -319,6 +319,21 @@ export function EditorHeader() {
               <NewTwitterIcon className="h-4 w-4" />
             </a>
           </div>
+
+          <div className="hidden sm:flex items-center gap-3 ml-2 pl-2 border-l border-border/40">
+            <Link href="/about" className="text-[11px] text-muted-foreground hover:text-foreground transition-colors">
+              About
+            </Link>
+            <Link href="/privacy-policy" className="text-[11px] text-muted-foreground hover:text-foreground transition-colors">
+              Privacy
+            </Link>
+            <Link href="/terms" className="text-[11px] text-muted-foreground hover:text-foreground transition-colors">
+              Terms
+            </Link>
+            <Link href="/contact" className="text-[11px] text-muted-foreground hover:text-foreground transition-colors">
+              Contact
+            </Link>
+          </div>
         </div>
       </header>
 

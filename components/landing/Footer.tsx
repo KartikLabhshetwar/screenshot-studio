@@ -113,12 +113,44 @@ export function Footer({ brandName = "Screenshot Studio" }: FooterProps) {
             </ul>
           </div>
 
-          {/* Resources & Social */}
+          {/* Company */}
           <div>
             <h4 className="text-sm font-semibold text-foreground mb-4">
-              Resources
+              Company
             </h4>
             <ul className="space-y-2.5">
+              <li>
+                <Link
+                  href="/about"
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  About Us
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/contact"
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Contact Us
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/privacy-policy"
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Privacy Policy
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/terms"
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Terms & Conditions
+                </Link>
+              </li>
               <li>
                 <Link
                   href="https://github.com/KartikLabhshetwar/stage"
@@ -139,16 +171,6 @@ export function Footer({ brandName = "Screenshot Studio" }: FooterProps) {
                 >
                   <NewTwitterIcon className="w-4 h-4" />
                   Twitter / X
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="https://github.com/KartikLabhshetwar/stage/issues"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  Report a Bug
                 </Link>
               </li>
             </ul>

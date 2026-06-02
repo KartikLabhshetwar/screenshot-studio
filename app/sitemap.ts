@@ -1,104 +1,133 @@
-import { MetadataRoute } from 'next'
-import { getAllComparisonSlugs } from '@/lib/seo/comparisons'
+import { MetadataRoute } from "next";
+import { locales } from "@/i18n/routing";
+import { getAllComparisonSlugs } from "@/lib/seo/comparisons";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = process.env.BETTER_AUTH_URL || 'https://screenshot-studio.com'
-  const now = new Date()
+  const baseUrl =
+    process.env.BETTER_AUTH_URL || "https://screenshot-studio.com";
+  const now = new Date();
 
-  const comparisonSlugs = getAllComparisonSlugs()
+  const comparisonSlugs = getAllComparisonSlugs();
 
-  return [
-    // Editor (main product, now at root)
+  function buildAlternates(path: string) {
+    const languages: Record<string, string> = {};
+    for (const locale of locales) {
+      if (locale === "en") {
+        languages[locale] = `${baseUrl}${path}`;
+      } else {
+        languages[locale] = `${baseUrl}/${locale}${path}`;
+      }
+    }
+    languages["x-default"] = `${baseUrl}${path}`;
+    return { languages };
+  }
+
+  const staticPages: {
+    path: string;
+    changeFrequency: MetadataRoute.Sitemap[number]["changeFrequency"];
+    priority: number;
+  }[] = [
+    // Core pages
+    { path: "/", changeFrequency: "weekly", priority: 1.0 },
+    { path: "/landing", changeFrequency: "weekly", priority: 0.9 },
     {
-      url: baseUrl,
-      lastModified: now,
-      changeFrequency: 'weekly',
-      priority: 1.0,
-    },
-    // Landing page
-    {
-      url: `${baseUrl}/landing`,
-      lastModified: now,
-      changeFrequency: 'weekly',
+      path: "/free-screenshot-editor",
+      changeFrequency: "weekly",
       priority: 0.9,
     },
-    // Keyword landing page (high SEO priority)
+
+    // Features
+    { path: "/features", changeFrequency: "monthly", priority: 0.8 },
     {
-      url: `${baseUrl}/free-screenshot-editor`,
-      lastModified: now,
-      changeFrequency: 'weekly',
-      priority: 0.9,
-    },
-    // Features hub page
-    {
-      url: `${baseUrl}/features`,
-      lastModified: now,
-      changeFrequency: 'monthly',
-      priority: 0.8,
-    },
-    // Individual feature pages (SEO landing pages)
-    {
-      url: `${baseUrl}/features/screenshot-beautifier`,
-      lastModified: now,
-      changeFrequency: 'monthly',
+      path: "/features/screenshot-beautifier",
+      changeFrequency: "monthly",
       priority: 0.8,
     },
     {
-      url: `${baseUrl}/features/social-media-graphics`,
-      lastModified: now,
-      changeFrequency: 'monthly',
+      path: "/features/social-media-graphics",
+      changeFrequency: "monthly",
       priority: 0.8,
     },
     {
-      url: `${baseUrl}/features/animation-maker`,
-      lastModified: now,
-      changeFrequency: 'monthly',
+      path: "/features/animation-maker",
+      changeFrequency: "monthly",
       priority: 0.8,
     },
     {
-      url: `${baseUrl}/features/3d-effects`,
-      lastModified: now,
-      changeFrequency: 'monthly',
+      path: "/features/3d-effects",
+      changeFrequency: "monthly",
       priority: 0.8,
     },
     {
-      url: `${baseUrl}/features/browser-mockups`,
-      lastModified: now,
-      changeFrequency: 'monthly',
+      path: "/features/browser-mockups",
+      changeFrequency: "monthly",
       priority: 0.8,
     },
-    // Comparison pages (programmatic SEO - "vs" keywords)
-    ...comparisonSlugs.map((slug) => ({
-      url: `${baseUrl}/compare/${slug}`,
-      lastModified: now,
-      changeFrequency: 'monthly' as const,
-      priority: 0.8,
-    })),
-    // Persona/use-case pages (programmatic SEO)
-    {
-      url: `${baseUrl}/for/developers`,
-      lastModified: now,
-      changeFrequency: 'monthly',
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/for/marketers`,
-      lastModified: now,
-      changeFrequency: 'monthly',
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/for/designers`,
-      lastModified: now,
-      changeFrequency: 'monthly',
-      priority: 0.7,
-    },
+
+    // Persona pages
+    { path: "/for/developers", changeFrequency: "monthly", priority: 0.7 },
+    { path: "/for/marketers", changeFrequency: "monthly", priority: 0.7 },
+    { path: "/for/designers", changeFrequency: "monthly", priority: 0.7 },
+
     // Changelog
-    {
-      url: `${baseUrl}/changelog`,
+    { path: "/changelog", changeFrequency: "weekly", priority: 0.6 },
+
+    // Company pages
+    { path: "/about", changeFrequency: "monthly", priority: 0.5 },
+    { path: "/contact", changeFrequency: "monthly", priority: 0.5 },
+    { path: "/privacy-policy", changeFrequency: "yearly", priority: 0.3 },
+    { path: "/terms", changeFrequency: "yearly", priority: 0.3 },
+  ];
+
+  const entries: MetadataRoute.Sitemap = [];
+
+  // Static pages — default locale (en) URLs + alternates for all locales
+  for (const page of staticPages) {
+    entries.push({
+      url: `${baseUrl}${page.path}`,
       lastModified: now,
-      changeFrequency: 'weekly',
-      priority: 0.6,
-    },
-  ]
+      changeFrequency: page.changeFrequency,
+      priority: page.priority,
+      alternates: buildAlternates(page.path),
+    });
+  }
+
+  // Non-default locale versions of static pages
+  for (const locale of locales) {
+    if (locale === "en") continue;
+    for (const page of staticPages) {
+      entries.push({
+        url: `${baseUrl}/${locale}${page.path}`,
+        lastModified: now,
+        changeFrequency: page.changeFrequency,
+        priority: page.priority,
+        alternates: buildAlternates(page.path),
+      });
+    }
+  }
+
+  // Comparison pages (dynamic, same pattern)
+  for (const slug of comparisonSlugs) {
+    const path = `/compare/${slug}`;
+    entries.push({
+      url: `${baseUrl}${path}`,
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.8,
+      alternates: buildAlternates(path),
+    });
+
+    for (const locale of locales) {
+      if (locale === "en") continue;
+      entries.push({
+        url: `${baseUrl}/${locale}${path}`,
+        lastModified: now,
+        changeFrequency: "monthly",
+        priority: 0.8,
+        alternates: buildAlternates(path),
+      });
+    }
+  }
+
+  return entries;
 }

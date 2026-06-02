@@ -1,74 +1,105 @@
-import { MetadataRoute } from 'next'
+import { MetadataRoute } from "next";
 
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = process.env.BETTER_AUTH_URL || 'https://screenshot-studio.com'
+  const baseUrl =
+    process.env.BETTER_AUTH_URL || "https://screenshot-studio.com";
 
   return {
     rules: [
+      // Default: allow everything except internal paths
       {
-        userAgent: '*',
-        allow: '/',
-        disallow: ['/api/', '/_next/', '/static/'],
+        userAgent: "*",
+        allow: "/",
+        disallow: ["/api/", "/_next/", "/static/", "/svc/", "/r2-assets/"],
+      },
+      // Major search engines — explicit allow
+      {
+        userAgent: "Googlebot",
+        allow: "/",
       },
       {
-        userAgent: 'Googlebot',
-        allow: '/',
+        userAgent: "Bingbot",
+        allow: "/",
       },
       {
-        userAgent: 'Bingbot',
-        allow: '/',
-      },
-      // Allow AI answer engine crawlers (AEO/GEO optimization)
-      {
-        userAgent: 'GPTBot',
-        allow: '/',
+        userAgent: "Yandex",
+        allow: "/",
       },
       {
-        userAgent: 'ChatGPT-User',
-        allow: '/',
+        userAgent: "Baiduspider",
+        allow: "/",
       },
       {
-        userAgent: 'ClaudeBot',
-        allow: '/',
+        userAgent: "NaverBot",
+        allow: "/",
+      },
+      // AI answer engine crawlers (AEO/GEO — allow for citation visibility)
+      {
+        userAgent: "GPTBot",
+        allow: "/",
       },
       {
-        userAgent: 'anthropic-ai',
-        allow: '/',
+        userAgent: "ChatGPT-User",
+        allow: "/",
       },
       {
-        userAgent: 'PerplexityBot',
-        allow: '/',
+        userAgent: "ClaudeBot",
+        allow: "/",
       },
       {
-        userAgent: 'Google-Extended',
-        allow: '/',
-      },
-      // Block wasteful/aggressive crawlers
-      {
-        userAgent: 'MJ12bot',
-        disallow: '/',
+        userAgent: "anthropic-ai",
+        allow: "/",
       },
       {
-        userAgent: 'DotBot',
-        disallow: '/',
+        userAgent: "PerplexityBot",
+        allow: "/",
       },
       {
-        userAgent: 'AhrefsBot',
-        disallow: '/',
+        userAgent: "Google-Extended",
+        allow: "/",
       },
       {
-        userAgent: 'SemrushBot',
-        disallow: '/',
+        userAgent: "Applebot",
+        allow: "/",
+      },
+      // Block aggressive/wasteful crawlers
+      {
+        userAgent: "MJ12bot",
+        disallow: "/",
       },
       {
-        userAgent: 'BLEXBot',
-        disallow: '/',
+        userAgent: "DotBot",
+        disallow: "/",
       },
       {
-        userAgent: 'DataForSeoBot',
-        disallow: '/',
+        userAgent: "AhrefsBot",
+        disallow: "/",
+      },
+      {
+        userAgent: "SemrushBot",
+        disallow: "/",
+      },
+      {
+        userAgent: "BLEXBot",
+        disallow: "/",
+      },
+      {
+        userAgent: "DataForSeoBot",
+        disallow: "/",
+      },
+      {
+        userAgent: "PetalBot",
+        disallow: "/",
+      },
+      {
+        userAgent: "MegaIndex",
+        disallow: "/",
+      },
+      {
+        userAgent: "Bytespider",
+        disallow: "/",
       },
     ],
     sitemap: `${baseUrl}/sitemap.xml`,
-  }
+  };
 }

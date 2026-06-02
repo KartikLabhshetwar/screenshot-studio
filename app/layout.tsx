@@ -33,6 +33,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { QueryProvider } from "@/lib/query-client";
 import { GlobalDropZone } from "@/components/GlobalDropZone";
 import { getRootJsonLd } from "@/lib/seo/json-ld";
+import { getLocale } from "next-intl/server";
 
 // System UI fonts
 const geistSans = Geist({
@@ -346,17 +347,23 @@ export const viewport: Viewport = {
   userScalable: true,
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   const rootJsonLd = getRootJsonLd();
+  const locale = await getLocale();
 
   return (
-    <html lang="en" className="dark">
+    <html lang={locale} className="dark">
       <head>
         <meta name="msvalidate.01" content="A3B8CB50BBD78710971A13FA3EE1E544" />
+        <script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8704843786311642"
+          crossOrigin="anonymous"
+        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(rootJsonLd) }}
