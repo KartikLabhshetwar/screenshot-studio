@@ -359,11 +359,13 @@ export default async function RootLayout({
     <html lang={locale} className="dark">
       <head>
         <meta name="msvalidate.01" content="A3B8CB50BBD78710971A13FA3EE1E544" />
+        <link rel="alternate" type="text/markdown" href="/llms.txt" title="LLMs.txt" />
+        <link rel="alternate" type="text/markdown" href="/llms-full.txt" title="LLMs Full Documentation" />
         <script
           async
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8704843786311642"
           crossOrigin="anonymous"
-        />
+        />        
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(rootJsonLd) }}

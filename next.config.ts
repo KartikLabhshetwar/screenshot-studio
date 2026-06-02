@@ -67,6 +67,15 @@ const nextConfig: NextConfig = {
   async rewrites() {
     const r2Url = process.env.NEXT_PUBLIC_R2_PUBLIC_URL;
     return [
+      // LLMs.txt — serve markdown to AI agents
+      {
+        source: "/llms.txt",
+        destination: "/api/llms",
+      },
+      {
+        source: "/llms-full.txt",
+        destination: "/api/llms-full",
+      },
       // PostHog reverse proxy — static assets must come first
       {
         source: "/svc/static/:path*",

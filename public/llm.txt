@@ -1,47 +1,76 @@
-# Screenshot Studio - Free Online Image Editor
+# Screenshot Studio - Free Online Screenshot Editor
 
 ## About
-Screenshot Studio is a free, browser-based image editor for creating professional graphics in seconds. Transform screenshots into stunning social media images with beautiful backgrounds, text overlays, animations, and one-click export. No signup required.
+Screenshot Studio is a free, open-source, browser-based screenshot editor that transforms plain screenshots into professional-quality graphics. Your images never leave your browser. No signup, no watermarks, no downloads required.
 
 ## Core Features
-- **Image Editing** - Upload images and adjust size, opacity, borders, shadows, and border radius
-- **Beautiful Backgrounds** - 100+ premium backgrounds including gradients, mesh, radiant, paper textures, and patterns
-- **Text Overlays** - Add multiple text overlays with custom fonts, colors, sizes, positions, and shadows
-- **3D Transforms** - Apply perspective, rotation, and tilt effects for depth
-- **Animation Timeline** - Create animated slideshows with 20+ animation presets (zoom, pan, Ken Burns, tilt, fade)
-- **Video Export** - Export animations as MP4, WebM, or GIF using browser-based encoding
-- **High-Resolution Export** - Export up to 5x resolution as PNG, JPEG, or WebP
-- **Device Frames** - Add macOS, Windows, Arc browser frames to screenshots
-- **Presets** - One-click professional styling presets
+- **100+ Backgrounds** — Gradients, mesh, radiant, paper textures, patterns, solid colors
+- **Browser Mockups** — Safari and Chrome frames (light and dark mode), Arc browser
+- **Device Frames** — macOS, Polaroid, glass, outline, border
+- **3D Effects** — Perspective transforms, rotation, tilt, depth-of-field
+- **Animation Timeline** — 20+ animation presets (zoom, pan, Ken Burns, tilt, fade, bounce, slide)
+- **Video Export** — MP4, WebM, GIF via FFmpeg WASM (runs in browser)
+- **Text Overlays** — 27+ Google Fonts, custom styling, shadows, positioning
+- **Tweet Import** — Convert tweets to images by URL
+- **Code Snippets** — Syntax-highlighted code to image
+- **High-Res Export** — PNG, JPEG, WebP up to 5x resolution
+- **Templates & Presets** — One-click professional styling
 
 ## Pages
-- Home: https://screenshot-studio.com/ - Landing page with features overview
-- Editor: https://screenshot-studio.com/home - Main canvas editor for creating designs
+- Editor: https://screenshot-studio.com/
+- Landing: https://screenshot-studio.com/landing
+- Free Screenshot Editor: https://screenshot-studio.com/free-screenshot-editor
+- Features: https://screenshot-studio.com/features
+- Screenshot Beautifier: https://screenshot-studio.com/features/screenshot-beautifier
+- Social Media Graphics: https://screenshot-studio.com/features/social-media-graphics
+- Animation Maker: https://screenshot-studio.com/features/animation-maker
+- 3D Effects: https://screenshot-studio.com/features/3d-effects
+- Browser Mockups: https://screenshot-studio.com/features/browser-mockups
+- For Developers: https://screenshot-studio.com/for/developers
+- For Marketers: https://screenshot-studio.com/for/marketers
+- For Designers: https://screenshot-studio.com/for/designers
+- vs Pika Style: https://screenshot-studio.com/compare/pika-style
+- vs Shots.so: https://screenshot-studio.com/compare/shots-so
+- vs Snagit: https://screenshot-studio.com/compare/snagit
+- Changelog: https://screenshot-studio.com/changelog
+- About: https://screenshot-studio.com/about
+- Contact: https://screenshot-studio.com/contact
+- Privacy Policy: https://screenshot-studio.com/privacy-policy
+- Terms: https://screenshot-studio.com/terms
+
+## Languages
+Available in 8 languages: English, Spanish (/es), French (/fr), German (/de), Japanese (/ja), Portuguese (/pt), Korean (/ko), Chinese (/zh).
 
 ## Technology Stack
 - Next.js 16 with App Router
 - React 19
 - TypeScript
-- HTML Canvas with modern-screenshot for rendering
+- HTML Canvas with modern-screenshot
 - Cloudflare R2 for asset storage
-- Tailwind CSS for styling
+- Tailwind CSS, Radix UI
 - Zustand for state management
 - FFmpeg WASM for video encoding
+- next-intl for internationalization
 
 ## Use Cases
-- Creating social media graphics (Twitter/X, Instagram, LinkedIn)
-- Product screenshot beautification for SaaS landing pages
+- Social media graphics (Twitter/X, Instagram, LinkedIn, Product Hunt)
+- SaaS product screenshots for landing pages and documentation
 - Developer portfolio and project showcase images
-- Marketing graphics and presentations
+- Marketing presentations and pitch decks
 - Animated slideshows and video content
 
 ## Target Audience
-Developers, designers, content creators, indie hackers, and anyone who needs to create professional visual designs quickly without design skills.
+Developers, designers, marketers, indie hackers, content creators, and anyone who needs professional visuals without design skills.
 
 ## Pricing
-100% free with no hidden costs, premium tiers, or watermarks. Unlimited exports and full feature access.
+100% free. No signup, no watermarks, no hidden costs, no premium tier. Unlimited exports with full feature access.
 
 ## Contact
 - Website: https://screenshot-studio.com
-- Twitter: https://x.com/code_kartik
+- Twitter/X: https://x.com/code_kartik
 - GitHub: https://github.com/KartikLabhshetwar/stage
+- Email: kartik.labhshetwar@gmail.com
+
+## LLMs.txt
+For structured markdown documentation, visit: https://screenshot-studio.com/llms.txt
+For the full detailed version: https://screenshot-studio.com/llms-full.txt
