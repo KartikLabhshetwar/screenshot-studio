@@ -21,7 +21,7 @@ export function Navigation({
         {/* Logo */}
         <Link href="/landing" className="flex items-center gap-2">
           <Image
-            src="/logo.svg"
+            src="/favicon.svg"
             alt="Screenshot Studio"
             width={32}
             height={32}

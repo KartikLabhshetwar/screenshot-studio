@@ -329,13 +329,13 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: "/icon", type: "image/png", sizes: "32x32" },
-      { url: "/logo.svg", type: "image/svg+xml" },
+      { url: "/favicon-96x96.png", type: "image/png", sizes: "96x96" },
+      { url: "/favicon.svg", type: "image/svg+xml" },
     ],
-    shortcut: "/icon",
-    apple: "/apple-icon",
+    shortcut: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
   },
-  manifest: "/manifest.json",
+  manifest: "/site.webmanifest",
   category: "Design Tools",
 };
 

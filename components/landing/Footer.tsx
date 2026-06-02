@@ -17,7 +17,7 @@ export function Footer({ brandName = "Screenshot Studio" }: FooterProps) {
           <div>
             <Link href="/landing" className="flex items-center gap-2 mb-4">
               <Image
-                src="/logo.svg"
+                src="/favicon.svg"
                 alt={brandName}
                 width={28}
                 height={28}
