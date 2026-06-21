@@ -216,7 +216,7 @@ function PresetCard({
           >
             <div
               style={{
-width: `${0.75 * (Number.isFinite(preset.imageScale) ? preset.imageScale : 100)}%`,
+                width: `${0.75 * (Number.isFinite(preset.imageScale) ? preset.imageScale : 100)}%`,
                 transform: transform3D,
                 transformOrigin: 'center center',
                 willChange: 'transform',
