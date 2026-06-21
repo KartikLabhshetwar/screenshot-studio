@@ -345,11 +345,27 @@ function PerspectiveSliders() {
   );
 }
 
-function TransformControls() {
-  const { imageScale, setImageScale, perspective3D } = useImageStore();
-  const [controlMode, setControlMode] = React.useState<ControlMode>('zoom');
+function ZoomSlider() {
+  const imageScale = useImageStore((s) => s.imageScale);
+  const setImageScale = useImageStore((s) => s.setImageScale);
 
-  const zoomPercent = Math.round(imageScale);
+  return (
+    <Slider
+      value={[imageScale / 100]}
+      onValueChange={(value) => setImageScale(Math.round(value[0] * 100))}
+      min={0.1}
+      max={2}
+      step={0.01}
+      label="Zoom"
+      valueDisplay={`${Math.round(imageScale)}%`}
+    />
+  );
+}
+
+function TransformControls() {
+  const perspective3D = useImageStore((s) => s.perspective3D);
+  const setPerspective3D = useImageStore((s) => s.setPerspective3D);
+  const [controlMode, setControlMode] = React.useState<ControlMode>('zoom');
 
   return (
     <div className="space-y-3">
@@ -369,21 +385,11 @@ function TransformControls() {
 
       {/* Primary slider based on mode */}
       {controlMode === 'zoom' ? (
-        <Slider
-          value={[imageScale / 100]}
-          onValueChange={(value) => setImageScale(Math.round(value[0] * 100))}
-          min={0.1}
-          max={2}
-          step={0.01}
-          label="Zoom"
-          valueDisplay={`${zoomPercent}%`}
-        />
+        <ZoomSlider />
       ) : (
         <Slider
           value={[perspective3D.rotateZ]}
-          onValueChange={(value) =>
-            useImageStore.getState().setPerspective3D({ rotateZ: value[0] })
-          }
+          onValueChange={(value) => setPerspective3D({ rotateZ: value[0] })}
           min={-45}
           max={45}
           step={1}

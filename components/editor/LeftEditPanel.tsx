@@ -38,7 +38,8 @@ const leftTabs: { id: LeftTabType; icon: React.ReactNode; label: string }[] = [
 ];
 
 function ModeDropdown() {
-  const { editorMode, setEditorMode } = useImageStore();
+  const editorMode = useImageStore((s) => s.editorMode);
+  const setEditorMode = useImageStore((s) => s.setEditorMode);
   const [open, setOpen] = React.useState(false);
   const ref = React.useRef<HTMLDivElement>(null);
 
@@ -96,7 +97,9 @@ function ModeDropdown() {
 }
 
 export function LeftEditPanel() {
-  const { showTemplates: templatesOpen, setShowTemplates: setTemplatesOpen, editorMode } = useImageStore();
+  const templatesOpen = useImageStore((s) => s.showTemplates);
+  const setTemplatesOpen = useImageStore((s) => s.setShowTemplates);
+  const editorMode = useImageStore((s) => s.editorMode);
   const [activeTab, setActiveTab] = React.useState<LeftTabType>('edit');
 
   const [contentKey, setContentKey] = React.useState<LeftTabType>(activeTab);
