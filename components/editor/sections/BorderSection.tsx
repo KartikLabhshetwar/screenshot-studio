@@ -1,6 +1,5 @@
 'use client';
 
-import * as React from 'react';
 import { useImageStore } from '@/lib/store';
 import { Slider } from '@/components/ui/slider';
 import { SectionWrapper } from './SectionWrapper';
@@ -36,8 +35,26 @@ function BorderPreview({ radius, selected }: { radius: number; selected: boolean
   );
 }
 
+function ScaleSlider() {
+  const imageScale = useImageStore((s) => s.imageScale);
+  const setImageScale = useImageStore((s) => s.setImageScale);
+
+  return (
+    <Slider
+      value={[imageScale / 100]}
+      onValueChange={(value) => setImageScale(Math.round(value[0] * 100))}
+      min={0.1}
+      max={2}
+      step={0.01}
+      label="Scale"
+      valueDisplay={(imageScale / 100).toFixed(1)}
+    />
+  );
+}
+
 export function BorderSection() {
-  const { borderRadius, setBorderRadius, imageScale, setImageScale } = useImageStore();
+  const borderRadius = useImageStore((s) => s.borderRadius);
+  const setBorderRadius = useImageStore((s) => s.setBorderRadius);
 
   return (
     <SectionWrapper title="Border" defaultOpen={true}>
@@ -75,15 +92,7 @@ export function BorderSection() {
           label="Radius"
           valueDisplay={borderRadius}
         />
-        <Slider
-          value={[imageScale / 100]}
-          onValueChange={(value) => setImageScale(Math.round(value[0] * 100))}
-          min={0.1}
-          max={2}
-          step={0.01}
-          label="Scale"
-          valueDisplay={(imageScale / 100).toFixed(1)}
-        />
+        <ScaleSlider />
       </div>
     </SectionWrapper>
   );
