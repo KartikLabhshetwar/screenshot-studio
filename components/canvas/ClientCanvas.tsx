@@ -241,12 +241,16 @@ function CanvasRenderer({ image }: { image: HTMLImageElement }) {
         target.tagName === 'TEXTAREA' ||
         target.isContentEditable;
 
-      // Delete overlay (only when not typing)
+      // Delete selected overlay or main image (only when not typing)
       if ((e.key === "Delete" || e.key === "Backspace") && !isTyping) {
         if (selectedOverlayId) {
           e.preventDefault();
           removeImageOverlay(selectedOverlayId);
           setSelectedOverlayId(null);
+        } else if (isMainImageSelected) {
+          e.preventDefault();
+          useImageStore.getState().clearImage();
+          setIsMainImageSelected(false);
         }
       }
 
@@ -264,7 +268,7 @@ function CanvasRenderer({ image }: { image: HTMLImageElement }) {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [selectedOverlayId, removeImageOverlay]);
+  }, [selectedOverlayId, removeImageOverlay, isMainImageSelected]);
 
   // Get selected overlay for toolbar positioning
   const selectedOverlay = selectedOverlayId
