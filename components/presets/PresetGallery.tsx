@@ -216,7 +216,7 @@ function PresetCard({
           >
             <div
               style={{
-                width: '75%',
+                width: `${0.75 * preset.imageScale}%`,
                 transform: transform3D,
                 transformOrigin: 'center center',
                 willChange: 'transform',
@@ -243,8 +243,6 @@ function PresetCard({
                     height: 'auto',
                     display: 'block',
                     opacity: preset.imageOpacity,
-                    transform: `scale(${preset.imageScale / 100})`,
-                    transformOrigin: 'center center',
                     borderRadius: frameStyle ? undefined : `${preset.borderRadius}px`,
                   }}
                 />
