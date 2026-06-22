@@ -14,13 +14,13 @@ export interface BackgroundCategory {
 // Background image paths in R2 (with actual file extensions)
 export const backgroundCategories: BackgroundCategory = {
   "assets": [
-    "/assets/asset-1.jpg",
-    "/assets/asset-2.jpg",
-    "/assets/asset-3.jpg",
-    "/assets/asset-4.jpg",
-    "/assets/asset-5.jpg",
-    "/assets/asset-13.jpg",
-    "/assets/asset-19.jpg",
+    "assets/asset-1.jpg",
+    "assets/asset-2.jpg",
+    "assets/asset-3.jpg",
+    "assets/asset-4.jpg",
+    "assets/asset-5.jpg",
+    "assets/asset-13.jpg",
+    "assets/asset-19.jpg",
   ],
   "mac": [
     "backgrounds/mac/mac-asset-1.jpeg",
