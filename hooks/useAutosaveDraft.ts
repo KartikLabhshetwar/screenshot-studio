@@ -312,9 +312,9 @@ export function useAutosaveDraft() {
             browserHeaderSize: 100,
             canvasDimensions: null,
             customDimensions: null,
-            showRulers: false,
-            showGrid: false,
-            rulerInterval: 100,
+            showRulers: imageStore.showRulers,
+            showGrid: imageStore.showGrid,
+            rulerInterval: imageStore.rulerInterval,
           };
 
           await saveDraft(editorState, imageState);
