@@ -1838,6 +1838,7 @@ export const useImageStore = create<ImageState>()(
     rulerInterval: 100,
     toggleRulers: () => set((state) => ({ showRulers: !state.showRulers })),
     toggleGrid: () => set((state) => ({ showGrid: !state.showGrid })),
-    setRulerInterval: (interval) => set({ rulerInterval: interval }),
+    setRulerInterval: (interval) =>
+      set({ rulerInterval: Math.max(1, Math.round(Number.isFinite(interval) ? interval : 100)) }),
   }))
 );
