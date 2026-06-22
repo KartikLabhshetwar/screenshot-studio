@@ -14,15 +14,16 @@ interface RulerProps {
 }
 
 function Ruler({ length, orientation, majorEvery }: RulerProps) {
+  const safeMajorEvery = Number.isFinite(majorEvery) && majorEvery > 0 ? majorEvery : 100
   const isHorizontal = orientation === 'horizontal'
   const width = isHorizontal ? length : RULER_SIZE
   const height = isHorizontal ? RULER_SIZE : length
-  const minorEvery = majorEvery / 2
+  const minorEvery = safeMajorEvery / 2
 
   const ticks: React.ReactNode[] = []
 
   for (let pos = 0; pos <= length; pos += minorEvery) {
-    const isMajor = pos % majorEvery === 0
+    const isMajor = pos % safeMajorEvery === 0
     const tickLen = isMajor ? 10 : 5
 
     if (isHorizontal) {
