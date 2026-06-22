@@ -682,6 +682,14 @@ export interface ImageState {
   setBrowserHeaderSize: (size: number) => void;
   canvasDimensions: { canvasW: number; canvasH: number; framedW: number; framedH: number } | null;
   setCanvasDimensions: (dims: { canvasW: number; canvasH: number; framedW: number; framedH: number }) => void;
+
+  // Canvas visual guides
+  showRulers: boolean;
+  showGrid: boolean;
+  rulerInterval: number;
+  toggleRulers: () => void;
+  toggleGrid: () => void;
+  setRulerInterval: (interval: number) => void;
 }
 
 export const useImageStore = create<ImageState>()(
@@ -1824,5 +1832,13 @@ export const useImageStore = create<ImageState>()(
     setCanvasDimensions: (dims) => {
       set({ canvasDimensions: dims });
     },
+
+    showRulers: false,
+    showGrid: false,
+    rulerInterval: 100,
+    toggleRulers: () => set((state) => ({ showRulers: !state.showRulers })),
+    toggleGrid: () => set((state) => ({ showGrid: !state.showGrid })),
+    setRulerInterval: (interval) =>
+      set({ rulerInterval: Math.max(1, Math.round(Number.isFinite(interval) ? interval : 100)) }),
   }))
 );

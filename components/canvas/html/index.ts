@@ -9,3 +9,4 @@ export { HTMLImageOverlayLayer } from './HTMLImageOverlayLayer';
 export { SVGAnnotationLayer } from './SVGAnnotationLayer';
 export { HTMLBlurRegionLayer } from './HTMLBlurRegionLayer';
 export { SnapAlignmentGuides } from './SnapAlignmentGuides';
+export { HTMLGridLayer } from './HTMLGridLayer';

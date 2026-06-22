@@ -18,6 +18,8 @@ import {
   Download01Icon,
   RefreshIcon,
   MagicWand01Icon,
+  GridIcon,
+  RulerIcon,
 } from 'hugeicons-react';
 import { useEditorStore, useImageStore } from '@/lib/store';
 import { useExport } from '@/hooks/useExport';
@@ -38,7 +40,7 @@ import { FeedbackWidget } from '@/components/FeedbackWidget';
 
 export function EditorHeader() {
   const { screenshot } = useEditorStore();
-  const { selectedAspectRatio, slides, uploadedImageUrl, clearImage, timeline, animationClips, resetCanvasSettings, setShowTemplates } = useImageStore();
+  const { selectedAspectRatio, slides, uploadedImageUrl, clearImage, timeline, animationClips, resetCanvasSettings, setShowTemplates, showRulers, showGrid, rulerInterval, toggleRulers, toggleGrid, setRulerInterval } = useImageStore();
   const [aspectRatioOpen, setAspectRatioOpen] = React.useState(false);
   const [exportOpen, setExportOpen] = React.useState(false);
   const [exportSlideshowOpen, setExportSlideshowOpen] = React.useState(false);
@@ -167,6 +169,46 @@ export function EditorHeader() {
                 title="Redo (Cmd+Shift+Z)"
               >
                 <ArrowTurnForwardIcon size={16} />
+              </button>
+
+              <div className="w-px h-4 bg-border/60 mx-0.5" />
+
+              <button
+                onClick={toggleRulers}
+                className={cn(
+                  'flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-150 active:scale-95',
+                  showRulers
+                    ? 'bg-accent text-foreground'
+                    : 'text-muted-foreground hover:bg-accent hover:text-foreground'
+                )}
+                title="Toggle rulers"
+              >
+                <RulerIcon size={15} />
+              </button>
+              {showRulers && (
+                <select
+                  value={rulerInterval}
+                  onChange={(e) => setRulerInterval(Number(e.target.value))}
+                  className="h-7 px-1.5 text-[11px] rounded-md bg-accent text-foreground border-0 outline-none cursor-pointer"
+                  title="Ruler interval"
+                >
+                  <option value={25}>25px</option>
+                  <option value={50}>50px</option>
+                  <option value={100}>100px</option>
+                  <option value={200}>200px</option>
+                </select>
+              )}
+              <button
+                onClick={toggleGrid}
+                className={cn(
+                  'flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-150 active:scale-95',
+                  showGrid
+                    ? 'bg-accent text-foreground'
+                    : 'text-muted-foreground hover:bg-accent hover:text-foreground'
+                )}
+                title="Toggle grid"
+              >
+                <GridIcon size={15} />
               </button>
             </div>
           )}
