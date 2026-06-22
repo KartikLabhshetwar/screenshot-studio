@@ -435,7 +435,7 @@ function CanvasRenderer({ image }: { image: HTMLImageElement }) {
       }}
     >
       {/* Ruler wrapper — position:relative so rulers can be absolutely offset outside the canvas */}
-      <div style={{ position: 'relative', display: 'inline-block', lineHeight: 0 }}>
+      <div style={{ position: 'relative', display: 'inline-block', lineHeight: 0, marginTop: 20, marginLeft: 20 }}>
         {showRulers && <CanvasRulers canvasW={canvasW} canvasH={canvasH} majorEvery={rulerInterval} />}
         <HTMLCanvasRenderer
           ref={canvasContainerRef}
