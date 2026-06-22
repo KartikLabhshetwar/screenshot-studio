@@ -21,7 +21,9 @@ import {
   SVGAnnotationLayer,
   HTMLBlurRegionLayer,
   SnapAlignmentGuides,
+  HTMLGridLayer,
 } from "./html";
+import { CanvasRulers } from "./CanvasRulers";
 
 // Reference to the HTML canvas container for export
 let globalCanvasContainer: HTMLDivElement | null = null;
@@ -71,6 +73,9 @@ function CanvasRenderer({ image }: { image: HTMLImageElement }) {
     updateBlurRegion,
     removeBlurRegion,
     browserHeaderSize,
+    showRulers,
+    showGrid,
+    rulerInterval,
   } = useImageStore();
 
   // Split overlays into front (default) and back (behind main image)
@@ -429,16 +434,19 @@ function CanvasRenderer({ image }: { image: HTMLImageElement }) {
         padding: "0px",
       }}
     >
-      <HTMLCanvasRenderer
-        ref={canvasContainerRef}
-        width={canvasW}
-        height={canvasH}
-        borderRadius={backgroundBorderRadius}
-        onPointerDown={handleCanvasDeselect}
-        style={{
-          isolation: "isolate",
-        }}
-      >
+      {/* Ruler wrapper — position:relative so rulers can be absolutely offset outside the canvas */}
+      <div style={{ position: 'relative', display: 'inline-block', lineHeight: 0 }}>
+        {showRulers && <CanvasRulers canvasW={canvasW} canvasH={canvasH} majorEvery={rulerInterval} />}
+        <HTMLCanvasRenderer
+          ref={canvasContainerRef}
+          width={canvasW}
+          height={canvasH}
+          borderRadius={backgroundBorderRadius}
+          onPointerDown={handleCanvasDeselect}
+          style={{
+            isolation: "isolate",
+          }}
+        >
         {/* Background Layer */}
         <HTMLBackgroundLayer
           backgroundConfig={backgroundConfig}
@@ -629,7 +637,11 @@ function CanvasRenderer({ image }: { image: HTMLImageElement }) {
         />
 
         {/* Toolbar is now integrated inside HTMLImageOverlayLayer */}
+
+        {/* Grid overlay — rendered on top of all content layers */}
+        {showGrid && <HTMLGridLayer canvasW={canvasW} canvasH={canvasH} />}
       </HTMLCanvasRenderer>
+      </div>
     </div>
   );
 }
