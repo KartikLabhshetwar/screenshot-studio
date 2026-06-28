@@ -397,6 +397,13 @@ function CanvasRenderer({ image }: { image: HTMLImageElement }) {
 
   const showFrame = frame.enabled && frame.type !== "none";
 
+  let selectedSelector: string | null = null;
+  if (isMainImageSelected) {
+    selectedSelector = '[data-main-image-layer="true"]';
+  } else if (selectedOverlayId) {
+    selectedSelector = `[data-overlay-id="${CSS.escape(selectedOverlayId)}"]`;
+  }
+
   const has3DTransform =
     perspective3D.rotateX !== 0 ||
     perspective3D.rotateY !== 0 ||
@@ -434,9 +441,22 @@ function CanvasRenderer({ image }: { image: HTMLImageElement }) {
         padding: "0px",
       }}
     >
-      {/* Ruler wrapper — position:relative so rulers can be absolutely offset outside the canvas */}
-      <div style={{ position: 'relative', display: 'inline-block', lineHeight: 0, marginTop: 20, marginLeft: 20 }}>
-        {showRulers && <CanvasRulers canvasW={canvasW} canvasH={canvasH} majorEvery={rulerInterval} />}
+      <div
+        style={{
+          position: 'relative',
+          display: 'inline-block',
+          lineHeight: 0,
+          ...(showRulers ? { marginTop: 20, marginLeft: 20 } : {}),
+        }}
+      >
+        {showRulers && (
+          <CanvasRulers
+            canvasRef={canvasContainerRef}
+            canvasW={canvasW}
+            majorEvery={rulerInterval}
+            selectedSelector={selectedSelector}
+          />
+        )}
         <HTMLCanvasRenderer
           ref={canvasContainerRef}
           width={canvasW}
