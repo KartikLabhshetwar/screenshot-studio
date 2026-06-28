@@ -100,7 +100,10 @@ export function EditorCanvas() {
           onOpenChange={setExportOpen}
         />
 
-        <div className="flex-1 flex items-center justify-center overflow-y-auto overflow-x-hidden p-3 sm:p-4 md:p-6">
+        <div
+          data-canvas-viewport
+          className="relative flex-1 flex items-center justify-center overflow-y-auto overflow-x-hidden p-3 sm:p-4 md:p-6"
+        >
           <ClientCanvas />
         </div>
 
