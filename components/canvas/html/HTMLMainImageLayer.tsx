@@ -379,6 +379,8 @@ export function HTMLMainImageLayer({
   const left = centerX - framedW / 2;
   const top = centerY - framedH / 2;
 
+  const handleScale = screenshot.scale > 0 ? 1 / screenshot.scale : 1;
+
   const browserRadius = screenshot.radius;
 
   // Image border radius based on frame type
@@ -622,6 +624,7 @@ export function HTMLMainImageLayer({
                   cursor,
                   zIndex: 20,
                   pointerEvents: 'auto',
+                  transform: `scale(${handleScale})`,
                 }}
               />
             );
@@ -632,12 +635,12 @@ export function HTMLMainImageLayer({
             data-resize-handle="true"
             style={{
               position: 'absolute',
-              top: '-35px',
+              top: `${-35 * handleScale}px`,
               left: '50%',
               width: '1px',
-              height: '30px',
+              height: `${30 * handleScale}px`,
               backgroundColor: 'rgba(59, 130, 246, 0.5)',
-              transform: 'translateX(-0.5px)',
+              transform: `translateX(-0.5px) scaleX(${handleScale})`,
               pointerEvents: 'none',
               zIndex: 20,
             }}
@@ -650,9 +653,10 @@ export function HTMLMainImageLayer({
             title="Rotate"
             style={{
               position: 'absolute',
-              top: '-52px',
+              top: `${-52 * handleScale}px`,
               left: '50%',
-              transform: 'translateX(-50%)',
+              transform: `translateX(-50%) scale(${handleScale})`,
+              transformOrigin: 'top center',
               width: '22px',
               height: '22px',
               backgroundColor: 'white',
@@ -679,9 +683,10 @@ export function HTMLMainImageLayer({
             title="Remove image"
             style={{
               position: 'absolute',
-              top: '-52px',
+              top: `${-52 * handleScale}px`,
               left: '50%',
-              transform: 'translateX(calc(-50% + 30px))',
+              transform: `translateX(calc(-50% + ${30 * handleScale}px)) scale(${handleScale})`,
+              transformOrigin: 'top center',
               width: '22px',
               height: '22px',
               backgroundColor: 'white',
