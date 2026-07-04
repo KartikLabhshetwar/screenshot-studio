@@ -35,8 +35,8 @@ R2_ACCOUNT_ID=your-account-id
 # Database (screenshot caching)
 DATABASE_URL="postgresql://user:password@host:port/dbname"
 
-# Screenshot API (defaults to free Screen-Shot.xyz)
-SCREENSHOT_API_URL=https://api.screen-shot.xyz
+# Screenshot API (defaults to free Microlink API)
+SCREENSHOT_API_URL=https://api.microlink.io
 ```
 
 Core features work without any configuration.

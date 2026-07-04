@@ -34,7 +34,7 @@ Stage is a modern web-based canvas editor built with Next.js 16 and React 19. It
 
 ### Image Processing & Storage
 - **Cloudflare R2** - Object storage for assets
-- **Screen-Shot.xyz API** - Free website screenshot capture service (no API key required)
+- **Microlink API** - Free website screenshot capture service (no API key required)
 - **IndexedDB** - Client-side storage for images and exports
 - **Sharp** - Server-side image processing (dev dependency)
 - **Prisma + PostgreSQL** - Database for screenshot caching
@@ -236,7 +236,7 @@ When an image is uploaded:
 
 ### 1. Image Upload
 - **File Upload**: Uses `react-dropzone` for drag-and-drop
-- **Website Screenshot**: API route calls [Screen-Shot.xyz](https://screen-shot.xyz) service
+- **Website Screenshot**: API route calls [Microlink](https://microlink.io) API
   - Supports desktop (1920x1080) and mobile (375x667) viewport sizes
   - Device type selection via UI dropdown
   - Screenshots cached separately by device type
@@ -508,10 +508,9 @@ NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=your-cloud-name
 CLOUDINARY_API_KEY=your-api-key
 CLOUDINARY_API_SECRET=your-api-secret
 
-# Optional: Screenshot API URL (defaults to free Screen-Shot.xyz API)
-# Uses https://api.screen-shot.xyz by default (no API key required)
-# Can be set to your own Cloudflare Worker instance
-SCREENSHOT_API_URL=https://api.screen-shot.xyz
+# Optional: Screenshot API URL (defaults to free Microlink API)
+# Uses https://api.microlink.io by default (no API key required)
+SCREENSHOT_API_URL=https://api.microlink.io
 
 # Optional: Analytics
 BETTER_AUTH_URL=https://your-domain.com
@@ -521,7 +520,7 @@ BETTER_AUTH_URL=https://your-domain.com
 
 ### `/api/screenshot`
 - **Method**: POST
-- **Purpose**: Capture website screenshots using Screen-Shot.xyz API
+- **Purpose**: Capture website screenshots using the Microlink API
 - **Body**:
   ```json
   {
@@ -540,12 +539,12 @@ BETTER_AUTH_URL=https://your-domain.com
     "strategy": "string"
   }
   ```
-- **Technology**: [Screen-Shot.xyz API](https://screen-shot.xyz) - Free, open-source screenshot service
-  - Default endpoint: `https://api.screen-shot.xyz/take`
+- **Technology**: [Microlink API](https://microlink.io) - Free screenshot service (no API key required)
+  - Default endpoint: `https://api.microlink.io`
+  - Two-step capture: request returns a hosted screenshot URL, which is then fetched for image bytes
   - Supports viewport customization (width/height parameters)
   - Desktop: 1920x1080 viewport
   - Mobile: 375x667 viewport
-  - Can be self-hosted on Cloudflare Workers
 - **Caching**: Screenshots cached in Cloudinary and database, keyed by URL and device type
 - **Rate Limiting**: 20 requests per minute per IP
 
