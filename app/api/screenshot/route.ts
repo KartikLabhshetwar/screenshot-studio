@@ -4,80 +4,70 @@ import { checkRateLimit } from '@/lib/rate-limit'
 
 export const maxDuration = 60
 
-const SCREENSHOT_API_URL = process.env.SCREENSHOT_API_URL || 'https://api.screen-shot.xyz'
+const MICROLINK_API_URL = process.env.SCREENSHOT_API_URL || 'https://api.microlink.io'
 
 async function captureViaService(url: string, deviceType: 'desktop' | 'mobile' = 'desktop'): Promise<{ screenshot: string; strategy: string }> {
   try {
-    const viewport = deviceType === 'mobile' 
-      ? { width: '375', height: '667' }
-      : { width: '1920', height: '1080' }
-    
+    const viewport = deviceType === 'mobile'
+      ? { width: '375', height: '667', isMobile: 'true' }
+      : { width: '1920', height: '1080', isMobile: 'false' }
+
     const params = new URLSearchParams({
-      url: url,
-      width: viewport.width,
-      height: viewport.height,
-      format: 'png',
-    })
-    
-    const apiUrl = `${SCREENSHOT_API_URL}/take?${params.toString()}`
-    
-    const response = await fetch(apiUrl, {
-      method: 'GET',
-      signal: AbortSignal.timeout(55000),
+      url,
+      screenshot: 'true',
+      meta: 'false',
+      'viewport.width': viewport.width,
+      'viewport.height': viewport.height,
+      'viewport.isMobile': viewport.isMobile,
     })
 
-    const contentType = response.headers.get('content-type') || ''
-    const arrayBuffer = await response.arrayBuffer()
-    
+    const metaResponse = await fetch(`${MICROLINK_API_URL}/?${params.toString()}`, {
+      method: 'GET',
+      signal: AbortSignal.timeout(30000),
+    })
+
+    const metaJson = await metaResponse.json()
+
+    if (metaJson.status !== 'success' || !metaJson.data?.screenshot?.url) {
+      const message = metaJson.data?.url || metaJson.data?.message || `Screenshot API returned ${metaResponse.status}`
+      if (metaResponse.status === 408 || metaResponse.status === 504) {
+        throw new Error('timeout')
+      }
+      if (metaResponse.status === 429) {
+        throw new Error('connection_error')
+      }
+      throw new Error(message)
+    }
+
+    const imageResponse = await fetch(metaJson.data.screenshot.url, {
+      signal: AbortSignal.timeout(25000),
+    })
+
+    if (!imageResponse.ok) {
+      throw new Error(`Screenshot API returned ${imageResponse.status}`)
+    }
+
+    const arrayBuffer = await imageResponse.arrayBuffer()
+
     if (arrayBuffer.byteLength === 0) {
       throw new Error('Empty response from screenshot API')
     }
 
-    if (!response.ok) {
-      let errorMessage = `Screenshot API returned ${response.status}`
-      
-      try {
-        const text = new TextDecoder().decode(arrayBuffer)
-        const errorData = JSON.parse(text)
-        errorMessage = errorData.error || errorMessage
-      } catch {
-        // Ignore parsing errors, use default error message
-      }
-      
-      if (response.status === 408 || response.status === 504) {
-        throw new Error('timeout')
-      }
-      if (response.status >= 400 && response.status < 500) {
-        throw new Error('connection_error')
-      }
-      throw new Error(errorMessage)
-    }
-
     const buffer = Buffer.from(arrayBuffer)
-    
+
     const firstBytes = buffer.subarray(0, 8)
     const isPng = firstBytes[0] === 0x89 && firstBytes[1] === 0x50 && firstBytes[2] === 0x4E && firstBytes[3] === 0x47
     const isJpeg = firstBytes[0] === 0xFF && firstBytes[1] === 0xD8
-    
+
     if (!isPng && !isJpeg) {
-      if (contentType.includes('application/json') || contentType.includes('text/')) {
-        try {
-          const text = new TextDecoder().decode(arrayBuffer)
-          const errorData = JSON.parse(text)
-          throw new Error(errorData.error || 'Invalid response from screenshot API')
-        } catch {
-          // Ignore parsing errors, throw generic error
-          throw new Error('Invalid response from screenshot API')
-        }
-      }
       throw new Error('Invalid image format received from screenshot API: expected PNG or JPEG')
     }
-    
+
     const base64Screenshot = buffer.toString('base64')
-    
+
     return {
       screenshot: base64Screenshot,
-      strategy: 'screen-shot-api',
+      strategy: 'microlink',
     }
   } catch (error) {
     if (error instanceof Error && error.name === 'AbortError') {

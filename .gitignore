@@ -48,3 +48,6 @@ prisma/migrations
 # Prisma
 prisma/*.db
 prisma/*.db-journal
+
+#files
+moving-forward.md
