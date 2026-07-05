@@ -306,6 +306,13 @@ export class FFmpegVideoEncoder {
       ];
     } else if (format === 'webm') {
       outputFile = 'output.webm';
+      // libvpx-vp9 is a software encoder and much slower than mp4's hardware
+      // WebCodecs path — squeeze out what speed we can via the MT WASM core
+      // (row-based multithreading + tile columns), when available.
+      const threads = typeof navigator !== 'undefined' && navigator.hardwareConcurrency
+        ? Math.min(navigator.hardwareConcurrency, 8)
+        : 4;
+      const tileColumns = Math.min(4, Math.max(0, Math.floor(Math.log2(width / 256))));
       ffmpegArgs = [
         ...inputArgs,
         '-c:v', 'libvpx-vp9',
@@ -314,6 +321,9 @@ export class FFmpegVideoEncoder {
         '-pix_fmt', 'yuv420p',
         '-deadline', 'realtime',
         '-cpu-used', '8',
+        '-row-mt', '1',
+        '-tile-columns', String(tileColumns),
+        '-threads', String(threads),
         '-y',
         outputFile,
       ];

@@ -145,7 +145,7 @@ export async function exportSlideshowVideo(options: VideoExportOptions = {}) {
     let result;
 
     if (format === "webm") {
-      result = await exportSlideshowWithMediaRecorder("webm", quality, progress);
+      result = await exportSlideshowWithFFmpeg("webm", quality, progress);
     } else if (format === "gif") {
       result = await exportSlideshowWithFFmpeg("gif", quality, progress);
     } else if (isWebCodecsSupported() && await isH264Supported()) {
@@ -371,7 +371,7 @@ export async function exportAnimationVideo(options: VideoExportOptions = {}) {
       if (format === "gif") {
         selectedEncoder = "ffmpeg"; // Only FFmpeg supports GIF
       } else if (format === "webm") {
-        selectedEncoder = "mediarecorder"; // MediaRecorder natively supports WebM
+        selectedEncoder = "ffmpeg"; // FFmpeg encodes faster than real-time; MediaRecorder cannot
       } else if (format === "mp4" && isWebCodecsSupported()) {
         selectedEncoder = "webcodecs"; // Prefer WebCodecs: browser-native, no WASM loading
       } else {
