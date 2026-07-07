@@ -5,8 +5,14 @@ import { checkRateLimit } from '@/lib/rate-limit'
 export const maxDuration = 60
 
 const MICROLINK_API_URL = process.env.SCREENSHOT_API_URL || 'https://api.microlink.io'
+type DeviceType = 'desktop' | 'mobile'
+type ColorScheme = 'light' | 'dark'
 
-async function captureViaService(url: string, deviceType: 'desktop' | 'mobile' = 'desktop'): Promise<{ screenshot: string; strategy: string }> {
+async function captureViaService(
+  url: string,
+  deviceType: DeviceType = 'desktop',
+  colorScheme: ColorScheme = 'light'
+): Promise<{ screenshot: string; strategy: string }> {
   try {
     const viewport = deviceType === 'mobile'
       ? { width: '375', height: '667', isMobile: 'true' }
@@ -19,6 +25,7 @@ async function captureViaService(url: string, deviceType: 'desktop' | 'mobile' =
       'viewport.width': viewport.width,
       'viewport.height': viewport.height,
       'viewport.isMobile': viewport.isMobile,
+      colorScheme,
     })
 
     const metaResponse = await fetch(`${MICROLINK_API_URL}/?${params.toString()}`, {
@@ -105,7 +112,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { url, forceRefresh, deviceType = 'desktop' } = body
+    const { url, forceRefresh, deviceType = 'desktop', colorScheme = 'light' } = body
 
     if (!url || typeof url !== 'string') {
       return NextResponse.json(
@@ -114,9 +121,16 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    if (deviceType && !['desktop', 'mobile'].includes(deviceType)) {
+    if (!['desktop', 'mobile'].includes(deviceType)) {
       return NextResponse.json(
         { error: 'deviceType must be either "desktop" or "mobile"' },
+        { status: 400 }
+      )
+    }
+
+    if (!['light', 'dark'].includes(colorScheme)) {
+      return NextResponse.json(
+        { error: 'colorScheme must be either "light" or "dark"' },
         { status: 400 }
       )
     }
@@ -130,7 +144,7 @@ export async function POST(request: NextRequest) {
           { status: 400 }
         )
       }
-    } catch (error) {
+    } catch {
       return NextResponse.json(
         { error: 'Invalid URL format' },
         { status: 400 }
@@ -138,7 +152,7 @@ export async function POST(request: NextRequest) {
     }
 
     const normalizedUrl = normalizeUrl(validUrl.toString())
-    const cacheKey = `${normalizedUrl}:${deviceType}`
+    const cacheKey = `${normalizedUrl}:${deviceType}:${colorScheme}`
 
     if (forceRefresh) {
       try {
@@ -157,6 +171,7 @@ export async function POST(request: NextRequest) {
             url: normalizedUrl,
             cached: true,
             deviceType,
+            colorScheme,
           })
         }
       } catch (cacheError) {
@@ -164,7 +179,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const { screenshot, strategy } = await captureViaService(normalizedUrl, deviceType)
+    const { screenshot, strategy } = await captureViaService(normalizedUrl, deviceType, colorScheme)
 
     try {
       await cacheScreenshot(cacheKey, screenshot)
@@ -178,6 +193,7 @@ export async function POST(request: NextRequest) {
       cached: false,
       strategy,
       deviceType,
+      colorScheme,
     })
   } catch (error) {
     console.error('Screenshot error:', error)

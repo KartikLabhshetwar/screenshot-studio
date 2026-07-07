@@ -7,6 +7,7 @@ interface SegmentedControlOption {
   id: string;
   label?: string;
   icon?: React.ReactNode;
+  ariaLabel?: string;
 }
 
 interface SegmentedControlProps {
@@ -14,6 +15,7 @@ interface SegmentedControlProps {
   value: string;
   onChange: (value: string) => void;
   className?: string;
+  indicatorClassName?: string;
   size?: 'sm' | 'md';
 }
 
@@ -22,6 +24,7 @@ export function SegmentedControl({
   value,
   onChange,
   className,
+  indicatorClassName,
   size = 'md',
 }: SegmentedControlProps) {
   const activeIndex = options.findIndex((o) => o.id === value);
@@ -39,7 +42,8 @@ export function SegmentedControl({
           'absolute bg-background dark:bg-accent transition-all duration-200 ease-out',
           size === 'sm'
             ? 'top-[2px] bottom-[2px] rounded-[8px]'
-            : 'top-0.5 bottom-0.5 rounded-[10px]'
+            : 'top-0.5 bottom-0.5 rounded-[10px]',
+          indicatorClassName
         )}
         style={{
           left: `calc(${activeIndex * (100 / options.length)}% + 2px)`,
@@ -49,7 +53,10 @@ export function SegmentedControl({
       {options.map((option) => (
         <button
           key={option.id}
+          type="button"
           onClick={() => onChange(option.id)}
+          aria-label={option.ariaLabel ?? option.label}
+          title={option.ariaLabel ?? option.label}
           className={cn(
             'relative z-10 flex-1 flex items-center justify-center gap-1.5 transition-colors duration-150',
             size === 'sm'
