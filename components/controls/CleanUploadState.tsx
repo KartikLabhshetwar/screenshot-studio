@@ -8,14 +8,17 @@ import {
   Globe02Icon,
   Loading03Icon,
 } from 'hugeicons-react';
+import { Moon, Sun } from 'lucide-react';
 import { ALLOWED_IMAGE_TYPES, MAX_IMAGE_SIZE } from '@/lib/constants';
 import { useEditorStore, useImageStore } from '@/lib/store';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { SegmentedControl } from '@/components/ui/segmented-control';
 import { getBackgroundCSS } from '@/lib/constants/backgrounds';
 
 const TRANSITION_DURATION = 400; // ms
+type ColorScheme = 'light' | 'dark';
 
 function extractImageUrl(style: React.CSSProperties): string | null {
   const bg = style.backgroundImage;
@@ -38,6 +41,7 @@ export function CleanUploadState() {
   const [isDragActive, setIsDragActive] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [screenshotUrl, setScreenshotUrl] = React.useState('');
+  const [colorScheme, setColorScheme] = React.useState<ColorScheme>('light');
   const [isCapturing, setIsCapturing] = React.useState(false);
 
   const { setScreenshot } = useEditorStore();
@@ -224,7 +228,7 @@ export function CleanUploadState() {
       const response = await fetch('/api/screenshot', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url: finalUrl, deviceType: 'desktop' }),
+        body: JSON.stringify({ url: finalUrl, deviceType: 'desktop', colorScheme }),
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || 'Failed to capture screenshot');
@@ -239,7 +243,7 @@ export function CleanUploadState() {
       const byteArray = new Uint8Array(byteNumbers);
       const blob = new Blob([byteArray], { type: 'image/png' });
       const blobUrl = URL.createObjectURL(blob);
-      const file = new File([blob], 'screenshot.png', { type: 'image/png' });
+      const file = new File([blob], `screenshot-${colorScheme}.png`, { type: 'image/png' });
       setScreenshot({ src: blobUrl });
       setImage(file);
       setScreenshotUrl('');
@@ -341,8 +345,11 @@ export function CleanUploadState() {
               <div className="flex-1 h-px" style={{ background: 'rgba(255,255,255,0.15)' }} />
             </div>
             <div className="flex gap-1.5 w-full">
-              <div className="relative flex-1">
-                <Globe02Icon size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2" style={{ color: 'rgba(255,255,255,0.45)' }} />
+              <div
+                className="relative flex flex-1 items-center rounded-lg pl-2.5 pr-1 transition-shadow focus-within:ring-1 focus-within:ring-white/25"
+                style={{ background: 'rgba(0,0,0,0.25)', border: '1px solid rgba(255,255,255,0.15)' }}
+              >
+                <Globe02Icon size={14} className="shrink-0" style={{ color: 'rgba(255,255,255,0.45)' }} />
                 <Input
                   type="url"
                   placeholder="Enter website URL..."
@@ -350,17 +357,25 @@ export function CleanUploadState() {
                   onChange={(e) => setScreenshotUrl(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleCaptureScreenshot()}
                   disabled={isCapturing}
-                  className="pl-8 h-9 text-xs rounded-lg"
-                  style={{
-                    background: 'rgba(0,0,0,0.25)',
-                    borderColor: 'rgba(255,255,255,0.15)',
-                    color: 'rgba(255,255,255,0.9)',
-                  }}
+                  className="h-9 flex-1 border-0 bg-transparent px-2 text-xs shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 dark:bg-transparent"
+                  style={{ color: 'rgba(255,255,255,0.9)' }}
+                />
+                <div className="h-4 w-px shrink-0 bg-white/10" />
+                <SegmentedControl
+                  size="sm"
+                  value={colorScheme}
+                  onChange={(value) => setColorScheme(value as ColorScheme)}
+                  className={cn('ml-1 shrink-0 border-0 bg-transparent dark:bg-transparent p-[2px]', isCapturing && 'pointer-events-none opacity-60')}
+                  indicatorClassName="bg-white/15 dark:bg-white/15"
+                  options={[
+                    { id: 'light', icon: <Sun className="h-3 w-3" />, ariaLabel: 'Light' },
+                    { id: 'dark', icon: <Moon className="h-3 w-3" />, ariaLabel: 'Dark' },
+                  ]}
                 />
               </div>
               <Button
                 onClick={handleCaptureScreenshot}
-                disabled={isCapturing || !screenshotUrl.trim()}
+                disabled={isCapturing}
                 size="sm"
                 className="h-9 px-3 rounded-lg transition-all duration-200"
                 style={{

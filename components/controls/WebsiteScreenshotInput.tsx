@@ -5,14 +5,24 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { SegmentedControl } from '@/components/ui/segmented-control'
 import { useEditorStore, useImageStore } from '@/lib/store'
+import { cn } from '@/lib/utils'
 import { Loading03Icon, Globe02Icon, ComputerIcon, SmartPhone01Icon } from 'hugeicons-react'
+import { Moon, Sun } from 'lucide-react'
 
 type DeviceType = 'desktop' | 'mobile'
+type ColorScheme = 'light' | 'dark'
+
+const DEVICE_OPTIONS = [
+  { id: 'desktop', label: 'Desktop', Icon: ComputerIcon },
+  { id: 'mobile', label: 'Mobile', Icon: SmartPhone01Icon },
+] as const
 
 export function WebsiteScreenshotInput() {
   const [url, setUrl] = React.useState('')
   const [deviceType, setDeviceType] = React.useState<DeviceType>('desktop')
+  const [colorScheme, setColorScheme] = React.useState<ColorScheme>('light')
   const [isLoading, setIsLoading] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
   const { setScreenshot } = useEditorStore()
@@ -48,7 +58,7 @@ export function WebsiteScreenshotInput() {
       }
       
       return { valid: true, normalized }
-    } catch (error) {
+    } catch {
       return { valid: false, error: 'Please enter a valid URL (e.g., example.com or https://example.com)' }
     }
   }
@@ -77,7 +87,7 @@ export function WebsiteScreenshotInput() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ url: finalUrl, deviceType }),
+        body: JSON.stringify({ url: finalUrl, deviceType, colorScheme }),
       })
 
       const data = await response.json()
@@ -122,7 +132,7 @@ export function WebsiteScreenshotInput() {
       const blobUrl = URL.createObjectURL(blob)
 
       // Create a File object from the blob
-      const file = new File([blob], 'screenshot.png', { type: 'image/png' })
+      const file = new File([blob], `screenshot-${colorScheme}.png`, { type: 'image/png' })
 
       // Update stores immediately
       setScreenshot({ src: blobUrl })
@@ -196,44 +206,53 @@ export function WebsiteScreenshotInput() {
             )}
           </Button>
         </div>
-        <div className="flex items-center gap-3">
-          <Label htmlFor="device-type" className="text-sm font-medium whitespace-nowrap">
-            Device Type:
-          </Label>
-          <Select value={deviceType} onValueChange={(value) => setDeviceType(value as DeviceType)} disabled={isLoading}>
-            <SelectTrigger id="device-type" className="w-[140px]">
-              <SelectValue>
-                {deviceType === 'desktop' ? (
-                  <span className="flex items-center gap-2">
-                    <ComputerIcon className="h-4 w-4" />
-                    Desktop
-                  </span>
-                ) : (
-                  <span className="flex items-center gap-2">
-                    <SmartPhone01Icon className="h-4 w-4" />
-                    Mobile
-                  </span>
-                )}
-              </SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="desktop">
-                <span className="flex items-center gap-2">
-                  <ComputerIcon className="h-4 w-4" />
-                  Desktop
-                </span>
-              </SelectItem>
-              <SelectItem value="mobile">
-                <span className="flex items-center gap-2">
-                  <SmartPhone01Icon className="h-4 w-4" />
-                  Mobile
-                </span>
-              </SelectItem>
-            </SelectContent>
-          </Select>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div className="flex items-center gap-3">
+            <Label htmlFor="device-type" className="text-sm font-medium whitespace-nowrap">
+              Device:
+            </Label>
+            <Select value={deviceType} onValueChange={(value) => setDeviceType(value as DeviceType)} disabled={isLoading}>
+              <SelectTrigger id="device-type" className="w-[140px]">
+                <SelectValue>
+                  {DEVICE_OPTIONS.filter((o) => o.id === deviceType).map(({ id, label, Icon }) => (
+                    <span key={id} className="flex items-center gap-2">
+                      <Icon className="h-4 w-4" />
+                      {label}
+                    </span>
+                  ))}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {DEVICE_OPTIONS.map(({ id, label, Icon }) => (
+                  <SelectItem key={id} value={id}>
+                    <span className="flex items-center gap-2">
+                      <Icon className="h-4 w-4" />
+                      {label}
+                    </span>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="flex items-center gap-3 sm:justify-end">
+            <Label className="text-sm font-medium whitespace-nowrap">
+              Theme:
+            </Label>
+            <SegmentedControl
+              size="sm"
+              value={colorScheme}
+              onChange={(value) => setColorScheme(value as ColorScheme)}
+              className={cn("w-[72px]", isLoading && "pointer-events-none opacity-60")}
+              options={[
+                { id: 'light', icon: <Sun className="h-3.5 w-3.5" />, ariaLabel: 'Light' },
+                { id: 'dark', icon: <Moon className="h-3.5 w-3.5" />, ariaLabel: 'Dark' },
+              ]}
+            />
+          </div>
         </div>
         <p className="text-xs text-muted-foreground">
-          Enter a website URL to capture a viewport screenshot. Choose desktop (1920x1080) or mobile (375x667) viewport size.
+          Enter a website URL to capture a viewport screenshot. Dark theme uses the site&apos;s prefers-color-scheme support.
         </p>
       </div>
 
@@ -257,4 +276,3 @@ export function WebsiteScreenshotInput() {
     </div>
   )
 }
-
