@@ -182,6 +182,7 @@ export function ExportSlideshowDialog({
       console.error('Video export failed:', error);
       toast.error('Video export failed', {
         description: error instanceof Error ? error.message : 'Please try again.',
+        duration: 1500,
       });
     } finally {
       onOpenChange(false);
