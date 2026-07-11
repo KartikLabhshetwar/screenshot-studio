@@ -17,6 +17,7 @@ import {
   exportSlideshowVideo,
   exportAnimationVideo,
   preloadFFmpeg,
+  isExportAborted,
   type VideoExportOptions,
 } from "@/lib/export-slideshow-video";
 import { isFFmpegLoaded } from "@/lib/export/ffmpeg-encoder";
@@ -119,7 +120,7 @@ export function ExportSlideshowDialog({
   onOpenChange: (v: boolean) => void;
 }) {
   const { slideshow, setSlideshow, timeline, slides, animationClips } = useImageStore();
-  const { active: exporting, progress } = useExportProgress();
+  const { active: exporting, progress, abort } = useExportProgress();
   const [format, setFormat] = useState<VideoFormat>("mp4");
   const [quality, setQuality] = useState<VideoQuality>("high");
   const [mp4Supported, setMp4Supported] = useState(true);
@@ -174,6 +175,10 @@ export function ExportSlideshowDialog({
         description: `Saved as ${result.format.toUpperCase()}`,
       });
     } catch (error) {
+      // User cancelled — not a failure, no error toast.
+      if (isExportAborted(error)) {
+        return;
+      }
       console.error('Video export failed:', error);
       toast.error('Video export failed', {
         description: error instanceof Error ? error.message : 'Please try again.',
@@ -183,8 +188,17 @@ export function ExportSlideshowDialog({
     }
   };
 
+  // Closing the dialog while an export is running cancels it.
+  const handleOpenChange = (next: boolean) => {
+    if (!next && exporting) {
+      abort();
+      toast('Export cancelled');
+    }
+    onOpenChange(next);
+  };
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-md">
         {exporting ? (
           /* ---- Fun export progress view ---- */
@@ -196,6 +210,13 @@ export function ExportSlideshowDialog({
               </DialogDescription>
             </DialogHeader>
             <ExportProgressView progress={progress} format={format} />
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={() => handleOpenChange(false)}
+            >
+              Cancel
+            </Button>
           </div>
         ) : (
           /* ---- Settings view ---- */

@@ -8,6 +8,16 @@ function wait(ms: number) {
 }
 
 /**
+ * Throw an AbortError if the export has been cancelled.
+ * Used to bail out of the frame-capture loops as soon as possible.
+ */
+export function throwIfAborted(signal?: AbortSignal): void {
+  if (signal?.aborted) {
+    throw new DOMException("Export cancelled", "AbortError");
+  }
+}
+
+/**
  * Force a DOM reflow/repaint to ensure CSS changes are applied
  */
 function forceReflow(): void {
@@ -202,7 +212,8 @@ export async function renderSlidesToFrames() {
 export async function streamSlidesToEncoder(
   fps: number,
   onFrame: (canvas: HTMLCanvasElement, frameIndex: number) => Promise<void>,
-  onProgress?: (progress: number) => void
+  onProgress?: (progress: number) => void,
+  signal?: AbortSignal
 ): Promise<{ width: number; height: number; totalFrames: number }> {
   // Read a fresh snapshot of the store each time
   const { slides, slideshow, uploadedImageUrl } = useImageStore.getState();
@@ -218,6 +229,7 @@ export async function streamSlidesToEncoder(
     orderedSlides.length > 0 ? orderedSlides : uploadedImageUrl ? [null] : [];
 
   for (let si = 0; si < slideList.length; si++) {
+    throwIfAborted(signal);
     const slide = slideList[si];
 
     if (slide) {
@@ -237,6 +249,7 @@ export async function streamSlidesToEncoder(
 
     // Stream the same canvas for the duration of this slide
     for (let i = 0; i < frameCount; i++) {
+      throwIfAborted(signal);
       await onFrame(canvas, globalFrameIndex);
       globalFrameIndex++;
 
@@ -363,7 +376,8 @@ export async function renderAnimationToFrames(
 export async function streamAnimationToEncoder(
   fps: number,
   onFrame: (canvas: HTMLCanvasElement, frameIndex: number) => Promise<void>,
-  onProgress?: (progress: number) => void
+  onProgress?: (progress: number) => void,
+  signal?: AbortSignal
 ): Promise<{ width: number; height: number; totalFrames: number }> {
   const store = useImageStore.getState();
   const { timeline, animationClips, slides, slideshow, setActiveSlide, setPerspective3D, setImageOpacity } = store;
@@ -386,6 +400,7 @@ export async function streamAnimationToEncoder(
 
   try {
     for (let frameIndex = 0; frameIndex < totalFrames; frameIndex++) {
+      throwIfAborted(signal);
       const time = frameIndex * frameIntervalMs;
 
       // Switch to the correct slide based on time (for multi-slide animations)
