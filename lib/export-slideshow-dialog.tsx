@@ -192,7 +192,7 @@ export function ExportSlideshowDialog({
   const handleOpenChange = (next: boolean) => {
     if (!next && exporting) {
       abort();
-      toast('Export cancelled');
+      toast('Export cancelled', { id: 'export-cancelled', duration: 1500 });
     }
     onOpenChange(next);
   };
