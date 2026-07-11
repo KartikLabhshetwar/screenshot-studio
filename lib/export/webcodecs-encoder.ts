@@ -305,6 +305,24 @@ export class WebCodecsVideoEncoder {
   getFrameCount(): number {
     return this.frameCount;
   }
+
+  /**
+   * Dispose the encoder without finalizing — closes the underlying VideoEncoder
+   * to free hardware resources. Safe to call on a cancelled or failed export.
+   */
+  dispose(): void {
+    try {
+      // state === "closed" throws on close(), so guard before closing.
+      if (this.encoder && this.encoder.state !== "closed") {
+        this.encoder.close();
+      }
+    } catch {
+      // Encoder already closed or errored — nothing to free.
+    }
+    this.encoder = null;
+    this.muxer = null;
+    this.isInitialized = false;
+  }
 }
 
 /**

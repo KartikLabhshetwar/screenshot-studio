@@ -166,6 +166,7 @@ export class FFmpegVideoEncoder {
   private progressHandler: ((event: { progress: number }) => void) | null = null;
   private logHandler: ((event: { message: string }) => void) | null = null;
   private releaseLock: (() => void) | null = null;
+  private cleanedUp = false;
 
   // Concat demuxer mode
   private concatMode = false;
@@ -372,9 +373,21 @@ export class FFmpegVideoEncoder {
   }
 
   /**
-   * Clean up FFmpeg VFS, listeners, and release export lock
+   * Dispose the encoder without encoding — releases the export lock and frees
+   * VFS/listeners. Safe to call on a cancelled or failed export.
+   */
+  async dispose(): Promise<void> {
+    await this.cleanup();
+  }
+
+  /**
+   * Clean up FFmpeg VFS, listeners, and release export lock.
+   * Idempotent: safe to call multiple times (e.g. from encode() and dispose()).
    */
   private async cleanup(): Promise<void> {
+    if (this.cleanedUp) return;
+    this.cleanedUp = true;
+
     if (this.ffmpeg) {
       // Remove event listeners to prevent accumulation
       if (this.progressHandler) {
@@ -459,4 +472,8 @@ export function terminateFFmpeg(): void {
     ffmpegInstance = null;
     loadPromise = null;
   }
+  // Reset the mutex so a cancelled export mid-encode can't deadlock the next one.
+  // Any encoder still holding the old lock resolves a now-unreferenced promise.
+  exportLock = Promise.resolve();
+  isLoading = false;
 }

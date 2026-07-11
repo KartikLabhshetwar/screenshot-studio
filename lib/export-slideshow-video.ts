@@ -1,5 +1,5 @@
 import { useExportProgress } from "@/hooks/useExportProgress";
-import { streamSlidesToEncoder, streamAnimationToEncoder, switchToSlideAndWait } from "./render-slideFrame";
+import { streamSlidesToEncoder, streamAnimationToEncoder, switchToSlideAndWait, throwIfAborted } from "./render-slideFrame";
 import { exportSlideFrameAsCanvas } from "./export-slideFrame";
 import {
   type VideoFormat,
@@ -14,9 +14,18 @@ import {
 import {
   FFmpegVideoEncoder,
   loadFFmpeg,
+  terminateFFmpeg,
   type FFmpegFormat,
 } from "./export/ffmpeg-encoder";
 import { useImageStore } from "@/lib/store";
+
+/**
+ * True when an error was raised because the user cancelled the export.
+ * Callers use this to skip "export failed" messaging.
+ */
+export function isExportAborted(error: unknown): boolean {
+  return error instanceof DOMException && error.name === "AbortError";
+}
 
 const ANIMATION_FPS = 60;
 const SLIDESHOW_FPS = 30; // Static frames don't need 60fps — halves all frame work
@@ -107,6 +116,21 @@ function downloadBlob(blob: Blob, filename: string) {
   URL.revokeObjectURL(url);
 }
 
+/**
+ * Mark the export done, trigger the file download, and return the result —
+ * the common tail shared by every encoder path.
+ */
+function finishExport<F extends string>(
+  progress: ReturnType<typeof useExportProgress.getState>,
+  blob: Blob,
+  namePrefix: "video" | "animation",
+  format: F
+): { format: F } {
+  progress.done();
+  downloadBlob(blob, `screenshotstudio-${namePrefix}-${Date.now()}.${format}`);
+  return { format };
+}
+
 function getMediaRecorderCodec(preferFormat: VideoFormat): { mimeType: string; format: VideoFormat } {
   if (typeof MediaRecorder === "undefined") {
     throw new Error("MediaRecorder is not supported in this browser");
@@ -139,19 +163,19 @@ export async function exportSlideshowVideo(options: VideoExportOptions = {}) {
   const progress = useExportProgress.getState();
   const savedState = saveStoreState();
 
-  progress.start();
+  const signal = progress.start();
 
   try {
     let result;
 
     if (format === "webm") {
-      result = await exportSlideshowWithFFmpeg("webm", quality, progress);
+      result = await exportSlideshowWithFFmpeg("webm", quality, progress, signal);
     } else if (format === "gif") {
-      result = await exportSlideshowWithFFmpeg("gif", quality, progress);
+      result = await exportSlideshowWithFFmpeg("gif", quality, progress, signal);
     } else if (isWebCodecsSupported() && await isH264Supported()) {
-      result = await exportSlideshowWithWebCodecs(quality, progress);
+      result = await exportSlideshowWithWebCodecs(quality, progress, signal);
     } else {
-      result = await exportSlideshowWithFFmpeg("mp4", quality, progress);
+      result = await exportSlideshowWithFFmpeg("mp4", quality, progress, signal);
     }
 
     restoreStoreState(savedState);
@@ -168,44 +192,49 @@ export async function exportSlideshowVideo(options: VideoExportOptions = {}) {
  */
 async function exportSlideshowWithWebCodecs(
   quality: VideoQuality,
-  progress: ReturnType<typeof useExportProgress.getState>
+  progress: ReturnType<typeof useExportProgress.getState>,
+  signal?: AbortSignal
 ) {
   const state: { encoder: WebCodecsVideoEncoder | null; frameIndex: number } = {
     encoder: null,
     frameIndex: 0,
   };
 
-  await streamSlidesToEncoder(
-    SLIDESHOW_FPS,
-    async (canvas, idx) => {
-      if (!state.encoder) {
-        state.encoder = new WebCodecsVideoEncoder({
-          width: canvas.width,
-          height: canvas.height,
-          fps: SLIDESHOW_FPS,
-          bitrate: QUALITY_BITRATES[quality],
-        });
-        await state.encoder.initialize();
-      }
+  try {
+    await streamSlidesToEncoder(
+      SLIDESHOW_FPS,
+      async (canvas, idx) => {
+        if (!state.encoder) {
+          state.encoder = new WebCodecsVideoEncoder({
+            width: canvas.width,
+            height: canvas.height,
+            fps: SLIDESHOW_FPS,
+            bitrate: QUALITY_BITRATES[quality],
+          });
+          await state.encoder.initialize();
+        }
 
-      await state.encoder.encodeFromCanvas(canvas, idx);
-      state.frameIndex++;
+        await state.encoder.encodeFromCanvas(canvas, idx);
+        state.frameIndex++;
 
-      if (idx % 10 === 0) {
-        await new Promise((r) => setTimeout(r, 0));
-      }
-    },
-    (p) => progress.set(40 + p * 0.55)
-  );
+        if (idx % 10 === 0) {
+          await new Promise((r) => setTimeout(r, 0));
+        }
+      },
+      (p) => progress.set(40 + p * 0.55),
+      signal
+    );
 
-  if (!state.encoder) {
-    throw new Error("No frames to export");
+    if (!state.encoder) {
+      throw new Error("No frames to export");
+    }
+
+    const blob = await state.encoder.finalize();
+    return finishExport(progress, blob, "video", "mp4" as const);
+  } catch (error) {
+    state.encoder?.dispose();
+    throw error;
   }
-
-  const blob = await state.encoder.finalize();
-  progress.done();
-  downloadBlob(blob, `screenshotstudio-video-${Date.now()}.mp4`);
-  return { format: "mp4" as const };
 }
 
 /**
@@ -215,7 +244,8 @@ async function exportSlideshowWithWebCodecs(
 async function exportSlideshowWithFFmpeg(
   format: FFmpegFormat,
   quality: VideoQuality,
-  progress: ReturnType<typeof useExportProgress.getState>
+  progress: ReturnType<typeof useExportProgress.getState>,
+  signal?: AbortSignal
 ) {
   const { slides, slideshow, uploadedImageUrl } = useImageStore.getState();
 
@@ -230,45 +260,61 @@ async function exportSlideshowWithFFmpeg(
 
   let encoder: FFmpegVideoEncoder | null = null;
 
-  for (let si = 0; si < slideList.length; si++) {
-    const slide = slideList[si];
+  // Kill the WASM worker if the user cancels mid-encode (FFmpeg.exec can't be
+  // interrupted otherwise). The next export reloads the core from cache.
+  const onAbort = () => terminateFFmpeg();
+  signal?.addEventListener("abort", onAbort, { once: true });
 
-    if (slide) {
-      await switchToSlideAndWait(slide.id, slide.src, 50);
+  try {
+    for (let si = 0; si < slideList.length; si++) {
+      throwIfAborted(signal);
+      const slide = slideList[si];
+
+      if (slide) {
+        await switchToSlideAndWait(slide.id, slide.src, 50);
+      }
+
+      const canvas = await exportSlideFrameAsCanvas();
+
+      if (!encoder) {
+        encoder = new FFmpegVideoEncoder({
+          width: canvas.width,
+          height: canvas.height,
+          fps: SLIDESHOW_FPS,
+          format,
+          quality,
+          onProgress: (p) => progress.set(40 + p * 0.6),
+          onLog: () => {},
+        });
+        encoder.enableConcatMode();
+        await encoder.initialize();
+      }
+
+      const duration = slide
+        ? (slide.duration || slideshow.defaultDuration || 2)
+        : (slideshow.defaultDuration || 2);
+
+      await encoder.addSlide(canvas, duration);
+      progress.set((si + 1) / slideList.length * 40);
     }
-
-    const canvas = await exportSlideFrameAsCanvas();
 
     if (!encoder) {
-      encoder = new FFmpegVideoEncoder({
-        width: canvas.width,
-        height: canvas.height,
-        fps: SLIDESHOW_FPS,
-        format,
-        quality,
-        onProgress: (p) => progress.set(40 + p * 0.6),
-        onLog: () => {},
-      });
-      encoder.enableConcatMode();
-      await encoder.initialize();
+      throw new Error("No frames to export");
     }
 
-    const duration = slide
-      ? (slide.duration || slideshow.defaultDuration || 2)
-      : (slideshow.defaultDuration || 2);
-
-    await encoder.addSlide(canvas, duration);
-    progress.set((si + 1) / slideList.length * 40);
+    throwIfAborted(signal);
+    const blob = await encoder.encode();
+    return finishExport(progress, blob, "video", format);
+  } catch (error) {
+    // encode() cleans up on its own; this covers bailing out before encode().
+    await encoder?.dispose();
+    // terminateFFmpeg() rejects a mid-encode exec() with its own error — surface
+    // it as a cancellation so callers don't treat it as a failure.
+    if (signal?.aborted) throw new DOMException("Export cancelled", "AbortError");
+    throw error;
+  } finally {
+    signal?.removeEventListener("abort", onAbort);
   }
-
-  if (!encoder) {
-    throw new Error("No frames to export");
-  }
-
-  const blob = await encoder.encode();
-  progress.done();
-  downloadBlob(blob, `screenshotstudio-video-${Date.now()}.${format}`);
-  return { format };
 }
 
 /**
@@ -333,11 +379,9 @@ async function exportSlideshowWithMediaRecorder(
       recorder.onstop = () => resolve();
     });
 
-    progress.done();
     const blobType = actualFormat === "mp4" ? "video/mp4" : "video/webm";
     const blob = new Blob(chunks, { type: blobType });
-    downloadBlob(blob, `screenshotstudio-video-${Date.now()}.${actualFormat}`);
-    return { format: actualFormat };
+    return finishExport(progress, blob, "video", actualFormat);
   } finally {
     if (stream) {
       stream.getTracks().forEach((t) => t.stop());
@@ -360,7 +404,7 @@ export async function exportAnimationVideo(options: VideoExportOptions = {}) {
   const progress = useExportProgress.getState();
   const savedState = saveStoreState();
 
-  progress.start();
+  const signal = progress.start();
 
   try {
     // Determine which encoder to use
@@ -383,25 +427,25 @@ export async function exportAnimationVideo(options: VideoExportOptions = {}) {
     let result;
     switch (selectedEncoder) {
       case "ffmpeg":
-        result = await exportAnimationWithFFmpeg(format as FFmpegFormat, quality, progress);
+        result = await exportAnimationWithFFmpeg(format as FFmpegFormat, quality, progress, signal);
         break;
 
       case "webcodecs":
         if (format === "mp4" && isWebCodecsSupported() && await isH264Supported()) {
-          result = await exportAnimationWithWebCodecs(quality, progress);
+          result = await exportAnimationWithWebCodecs(quality, progress, signal);
           break;
         }
         // Fall through to FFmpeg if WebCodecs unavailable
         console.warn("WebCodecs not available, falling back to FFmpeg");
-        result = await exportAnimationWithFFmpeg(format as FFmpegFormat, quality, progress);
+        result = await exportAnimationWithFFmpeg(format as FFmpegFormat, quality, progress, signal);
         break;
 
       case "mediarecorder":
-        result = await exportAnimationWithMediaRecorder(format as VideoFormat, quality, progress);
+        result = await exportAnimationWithMediaRecorder(format as VideoFormat, quality, progress, signal);
         break;
 
       default:
-        result = await exportAnimationWithFFmpeg(format as FFmpegFormat, quality, progress);
+        result = await exportAnimationWithFFmpeg(format as FFmpegFormat, quality, progress, signal);
         break;
     }
 
@@ -420,43 +464,57 @@ export async function exportAnimationVideo(options: VideoExportOptions = {}) {
 async function exportAnimationWithFFmpeg(
   format: FFmpegFormat,
   quality: VideoQuality,
-  progress: ReturnType<typeof useExportProgress.getState>
+  progress: ReturnType<typeof useExportProgress.getState>,
+  signal?: AbortSignal
 ) {
   const state: { encoder: FFmpegVideoEncoder | null } = { encoder: null };
 
-  await streamAnimationToEncoder(
-    ANIMATION_FPS,
-    async (canvas) => {
-      // Initialize encoder on first frame
-      if (!state.encoder) {
-        state.encoder = new FFmpegVideoEncoder({
-          width: canvas.width,
-          height: canvas.height,
-          fps: ANIMATION_FPS,
-          format,
-          quality,
-          onProgress: (p) => progress.set(40 + p * 0.6),
-          onLog: () => {},
-        });
-        await state.encoder.initialize();
-      }
+  // Kill the WASM worker if the user cancels mid-encode (FFmpeg.exec can't be
+  // interrupted otherwise). The next export reloads the core from cache.
+  const onAbort = () => terminateFFmpeg();
+  signal?.addEventListener("abort", onAbort, { once: true });
 
-      await state.encoder.addFrame(canvas);
-    },
-    (p) => progress.set(p * 0.4)
-  );
+  try {
+    await streamAnimationToEncoder(
+      ANIMATION_FPS,
+      async (canvas) => {
+        // Initialize encoder on first frame
+        if (!state.encoder) {
+          state.encoder = new FFmpegVideoEncoder({
+            width: canvas.width,
+            height: canvas.height,
+            fps: ANIMATION_FPS,
+            format,
+            quality,
+            onProgress: (p) => progress.set(40 + p * 0.6),
+            onLog: () => {},
+          });
+          await state.encoder.initialize();
+        }
 
-  if (!state.encoder) {
-    throw new Error("No frames to export");
+        await state.encoder.addFrame(canvas);
+      },
+      (p) => progress.set(p * 0.4),
+      signal
+    );
+
+    if (!state.encoder) {
+      throw new Error("No frames to export");
+    }
+
+    throwIfAborted(signal);
+    const blob = await state.encoder.encode();
+    return finishExport(progress, blob, "animation", format);
+  } catch (error) {
+    // encode() cleans up on its own; this covers bailing out before encode().
+    await state.encoder?.dispose();
+    // terminateFFmpeg() rejects a mid-encode exec() with its own error — surface
+    // it as a cancellation so callers don't treat it as a failure.
+    if (signal?.aborted) throw new DOMException("Export cancelled", "AbortError");
+    throw error;
+  } finally {
+    signal?.removeEventListener("abort", onAbort);
   }
-
-  const blob = await state.encoder.encode();
-
-  progress.done();
-
-  downloadBlob(blob, `screenshotstudio-animation-${Date.now()}.${format}`);
-
-  return { format };
 }
 
 /**
@@ -464,48 +522,50 @@ async function exportAnimationWithFFmpeg(
  */
 async function exportAnimationWithWebCodecs(
   quality: VideoQuality,
-  progress: ReturnType<typeof useExportProgress.getState>
+  progress: ReturnType<typeof useExportProgress.getState>,
+  signal?: AbortSignal
 ) {
   const state: { encoder: WebCodecsVideoEncoder | null; frameCount: number } = {
     encoder: null,
     frameCount: 0,
   };
 
-  await streamAnimationToEncoder(
-    ANIMATION_FPS,
-    async (canvas, frameIndex) => {
-      // Initialize encoder on first frame
-      if (!state.encoder) {
-        state.encoder = new WebCodecsVideoEncoder({
-          width: canvas.width,
-          height: canvas.height,
-          fps: ANIMATION_FPS,
-          bitrate: QUALITY_BITRATES[quality],
-        });
-        await state.encoder.initialize();
-      }
+  try {
+    await streamAnimationToEncoder(
+      ANIMATION_FPS,
+      async (canvas, frameIndex) => {
+        // Initialize encoder on first frame
+        if (!state.encoder) {
+          state.encoder = new WebCodecsVideoEncoder({
+            width: canvas.width,
+            height: canvas.height,
+            fps: ANIMATION_FPS,
+            bitrate: QUALITY_BITRATES[quality],
+          });
+          await state.encoder.initialize();
+        }
 
-      await state.encoder.encodeFromCanvas(canvas, frameIndex);
-      state.frameCount++;
+        await state.encoder.encodeFromCanvas(canvas, frameIndex);
+        state.frameCount++;
 
-      if (frameIndex % 10 === 0) {
-        await new Promise((r) => setTimeout(r, 0));
-      }
-    },
-    (p) => progress.set(50 + p * 0.5)
-  );
+        if (frameIndex % 10 === 0) {
+          await new Promise((r) => setTimeout(r, 0));
+        }
+      },
+      (p) => progress.set(50 + p * 0.5),
+      signal
+    );
 
-  if (!state.encoder) {
-    throw new Error("No frames to export");
+    if (!state.encoder) {
+      throw new Error("No frames to export");
+    }
+
+    const blob = await state.encoder.finalize();
+    return finishExport(progress, blob, "animation", "mp4" as const);
+  } catch (error) {
+    state.encoder?.dispose();
+    throw error;
   }
-
-  const blob = await state.encoder.finalize();
-
-  progress.done();
-
-  downloadBlob(blob, `screenshotstudio-animation-${Date.now()}.mp4`);
-
-  return { format: "mp4" as const };
 }
 
 /**
@@ -514,7 +574,8 @@ async function exportAnimationWithWebCodecs(
 async function exportAnimationWithMediaRecorder(
   format: VideoFormat,
   quality: VideoQuality,
-  progress: ReturnType<typeof useExportProgress.getState>
+  progress: ReturnType<typeof useExportProgress.getState>,
+  signal?: AbortSignal
 ) {
   const bitrate = QUALITY_BITRATES[quality];
   const { mimeType, format: actualFormat } = getMediaRecorderCodec(format);
@@ -561,7 +622,8 @@ async function exportAnimationWithMediaRecorder(
           await yieldToMain();
         }
       },
-      (p) => progress.set(p * 0.95)
+      (p) => progress.set(p * 0.95),
+      signal
     );
 
     await new Promise((r) => setTimeout(r, 200));
@@ -570,11 +632,9 @@ async function exportAnimationWithMediaRecorder(
       recorder.onstop = () => resolve();
     });
 
-    progress.done();
     const blobType = actualFormat === "mp4" ? "video/mp4" : "video/webm";
     const blob = new Blob(chunks, { type: blobType });
-    downloadBlob(blob, `screenshotstudio-animation-${Date.now()}.${actualFormat}`);
-    return { format: actualFormat };
+    return finishExport(progress, blob, "animation", actualFormat);
   } finally {
     if (stream) {
       stream.getTracks().forEach((t) => t.stop());
