@@ -226,7 +226,8 @@ async function exportSlideshowWithWebCodecs(
           await new Promise((r) => setTimeout(r, 0));
         }
       },
-      (p) => progress.set(40 + p * 0.55),
+
+      (p) => progress.set(p * 0.9),
       signal
     );
 
@@ -561,7 +562,7 @@ async function exportAnimationWithWebCodecs(
           await new Promise((r) => setTimeout(r, 0));
         }
       },
-      (p) => progress.set(50 + p * 0.5),
+      (p) => progress.set(p * 0.9),
       signal
     );
 
