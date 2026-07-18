@@ -341,9 +341,8 @@ export class FFmpegVideoEncoder {
       throw new Error(`Unsupported format: ${format}`);
     }
 
-    // Set up progress tracking for encoding (with tracked handler for cleanup)
     this.progressHandler = ({ progress }) => {
-      onProgress(40 + progress * 60);
+      onProgress(10 + progress * 90);
     };
     this.ffmpeg.on('progress', this.progressHandler);
 
