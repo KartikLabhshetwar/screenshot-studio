@@ -10,6 +10,7 @@ import {
   WebCodecsVideoEncoder,
   isWebCodecsSupported,
   isH264Supported,
+  isVpxSupported,
 } from "./export/webcodecs-encoder";
 import {
   FFmpegVideoEncoder,
@@ -169,11 +170,13 @@ export async function exportSlideshowVideo(options: VideoExportOptions = {}) {
     let result;
 
     if (format === "webm") {
-      result = await exportSlideshowWithFFmpeg("webm", quality, progress, signal);
+      result = isWebCodecsSupported() && await isVpxSupported()
+        ? await exportSlideshowWithWebCodecs("webm", quality, progress, signal)
+        : await exportSlideshowWithFFmpeg("webm", quality, progress, signal);
     } else if (format === "gif") {
       result = await exportSlideshowWithFFmpeg("gif", quality, progress, signal);
     } else if (isWebCodecsSupported() && await isH264Supported()) {
-      result = await exportSlideshowWithWebCodecs(quality, progress, signal);
+      result = await exportSlideshowWithWebCodecs("mp4", quality, progress, signal);
     } else {
       result = await exportSlideshowWithFFmpeg("mp4", quality, progress, signal);
     }
@@ -188,9 +191,10 @@ export async function exportSlideshowVideo(options: VideoExportOptions = {}) {
 }
 
 /**
- * Export slideshow using WebCodecs (MP4 only)
+ * Export slideshow using WebCodecs (H.264/MP4 or VP9-VP8/WebM, hardware-accelerated where available)
  */
 async function exportSlideshowWithWebCodecs(
+  format: "mp4" | "webm",
   quality: VideoQuality,
   progress: ReturnType<typeof useExportProgress.getState>,
   signal?: AbortSignal
@@ -210,6 +214,7 @@ async function exportSlideshowWithWebCodecs(
             height: canvas.height,
             fps: SLIDESHOW_FPS,
             bitrate: QUALITY_BITRATES[quality],
+            container: format,
           });
           await state.encoder.initialize();
         }
@@ -230,7 +235,7 @@ async function exportSlideshowWithWebCodecs(
     }
 
     const blob = await state.encoder.finalize();
-    return finishExport(progress, blob, "video", "mp4" as const);
+    return finishExport(progress, blob, "video", format);
   } catch (error) {
     state.encoder?.dispose();
     throw error;
@@ -414,10 +419,9 @@ export async function exportAnimationVideo(options: VideoExportOptions = {}) {
       // Auto-select based on format and availability
       if (format === "gif") {
         selectedEncoder = "ffmpeg"; // Only FFmpeg supports GIF
-      } else if (format === "webm") {
-        selectedEncoder = "ffmpeg"; // FFmpeg encodes faster than real-time; MediaRecorder cannot
-      } else if (format === "mp4" && isWebCodecsSupported()) {
-        selectedEncoder = "webcodecs"; // Prefer WebCodecs: browser-native, no WASM loading
+      } else if ((format === "mp4" || format === "webm") && isWebCodecsSupported()) {
+        selectedEncoder = "webcodecs"; // Prefer WebCodecs: hardware-accelerated, no WASM loading.
+        // Precise codec availability (H.264/VP9/VP8) is checked below, with an FFmpeg fallback.
       } else {
         selectedEncoder = "ffmpeg";
       }
@@ -430,15 +434,18 @@ export async function exportAnimationVideo(options: VideoExportOptions = {}) {
         result = await exportAnimationWithFFmpeg(format as FFmpegFormat, quality, progress, signal);
         break;
 
-      case "webcodecs":
-        if (format === "mp4" && isWebCodecsSupported() && await isH264Supported()) {
-          result = await exportAnimationWithWebCodecs(quality, progress, signal);
+      case "webcodecs": {
+        const webCodecsFormat = format === "webm" ? "webm" : "mp4";
+        const codecSupported = webCodecsFormat === "webm" ? await isVpxSupported() : await isH264Supported();
+        if (isWebCodecsSupported() && codecSupported) {
+          result = await exportAnimationWithWebCodecs(webCodecsFormat, quality, progress, signal);
           break;
         }
         // Fall through to FFmpeg if WebCodecs unavailable
         console.warn("WebCodecs not available, falling back to FFmpeg");
         result = await exportAnimationWithFFmpeg(format as FFmpegFormat, quality, progress, signal);
         break;
+      }
 
       case "mediarecorder":
         result = await exportAnimationWithMediaRecorder(format as VideoFormat, quality, progress, signal);
@@ -518,9 +525,10 @@ async function exportAnimationWithFFmpeg(
 }
 
 /**
- * Export animation using WebCodecs + mp4-muxer — streams frames directly
+ * Export animation using WebCodecs + mp4-muxer/webm-muxer — streams frames directly
  */
 async function exportAnimationWithWebCodecs(
+  format: "mp4" | "webm",
   quality: VideoQuality,
   progress: ReturnType<typeof useExportProgress.getState>,
   signal?: AbortSignal
@@ -541,6 +549,7 @@ async function exportAnimationWithWebCodecs(
             height: canvas.height,
             fps: ANIMATION_FPS,
             bitrate: QUALITY_BITRATES[quality],
+            container: format,
           });
           await state.encoder.initialize();
         }
@@ -561,7 +570,7 @@ async function exportAnimationWithWebCodecs(
     }
 
     const blob = await state.encoder.finalize();
-    return finishExport(progress, blob, "animation", "mp4" as const);
+    return finishExport(progress, blob, "animation", format);
   } catch (error) {
     state.encoder?.dispose();
     throw error;

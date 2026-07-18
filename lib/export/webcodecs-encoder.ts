@@ -1,22 +1,44 @@
 /**
- * WebCodecs + MP4 Muxer Video Encoder
+ * WebCodecs + MP4/WebM Muxer Video Encoder
  *
  * High-quality video encoding using:
- * - WebCodecs API for H.264 encoding (hardware accelerated)
- * - mp4-muxer for MP4 container packaging
+ * - WebCodecs API for H.264 or VP9/VP8 encoding (hardware accelerated where available)
+ * - mp4-muxer / webm-muxer for container packaging
  *
- * Runs entirely in the browser with WASM - no server needed.
+ * Runs entirely in the browser - no server needed.
  */
 
-import { Muxer, ArrayBufferTarget } from 'mp4-muxer';
+import { Muxer as Mp4Muxer, ArrayBufferTarget as Mp4ArrayBufferTarget } from 'mp4-muxer';
+import { Muxer as WebmMuxer, ArrayBufferTarget as WebmArrayBufferTarget } from 'webm-muxer';
+
+export type WebCodecsContainer = 'mp4' | 'webm';
 
 export interface WebCodecsEncoderOptions {
   width: number;
   height: number;
   fps: number;
   bitrate?: number; // bits per second, default 10Mbps
+  container?: WebCodecsContainer; // default 'mp4'
   onProgress?: (progress: number) => void;
 }
+
+// H.264 codecs from highest to lowest profile/level — higher levels support larger resolutions
+const AVC_CODECS = [
+  'avc1.640032', // High Profile, Level 5.0 — up to 4K
+  'avc1.64002A', // High Profile, Level 4.2 — up to 1080p
+  'avc1.640028', // High Profile, Level 4.0
+  'avc1.4d0032', // Main Profile, Level 5.0
+  'avc1.4d0028', // Main Profile, Level 4.0
+  'avc1.42001E', // Baseline Profile, Level 3.0
+];
+
+// VP9 codecs from highest to lowest level, falling back to VP8 if no VP9 encoder is available
+const VPX_CODECS = [
+  'vp09.00.50.08', // Profile 0, Level 5.0 — up to 4K
+  'vp09.00.31.08', // Profile 0, Level 3.1
+  'vp09.00.10.08', // Profile 0, Level 1.0 — baseline
+  'vp8',
+];
 
 export interface FrameData {
   imageData: ImageData;
@@ -51,8 +73,7 @@ export async function isH264Supported(): Promise<boolean> {
     }
 
     try {
-      const codecs = ['avc1.640032', 'avc1.64002A', 'avc1.4d0028', 'avc1.42001E'];
-      for (const codec of codecs) {
+      for (const codec of AVC_CODECS) {
         const support = await VideoEncoder.isConfigSupported({
           codec,
           width: 1920,
@@ -77,13 +98,54 @@ export async function isH264Supported(): Promise<boolean> {
 }
 
 /**
+ * Check if VP9 (or VP8 as fallback) encoding is supported (cached after first call)
+ */
+let vpxSupportCache: boolean | null = null;
+let vpxSupportPromise: Promise<boolean> | null = null;
+
+export async function isVpxSupported(): Promise<boolean> {
+  if (vpxSupportCache !== null) return vpxSupportCache;
+  if (vpxSupportPromise) return vpxSupportPromise;
+
+  vpxSupportPromise = (async () => {
+    if (!isWebCodecsSupported()) {
+      vpxSupportCache = false;
+      return false;
+    }
+
+    try {
+      for (const codec of VPX_CODECS) {
+        const support = await VideoEncoder.isConfigSupported({
+          codec,
+          width: 1920,
+          height: 1080,
+          bitrate: 10_000_000,
+          framerate: 30,
+        });
+        if (support.supported) {
+          vpxSupportCache = true;
+          return true;
+        }
+      }
+      vpxSupportCache = false;
+      return false;
+    } catch {
+      vpxSupportCache = false;
+      return false;
+    }
+  })();
+
+  return vpxSupportPromise;
+}
+
+/**
  * WebCodecs-based video encoder class
  */
 // Module-level cache for supported codec per resolution
 const codecCache = new Map<string, string>();
 
 export class WebCodecsVideoEncoder {
-  private muxer: Muxer<ArrayBufferTarget> | null = null;
+  private muxer: Mp4Muxer<Mp4ArrayBufferTarget> | WebmMuxer<WebmArrayBufferTarget> | null = null;
   private encoder: VideoEncoder | null = null;
   private options: Required<WebCodecsEncoderOptions>;
   private frameCount = 0;
@@ -96,6 +158,7 @@ export class WebCodecsVideoEncoder {
     this.options = {
       ...options,
       bitrate: options.bitrate ?? 10_000_000, // 10 Mbps default
+      container: options.container ?? 'mp4',
       onProgress: options.onProgress ?? (() => {}),
     };
   }
@@ -106,25 +169,17 @@ export class WebCodecsVideoEncoder {
   async initialize(): Promise<void> {
     if (this.isInitialized) return;
 
-    const { width, height, fps, bitrate } = this.options;
+    const { width, height, fps, bitrate, container } = this.options;
 
-    // Ensure dimensions are even (required for H.264)
+    // Ensure dimensions are even (required for H.264/VP9)
     this.evenWidth = width % 2 === 0 ? width : width + 1;
     this.evenHeight = height % 2 === 0 ? height : height + 1;
 
-    // Try H.264 codecs from highest to lowest profile/level
-    // Higher levels support larger resolutions
-    const codecs = [
-      'avc1.640032', // High Profile, Level 5.0 — up to 4K
-      'avc1.64002A', // High Profile, Level 4.2 — up to 1080p
-      'avc1.640028', // High Profile, Level 4.0
-      'avc1.4d0032', // Main Profile, Level 5.0
-      'avc1.4d0028', // Main Profile, Level 4.0
-      'avc1.42001E', // Baseline Profile, Level 3.0
-    ];
+    // Try codecs from highest to lowest profile/level — higher levels support larger resolutions
+    const codecs = container === 'webm' ? VPX_CODECS : AVC_CODECS;
 
     // Check cache first for this resolution
-    const cacheKey = `${this.evenWidth}x${this.evenHeight}@${fps}`;
+    const cacheKey = `${container}:${this.evenWidth}x${this.evenHeight}@${fps}`;
     let supportedCodec: string | null = codecCache.get(cacheKey) || null;
 
     if (!supportedCodec) {
@@ -157,16 +212,28 @@ export class WebCodecsVideoEncoder {
       framerate: fps,
     };
 
-    // Create MP4 muxer
-    this.muxer = new Muxer({
-      target: new ArrayBufferTarget(),
-      video: {
-        codec: 'avc',
-        width: this.evenWidth,
-        height: this.evenHeight,
-      },
-      fastStart: 'in-memory',
-    });
+    // Create the container muxer
+    if (container === 'webm') {
+      this.muxer = new WebmMuxer({
+        target: new WebmArrayBufferTarget(),
+        video: {
+          codec: supportedCodec.startsWith('vp09') ? 'V_VP9' : 'V_VP8',
+          width: this.evenWidth,
+          height: this.evenHeight,
+          frameRate: fps,
+        },
+      });
+    } else {
+      this.muxer = new Mp4Muxer({
+        target: new Mp4ArrayBufferTarget(),
+        video: {
+          codec: 'avc',
+          width: this.evenWidth,
+          height: this.evenHeight,
+        },
+        fastStart: 'in-memory',
+      });
+    }
 
     // Create video encoder
     this.encoder = new VideoEncoder({
@@ -274,7 +341,7 @@ export class WebCodecsVideoEncoder {
   }
 
   /**
-   * Finalize encoding and return the MP4 blob
+   * Finalize encoding and return the muxed blob (MP4 or WebM, per `container` option)
    */
   async finalize(): Promise<Blob> {
     if (!this.encoder || !this.muxer) {
@@ -287,7 +354,7 @@ export class WebCodecsVideoEncoder {
     // Finalize the muxer
     this.muxer.finalize();
 
-    // Get the MP4 data
+    // Get the muxed data
     const { buffer } = this.muxer.target;
 
     // Cleanup
@@ -296,7 +363,8 @@ export class WebCodecsVideoEncoder {
     this.muxer = null;
     this.isInitialized = false;
 
-    return new Blob([buffer], { type: 'video/mp4' });
+    const mimeType = this.options.container === 'webm' ? 'video/webm' : 'video/mp4';
+    return new Blob([buffer], { type: mimeType });
   }
 
   /**
