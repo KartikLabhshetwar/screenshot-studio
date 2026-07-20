@@ -18,15 +18,18 @@
  * during canvas capture (e.g. video export with domToCanvas).
  * The Next.js rewrite in next.config.ts proxies these to the actual R2 URL.
  *
+ * If R2 is not configured, falls back to serving assets from public/ directory.
+ *
  * @param path - The object path/key in the bucket (e.g., "backgrounds/image.jpg")
- * @returns The proxied URL path
+ * @returns The proxied URL path or local public path
  */
 export function getR2PublicUrl(path: string): string {
   const publicUrl = process.env.NEXT_PUBLIC_R2_PUBLIC_URL;
 
   if (!publicUrl) {
-    console.warn('R2_PUBLIC_URL not configured. Using path as-is.');
-    return path;
+    // Fall back to local public/ directory when R2 is not configured
+    const cleanPath = path.startsWith('/') ? path : `/${path}`;
+    return cleanPath;
   }
 
   // Remove leading slash from path if present
