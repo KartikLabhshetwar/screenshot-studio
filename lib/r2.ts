@@ -13,20 +13,47 @@
 // R2_BUCKET_NAME - Your R2 bucket name
 
 /**
+ * Map R2 paths to local public/ directory paths.
+ * R2 uses paths like "backgrounds/mac/file.jpg" but local files are at "mac/file.jpg"
+ */
+function mapR2PathToLocal(path: string): string {
+  // Remove leading slash if present
+  const cleanPath = path.startsWith('/') ? path.slice(1) : path;
+  
+  // Map R2 paths to local public/ paths
+  const mappings: Record<string, string> = {
+    'backgrounds/': '',
+    'overlays/shadow/': 'overlay-shadow/',
+    'overlays/arrow/': 'overlay/',
+  };
+  
+  for (const [r2Prefix, localPrefix] of Object.entries(mappings)) {
+    if (cleanPath.startsWith(r2Prefix)) {
+      return `/${localPrefix}${cleanPath.slice(r2Prefix.length)}`;
+    }
+  }
+  
+  // For paths that don't need mapping (e.g., "assets/...")
+  return `/${cleanPath}`;
+}
+
+/**
  * Get the public URL for an R2 object.
  * Uses a same-origin proxy path (/r2-assets/...) to avoid CORS issues
  * during canvas capture (e.g. video export with domToCanvas).
  * The Next.js rewrite in next.config.ts proxies these to the actual R2 URL.
  *
+ * If R2 is not configured, falls back to serving assets from local public/ directory.
+ *
  * @param path - The object path/key in the bucket (e.g., "backgrounds/image.jpg")
- * @returns The proxied URL path
+ * @returns The proxied URL path or local public path
  */
 export function getR2PublicUrl(path: string): string {
   const publicUrl = process.env.NEXT_PUBLIC_R2_PUBLIC_URL;
 
   if (!publicUrl) {
-    console.warn('R2_PUBLIC_URL not configured. Using path as-is.');
-    return path;
+    // Fall back to local public/ directory with path mapping
+    return mapR2PathToLocal(path);
   }
 
   // Remove leading slash from path if present
