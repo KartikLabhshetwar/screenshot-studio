@@ -70,7 +70,7 @@ function useStarCount() {
           return;
         }
       }
-    } catch {}
+    } catch { /* empty */ }
 
     fetch(`https://api.github.com/repos/${REPO}`, {
       headers: { Accept: 'application/vnd.github.v3+json' },
@@ -85,7 +85,7 @@ function useStarCount() {
               CACHE_KEY,
               JSON.stringify({ count, timestamp: Date.now() })
             );
-          } catch {}
+          } catch { /* empty */ }
         }
       })
       .catch(() => {});

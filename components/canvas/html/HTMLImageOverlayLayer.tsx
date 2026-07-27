@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useCallback, useMemo, useState } from 'react';
+import { useRef, useCallback, useMemo, useState, useEffect } from 'react';
 import Moveable from 'react-moveable';
 import type { ImageOverlay } from '@/lib/store';
 import { cn } from '@/lib/utils';
@@ -217,7 +217,10 @@ export function HTMLImageOverlayLayer({
     ? imageOverlays.find((o) => o.id === selectedOverlayId)
     : null;
 
-  const selectedEl = selectedOverlayId ? overlayRefs.current.get(selectedOverlayId) ?? null : null;
+  const [selectedEl, setSelectedEl] = useState<HTMLElement | null>(null);
+  useEffect(() => {
+    setSelectedEl(selectedOverlayId ? overlayRefs.current.get(selectedOverlayId) ?? null : null);
+  }, [selectedOverlayId]);
   const isShadow = selectedOverlay?.src.includes('overlay-shadow');
 
   return (

@@ -5,7 +5,6 @@ import JSZip from "jszip";
 import { toast } from "sonner";
 import { domToCanvas } from "modern-screenshot";
 import { useImageStore } from "@/lib/store";
-import { getCanvasContainer } from "@/components/canvas/ClientCanvas";
 
 interface BulkDownloadOptions {
   format?: "png" | "jpeg" | "webp";

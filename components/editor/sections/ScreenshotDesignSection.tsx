@@ -3,7 +3,7 @@
 import * as React from "react";
 import { SectionWrapper } from "./SectionWrapper";
 import { cn } from "@/lib/utils";
-import { useImageStore, useEditorStore } from "@/lib/store";
+import { useImageStore } from "@/lib/store";
 
 interface DesignTheme {
   id: string;
@@ -14,8 +14,6 @@ interface DesignTheme {
 }
 
 export function ScreenshotDesignSection() {
-  const [expanded, setExpanded] = React.useState(false);
-
   const themes: DesignTheme[] = [
     {
       id: "glass",

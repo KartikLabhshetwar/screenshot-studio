@@ -336,7 +336,8 @@ export function useExport(selectedAspectRatio: string) {
             }
             ctx.drawImage(img, 0, 0);
             canvas.toBlob((b) => {
-              b ? resolve(b) : reject(new Error('Failed to create blob'));
+              if (b) resolve(b);
+              else reject(new Error('Failed to create blob'));
             }, 'image/png');
           };
           img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Failed to load image')); };

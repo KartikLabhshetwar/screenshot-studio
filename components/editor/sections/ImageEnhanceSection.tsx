@@ -6,7 +6,6 @@ import { Slider } from "@/components/ui/slider";
 import { useImageStore } from "@/lib/store";
 import { Button } from "@/components/ui/button";
 import { RefreshIcon } from "hugeicons-react";
-import { cn } from "@/lib/utils";
 
 export function ImageEnhanceSection() {
   const {

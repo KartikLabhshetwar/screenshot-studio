@@ -31,7 +31,7 @@ export default function TermsPage() {
               1. Acceptance of Terms
             </h2>
             <p className="text-muted-foreground leading-relaxed">
-              By accessing and using Screenshot Studio ("the Service"), you agree
+               By accessing and using Screenshot Studio (&ldquo;the Service&rdquo;), you agree
               to be bound by these Terms and Conditions. If you do not agree to
               these terms, please do not use the Service.
             </p>

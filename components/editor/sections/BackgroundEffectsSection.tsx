@@ -19,8 +19,6 @@ export function BackgroundEffectsSection() {
   const { backgroundConfig, setBackgroundConfig } = useImageStore();
   const { noise, setNoise, pattern, setPattern } = useEditorStore();
 
-  const isImageBg = backgroundConfig.type === "image";
-
   return (
     <SectionWrapper title="Background Effects" defaultOpen={false}>
       <div className="space-y-3">

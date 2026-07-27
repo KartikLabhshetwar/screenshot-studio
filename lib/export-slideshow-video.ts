@@ -326,7 +326,7 @@ async function exportSlideshowWithFFmpeg(
 /**
  * Export slideshow using MediaRecorder (native WebM support in browsers)
  */
-async function exportSlideshowWithMediaRecorder(
+async function _exportSlideshowWithMediaRecorder(
   format: VideoFormat,
   quality: VideoQuality,
   progress: ReturnType<typeof useExportProgress.getState>
