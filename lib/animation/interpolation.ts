@@ -210,7 +210,7 @@ export function getClipLocalInterpolatedProperties(
  * (last-in takes precedence). This allows for smooth transitions between animations.
  *
  * When no clips are active (before first clip or after last clip ends),
- * properties return to their default values.
+ * properties hold at the last known keyframe value for smooth transitions.
  */
 export function getClipInterpolatedProperties(
   clips: AnimationClip[],
@@ -225,8 +225,23 @@ export function getClipInterpolatedProperties(
     time >= clip.startTime && time < clip.startTime + clip.duration
   );
 
-  // If no active clips, return defaults (animation only plays during clip time range)
+  // If no active clips, check if there's a clip that just ended — hold its last value
   if (activeClips.length === 0) {
+    if (clips.length > 0 && time >= clips[clips.length - 1].startTime + clips[clips.length - 1].duration) {
+      const lastClip = clips[clips.length - 1];
+      const clipTracks = tracks.filter(t => t.clipId === lastClip.id);
+      if (clipTracks.length > 0) {
+        for (const track of clipTracks) {
+          if (!track.isVisible) continue;
+          const lastKf = track.keyframes[track.keyframes.length - 1];
+          if (!lastKf) continue;
+          for (const key of Object.keys(lastKf.properties) as Array<keyof AnimatableProperties>) {
+            const val = lastKf.properties[key];
+            if (val !== undefined) result[key] = val;
+          }
+        }
+      }
+    }
     return result;
   }
 
