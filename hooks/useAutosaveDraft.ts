@@ -96,7 +96,14 @@ export function useAutosaveDraft() {
             imageStore.setImageOpacity(img.imageOpacity);
           if (img.imageScale !== undefined)
             imageStore.setImageScale(img.imageScale);
-          if (img.imageBorder) imageStore.setImageBorder(img.imageBorder);
+          if (img.imageBorder) {
+            imageStore.setImageBorder(img.imageBorder);
+            if (img.browserUrl !== undefined) {
+              imageStore.setBrowserUrl(img.browserUrl);
+            } else if (img.imageBorder.title) {
+              imageStore.setBrowserUrl(img.imageBorder.title);
+            }
+          }
           if (img.imageShadow) imageStore.setImageShadow(img.imageShadow);
           if (img.perspective3D) imageStore.setPerspective3D(img.perspective3D);
 
@@ -308,7 +315,7 @@ export function useAutosaveDraft() {
             activeRightPanelTab: 'edit',
             showTemplates: false,
             editorMode: 'screenshot',
-            browserUrl: '',
+            browserUrl: imageStore.browserUrl,
             browserHeaderSize: 100,
             canvasDimensions: null,
             customDimensions: null,

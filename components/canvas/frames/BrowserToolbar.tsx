@@ -22,7 +22,7 @@ export function SafariToolbar({ windowHeader, isDark, title, screenshotRadius }:
   const dot = Math.max(5, Math.round(windowHeader * 0.27));
   const ico = Math.max(7, Math.round(windowHeader * 0.36));
   const pillH = Math.max(12, Math.round(windowHeader * 0.55));
-  const fs = Math.max(7, Math.round(windowHeader * 0.32));
+  const fs = Math.max(9, Math.round(windowHeader * 0.38));
   const pad = Math.max(6, Math.round(windowHeader * 0.32));
   const gap = Math.max(4, Math.round(windowHeader * 0.2));
   const smIco = Math.max(6, Math.round(ico * 0.85));
@@ -82,11 +82,11 @@ export function SafariToolbar({ windowHeader, isDark, title, screenshotRadius }:
             <path d="M6 7.5V5.5a2 2 0 014 0v2" stroke={iconColor} strokeWidth="1.3" fill="none" strokeLinecap="round" />
           </svg>
           <span style={{
-            position: 'absolute', left: 0, right: 0,
+            position: 'absolute', left: `${smIco + 4}px`, right: `${smIco + 4}px`,
             fontSize: `${fs}px`, color: urlColor,
             whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
             fontWeight: 400, textAlign: 'center',
-            pointerEvents: 'none',
+            pointerEvents: 'none', zIndex: 1,
           }}>
             {title || ''}
           </span>
@@ -137,7 +137,7 @@ export function ChromeToolbar({ windowHeader, isDark, title, screenshotRadius }:
   const dot = Math.max(5, Math.round(windowHeader * 0.17));
   const ico = Math.max(7, Math.round(windowHeader * 0.25));
   const omniH = Math.max(12, Math.round(addrH * 0.75));
-  const fs = Math.max(7, Math.round(windowHeader * 0.2));
+  const fs = Math.max(9, Math.round(windowHeader * 0.2));
   const pad = Math.max(6, Math.round(windowHeader * 0.2));
   const gap = Math.max(3, Math.round(windowHeader * 0.12));
   const dotGap = Math.max(2, Math.round(dot * 0.5));
