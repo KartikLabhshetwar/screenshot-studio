@@ -99,6 +99,7 @@ export function useAutosaveDraft() {
           if (img.imageBorder) imageStore.setImageBorder(img.imageBorder);
           if (img.imageShadow) imageStore.setImageShadow(img.imageShadow);
           if (img.perspective3D) imageStore.setPerspective3D(img.perspective3D);
+          if (img.watermarkSettings) imageStore.setWatermarkSettings(img.watermarkSettings);
 
           imageStore.clearTextOverlays();
           imageStore.clearImageOverlays();
@@ -166,6 +167,7 @@ export function useAutosaveDraft() {
             imageBorder,
             imageShadow,
             perspective3D,
+            watermarkSettings,
           } = imageStore;
 
           // Quick dirty check: fingerprint non-blob state to skip redundant saves
@@ -191,6 +193,7 @@ export function useAutosaveDraft() {
             tc: textOverlays.length,
             oc: imageOverlays.length,
             mc: mockups.length,
+            wm: watermarkSettings,
           });
 
           if (snapshot === lastSnapshotRef.current) {
@@ -217,6 +220,18 @@ export function useAutosaveDraft() {
           ) {
             processedBackgroundConfig.value = await blobUrlToBase64(
               backgroundConfig.value
+            );
+          }
+
+          // Convert watermark logo blob URL to base64
+          const processedWatermarkSettings = { ...watermarkSettings };
+          if (
+            watermarkSettings.type === "image" &&
+            typeof watermarkSettings.imageUrl === "string" &&
+            watermarkSettings.imageUrl.startsWith("blob:")
+          ) {
+            processedWatermarkSettings.imageUrl = await blobUrlToBase64(
+              watermarkSettings.imageUrl
             );
           }
 
@@ -264,6 +279,7 @@ export function useAutosaveDraft() {
             imageStylePreset: 'default',
             shadowPreset: 'soft',
             perspective3D,
+            watermarkSettings: processedWatermarkSettings,
             imageFilters: {
               brightness: 100,
               contrast: 100,
@@ -273,6 +289,8 @@ export function useAutosaveDraft() {
               invert: 0,
               saturate: 100,
               sepia: 0,
+              sharpen: 0,
+              vignette: 0,
             },
             exportSettings: {
               quality: '2x',
@@ -359,6 +377,7 @@ export function useAutosaveDraft() {
     imageStore.imageBorder,
     imageStore.imageShadow,
     imageStore.perspective3D,
+    imageStore.watermarkSettings,
     editorStore,
     imageStore,
   ]);

@@ -25,6 +25,11 @@ import {
   TextSection,
   SettingsSection,
   BrowserMockupSection,
+  ScreenshotDesignSection,
+  ImageEnhanceSection,
+  QuickTemplatesSection,
+  ExportPresetsSection,
+  BackgroundEffectsSection,
 } from './sections';
 import { cn } from '@/lib/utils';
 import { useImageStore } from '@/lib/store';
@@ -181,8 +186,13 @@ export function LeftEditPanel() {
                 <BrowserMockupSection />
               ) : (
                 <>
+                  <QuickTemplatesSection />
+                  <ExportPresetsSection />
+                  <ScreenshotDesignSection />
                   <StyleSection />
                   <BorderSection />
+                  <ImageEnhanceSection />
+                  <BackgroundEffectsSection />
                 </>
               )}
               <ShadowSection />

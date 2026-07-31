@@ -41,6 +41,8 @@ export interface ImageFilters {
   invert: number;        // 0-100
   saturate: number;      // 0-200 (100 = normal)
   sepia: number;         // 0-100
+  sharpen: number;       // 0-100 (0 = off)
+  vignette: number;      // 0-100 (0 = off)
 }
 interface Slide {
   id: string;
@@ -138,6 +140,25 @@ export interface ImageShadow {
   color: string;
   opacity: number;
 }
+
+export interface WatermarkSettings {
+  enabled: boolean;
+  type: 'text' | 'image';
+  text: string;
+  imageUrl: string | null;
+  imageWidth: number;
+  position: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | 'center';
+  opacity: number;
+  color: string;
+  fontSize: number;
+  fontFamily: string;
+  fontWeight: 'normal' | 'bold' | 'italic' | 'bold italic';
+  showBg: boolean;
+  bgColor: string;
+  bgPadding: number;
+  bgBorderRadius: number;
+}
+
 
 // Helper function to parse gradient string and extract colors
 function parseGradientColors(gradientStr: string): {
@@ -557,6 +578,7 @@ export interface ImageState {
     scale: number;
   };
   imageFilters: ImageFilters;
+  watermarkSettings: WatermarkSettings;
   exportSettings: {
     quality: '1x' | '2x' | '3x';
     format: 'png' | 'jpeg' | 'webp';
@@ -599,6 +621,7 @@ export interface ImageState {
   resetImageFilters: () => void;
   resetCanvasSettings: () => void;
   setExportSettings: (settings: Partial<ImageState["exportSettings"]>) => void;
+  setWatermarkSettings: (settings: Partial<WatermarkSettings>) => void;
   exportImage: () => Promise<void>;
   // Slideshow
   slides: Slide[];
@@ -767,6 +790,25 @@ export const useImageStore = create<ImageState>()(
       invert: 0,
       saturate: 100,
       sepia: 0,
+      sharpen: 0,
+      vignette: 0,
+    },
+    watermarkSettings: {
+      enabled: false,
+      type: 'text',
+      text: 'screenshot-studio.com',
+      imageUrl: null,
+      imageWidth: 80,
+      position: 'bottom-right',
+      opacity: 0.4,
+      color: '#ffffff',
+      fontSize: 14,
+      fontFamily: 'jetbrainsMono',
+      fontWeight: 'normal',
+      showBg: false,
+      bgColor: 'rgba(0,0,0,0.4)',
+      bgPadding: 6,
+      bgBorderRadius: 6,
     },
     exportSettings: {
       quality: '2x',
@@ -854,6 +896,8 @@ export const useImageStore = create<ImageState>()(
           invert: 0,
           saturate: 100,
           sepia: 0,
+          sharpen: 0,
+          vignette: 0,
         },
         // Clear overlays
         textOverlays: [],
@@ -953,6 +997,8 @@ export const useImageStore = create<ImageState>()(
           invert: 0,
           saturate: 100,
           sepia: 0,
+          sharpen: 0,
+          vignette: 0,
         },
         // Clear overlays
         textOverlays: [],
@@ -1277,6 +1323,8 @@ export const useImageStore = create<ImageState>()(
           invert: 0,
           saturate: 100,
           sepia: 0,
+          sharpen: 0,
+          vignette: 0,
         },
       });
     },
@@ -1323,15 +1371,34 @@ export const useImageStore = create<ImageState>()(
           translateY: 0,
           scale: 1,
         },
-        imageFilters: {
-          brightness: 100,
-          contrast: 100,
-          grayscale: 0,
-          blur: 0,
-          hueRotate: 0,
-          invert: 0,
-          saturate: 100,
-          sepia: 0,
+          imageFilters: {
+            brightness: 100,
+            contrast: 100,
+            grayscale: 0,
+            blur: 0,
+            hueRotate: 0,
+            invert: 0,
+            saturate: 100,
+            sepia: 0,
+            sharpen: 0,
+            vignette: 0,
+          },
+        watermarkSettings: {
+          enabled: false,
+          type: 'text',
+          text: 'screenshot-studio.com',
+          imageUrl: null,
+          imageWidth: 80,
+          position: 'bottom-right',
+          opacity: 0.4,
+          color: '#ffffff',
+          fontSize: 14,
+          fontFamily: 'jetbrainsMono',
+          fontWeight: 'normal',
+          showBg: false,
+          bgColor: 'rgba(0,0,0,0.4)',
+          bgPadding: 6,
+          bgBorderRadius: 6,
         },
         textOverlays: [],
         imageOverlays: [],
@@ -1346,6 +1413,16 @@ export const useImageStore = create<ImageState>()(
       const currentSettings = get().exportSettings;
       set({
         exportSettings: {
+          ...currentSettings,
+          ...settings,
+        },
+      });
+    },
+
+    setWatermarkSettings: (settings: Partial<WatermarkSettings>) => {
+      const currentSettings = get().watermarkSettings;
+      set({
+        watermarkSettings: {
           ...currentSettings,
           ...settings,
         },
