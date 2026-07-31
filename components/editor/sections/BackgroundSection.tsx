@@ -5,15 +5,12 @@ import { useImageStore } from '@/lib/store';
 import { useDropzone } from 'react-dropzone';
 import { useResponsiveCanvasDimensions } from '@/hooks/useAspectRatioDimensions';
 import { ALLOWED_IMAGE_TYPES, MAX_IMAGE_SIZE } from '@/lib/constants';
-import { getR2ImageUrl } from '@/lib/r2';
 import {
   backgroundCategories,
   getBackgroundThumbnailUrl,
 } from '@/lib/r2-backgrounds';
 import { gradientColors, type GradientKey } from '@/lib/constants/gradient-colors';
-import { solidColors, type SolidColorKey } from '@/lib/constants/solid-colors';
 import { meshGradients, magicGradients, type MeshGradientKey, type MagicGradientKey } from '@/lib/constants/mesh-gradients';
-import { Button } from '@/components/ui/button';
 import { ColorPicker } from '@/components/ui/color-picker';
 import { SectionWrapper } from './SectionWrapper';
 import { Cancel01Icon, Image01Icon, ShuffleIcon } from 'hugeicons-react';
@@ -101,7 +98,7 @@ export function BackgroundSection() {
   const {
     getRootProps: getBgRootProps,
     getInputProps: getBgInputProps,
-    isDragActive: isBgDragActive,
+    isDragActive: _isBgDragActive,
   } = useDropzone({
     onDrop: onBgDrop,
     accept: { 'image/*': ALLOWED_IMAGE_TYPES.map((type) => type.split('/')[1]) },

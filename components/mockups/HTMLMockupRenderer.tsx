@@ -20,26 +20,15 @@ export function HTMLMockupRenderer({ mockup, canvasWidth, canvasHeight }: HTMLMo
   const [mockupSize, setMockupSize] = useState({ width: 0, height: 0 });
   const [mockupLoaded, setMockupLoaded] = useState(false);
 
-  if (!definition || !mockup.isVisible) return null;
-
-  // Calculate mockup dimensions
   const handleMockupLoad = useCallback((e: React.SyntheticEvent<HTMLImageElement>) => {
     const img = e.currentTarget;
     const mockupAspectRatio = img.naturalWidth / img.naturalHeight;
-    const mockupWidth = mockup.size;
-    const mockupHeight = mockupWidth / mockupAspectRatio;
-    setMockupSize({ width: mockupWidth, height: mockupHeight });
+    const mw = mockup.size;
+    const mh = mw / mockupAspectRatio;
+    setMockupSize({ width: mw, height: mh });
     setMockupLoaded(true);
   }, [mockup.size]);
 
-  // Calculate screen area dimensions
-  const screenAreaX = definition.screenArea.x * mockupSize.width;
-  const screenAreaY = definition.screenArea.y * mockupSize.height;
-  const screenAreaWidth = definition.screenArea.width * mockupSize.width;
-  const screenAreaHeight = definition.screenArea.height * mockupSize.height;
-  const borderRadius = (definition.screenArea.borderRadius || 0) * mockupSize.width;
-
-  // Handle drag
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -72,6 +61,14 @@ export function HTMLMockupRenderer({ mockup, canvasWidth, canvasHeight }: HTMLMo
     };
   }, [isDragging, dragStart, mockup.id, updateMockup]);
 
+  if (!definition || !mockup.isVisible) return null;
+
+  const screenAreaX = definition.screenArea.x * mockupSize.width;
+  const screenAreaY = definition.screenArea.y * mockupSize.height;
+  const screenAreaWidth = definition.screenArea.width * mockupSize.width;
+  const screenAreaHeight = definition.screenArea.height * mockupSize.height;
+  const borderRadius = (definition.screenArea.borderRadius || 0) * mockupSize.width;
+
   return (
     <div
       ref={containerRef}
@@ -91,7 +88,6 @@ export function HTMLMockupRenderer({ mockup, canvasWidth, canvasHeight }: HTMLMo
         pointerEvents: 'auto',
       }}
     >
-      {/* Mockup frame image */}
       <img
         src={definition.src}
         alt={definition.name}
@@ -107,7 +103,6 @@ export function HTMLMockupRenderer({ mockup, canvasWidth, canvasHeight }: HTMLMo
         }}
       />
 
-      {/* User image clipped to screen area */}
       {uploadedImageUrl && mockupLoaded && (
         <div
           style={{

@@ -1,7 +1,7 @@
 "use client";
 
 import { templates } from "@/lib/canvas/templates";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import type { Template } from "@/types/canvas";
 import { cn } from "@/lib/utils";
 

@@ -1,4 +1,4 @@
-import { exportElement, exportElementAsCanvas, type ExportOptions } from "@/lib/export/export-service";
+import { exportElement, exportElementAsCanvas } from "@/lib/export/export-service";
 
 import { getCanvasContainer } from "@/components/canvas/ClientCanvas";
 import { getAspectRatioPreset } from "@/lib/aspect-ratio-utils";

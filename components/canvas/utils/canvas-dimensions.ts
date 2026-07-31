@@ -91,7 +91,6 @@ export function calculateCanvasDimensions(
     imageScaledH *= 0.88;
   }
 
-  const isWindowFrame = ['macos-light', 'macos-dark', 'windows-light', 'windows-dark'].includes(frame.type);
   const isMacosFrame = frame.type === 'macos-light' || frame.type === 'macos-dark';
   const isWindowsFrame = frame.type === 'windows-light' || frame.type === 'windows-dark';
   const isPhotograph = frame.type === 'photograph';
