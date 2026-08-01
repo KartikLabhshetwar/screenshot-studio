@@ -98,7 +98,9 @@ export type AnimationPresetCategory =
   | 'perspective'
   | 'orbit'
   | 'depth'
-  | 'kenburns';
+  | 'kenburns'
+  | 'effects'
+  | 'bounce';
 
 // Helper type for creating keyframes with partial properties
 export type KeyframeInput = Omit<Keyframe, 'id'>;
