@@ -1784,21 +1784,19 @@ export const useImageStore = create<ImageState>()(
     editorMode: 'screenshot',
     setEditorMode: (mode) => {
       const currentBorder = get().imageBorder;
+      const currentUrl = get().browserUrl || 'screenshot-studio.com';
       if (mode === 'browser') {
         // Apply default browser frame (Chrome Dark) if no browser frame is active
         const isBrowserFrame = ['macos-light', 'macos-dark', 'windows-light', 'windows-dark'].includes(currentBorder.type);
-        if (!isBrowserFrame) {
-          set({
-            editorMode: mode,
-            imageBorder: {
-              ...currentBorder,
-              enabled: true,
-              type: 'windows-dark',
-              title: get().browserUrl || '',
-            },
-          });
-          return;
-        }
+        set({
+          editorMode: mode,
+          imageBorder: {
+            ...currentBorder,
+            enabled: true,
+            type: isBrowserFrame ? currentBorder.type : 'windows-dark',
+            title: currentUrl,
+          },
+        });
       } else {
         // Switching back to screenshot: disable browser frame
         const isBrowserFrame = ['macos-light', 'macos-dark', 'windows-light', 'windows-dark'].includes(currentBorder.type);
@@ -1813,10 +1811,10 @@ export const useImageStore = create<ImageState>()(
           });
           return;
         }
+        set({ editorMode: mode });
       }
-      set({ editorMode: mode });
     },
-    browserUrl: '',
+    browserUrl: 'screenshot-studio.com',
     setBrowserUrl: (url) => {
       const currentBorder = get().imageBorder;
       set({

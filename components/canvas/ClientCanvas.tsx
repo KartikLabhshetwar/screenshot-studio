@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
-import { useEditorStore } from "@/lib/store";
-import { useImageStore } from "@/lib/store";
+import { useEditorStore, useImageStore, useEditorStoreSync } from "@/lib/store";
 import { generatePattern } from "@/lib/patterns";
 import { useResponsiveCanvasDimensions } from "@/hooks/useAspectRatioDimensions";
 import { generateNoiseTexture } from "@/lib/export/export-utils";
@@ -29,6 +28,7 @@ import { CanvasRulers } from "./CanvasRulers";
 let globalCanvasContainer: HTMLDivElement | null = null;
 
 function CanvasRenderer({ image }: { image: HTMLImageElement }) {
+  useEditorStoreSync();
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasContainerRef = useRef<HTMLDivElement>(null);
   const {
