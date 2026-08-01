@@ -20,9 +20,12 @@ import {
   MagicWand01Icon,
   GridIcon,
   RulerIcon,
+  FileZipIcon,
+  KeyboardIcon,
 } from 'hugeicons-react';
 import { useEditorStore, useImageStore } from '@/lib/store';
 import { useExport } from '@/hooks/useExport';
+import { useBulkDownload } from '@/hooks/useBulkDownload';
 import { aspectRatios } from '@/lib/constants/aspect-ratios';
 import { AspectRatioPicker } from '@/components/aspect-ratio/aspect-ratio-picker';
 import {
@@ -31,6 +34,7 @@ import {
   PopoverContent,
 } from '@/components/ui/popover';
 import { CopyProgressDialog } from '@/components/canvas/dialogs/CopyProgressDialog';
+import { KeyboardShortcutsDialog } from '@/components/canvas/dialogs/KeyboardShortcutsDialog';
 import { ExportSlideshowDialog } from '@/lib/export-slideshow-dialog';
 import { ImageExportProgressView } from '@/components/canvas/dialogs/ImageProgressView';
 import { FormatSelector, QualityPresetSelector, ScaleSlider } from '@/components/export';
@@ -45,6 +49,9 @@ export function EditorHeader() {
   const [exportOpen, setExportOpen] = React.useState(false);
   const [exportSlideshowOpen, setExportSlideshowOpen] = React.useState(false);
   const [exportError, setExportError] = React.useState<string | null>(null);
+  const [shortcutsOpen, setShortcutsOpen] = React.useState(false);
+
+  const { downloadAllSlides, isDownloading: isBulkDownloading } = useBulkDownload();
 
   const currentAspectRatio = aspectRatios.find((ar) => ar.id === selectedAspectRatio);
   const hasImage = !!screenshot.src;
@@ -210,6 +217,13 @@ export function EditorHeader() {
               >
                 <GridIcon size={15} />
               </button>
+              <button
+                onClick={() => setShortcutsOpen(true)}
+                className="flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-150 active:scale-95 text-muted-foreground hover:bg-accent hover:text-foreground"
+                title="Keyboard shortcuts"
+              >
+                <KeyboardIcon size={15} />
+              </button>
             </div>
           )}
         </div>
@@ -234,6 +248,19 @@ export function EditorHeader() {
           </Popover>
 
           {/* Slide controls */}
+          {slides.length > 1 && (
+            <>
+              <button
+                onClick={() => downloadAllSlides({ format: 'png', scale: 2 })}
+                disabled={isBulkDownloading}
+                className="h-8 inline-flex items-center justify-center gap-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent text-xs transition-all font-medium px-2.5 disabled:opacity-50"
+              >
+                <FileZipIcon size={14} />
+                <span>{isBulkDownloading ? 'Zipping...' : 'Download All'}</span>
+              </button>
+              <div className="w-px h-4 bg-border/60 mx-0.5" />
+            </>
+          )}
           {slides.length > 0 && (
             <label className="cursor-pointer inline-flex">
               <input
@@ -380,6 +407,8 @@ export function EditorHeader() {
       </header>
 
       <CopyProgressDialog open={isCopying} progress={copyProgress} />
+
+      <KeyboardShortcutsDialog open={shortcutsOpen} onOpenChange={setShortcutsOpen} />
 
       <ExportSlideshowDialog
         open={exportSlideshowOpen}

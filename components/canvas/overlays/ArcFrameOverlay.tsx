@@ -64,8 +64,8 @@ function buildBoxShadow(shadow: ShadowConfig): string {
 
   // Calculate offsets (same logic as getShadowProps in shadow-utils.ts)
   const diag = elevation * 0.707;
-  let x = offsetX ?? diag;
-  let y = offsetY ?? diag;
+  const x = offsetX ?? diag;
+  const y = offsetY ?? diag;
 
   // Use same blur and intensity as Konva shadow
   const effectiveBlur = Math.max(softness, 12);

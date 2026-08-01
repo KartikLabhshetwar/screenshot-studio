@@ -567,6 +567,195 @@ export const ANIMATION_PRESETS: AnimationPreset[] = [
       ]),
     ],
   },
+
+  // ============ BOUNCE — Springy, Playful Entrances ============
+  {
+    id: 'bounce-in',
+    name: 'Bounce In',
+    description: 'Springy bounce entrance with overshoot',
+    category: 'bounce',
+    duration: 1200,
+    tracks: [
+      createTrack('Bounce In', 'transform', [
+        createKeyframe(0, { scale: 0.9, translateY: 30, perspective: 2400 }, 'ease-out'),
+        createKeyframe(600, { scale: 1.04, translateY: -5, perspective: 2400 }, 'ease-out'),
+        createKeyframe(900, { scale: 1, translateY: 2, perspective: 2400 }, 'ease-out'),
+        createKeyframe(1200, { scale: 1, translateY: 0, perspective: 2400 }, 'ease-out'),
+      ]),
+      createTrack('Bounce In Fade', 'opacity', [
+        createKeyframe(0, { imageOpacity: 0 }, 'ease-out'),
+        createKeyframe(300, { imageOpacity: 1 }, 'ease-out'),
+      ]),
+    ],
+  },
+  {
+    id: 'bounce-up',
+    name: 'Bounce Up',
+    description: 'Bounces up from below with elastic feel',
+    category: 'bounce',
+    duration: 1000,
+    tracks: [
+      createTrack('Bounce Up', 'transform', [
+        createKeyframe(0, { translateY: 40, scale: 0.95, perspective: 2400 }, 'ease-out'),
+        createKeyframe(400, { translateY: -8, scale: 1.02, perspective: 2400 }, 'ease-out'),
+        createKeyframe(700, { translateY: 3, scale: 1, perspective: 2400 }, 'ease-out'),
+        createKeyframe(1000, { translateY: 0, scale: 1, perspective: 2400 }, 'ease-out'),
+      ]),
+    ],
+  },
+  {
+    id: 'elastic-swing',
+    name: 'Elastic Swing',
+    description: 'Swing from above with elastic bounce',
+    category: 'bounce',
+    duration: 1500,
+    tracks: [
+      createTrack('Elastic Swing', 'transform', [
+        createKeyframe(0, { rotateX: -30, translateY: -20, scale: 0.95, perspective: 2400 }, 'ease-out'),
+        createKeyframe(500, { rotateX: 8, translateY: 4, scale: 1.03, perspective: 2400 }, 'ease-out'),
+        createKeyframe(900, { rotateX: -3, translateY: -1, scale: 1, perspective: 2400 }, 'ease-out'),
+        createKeyframe(1200, { rotateX: 1, translateY: 0, scale: 1, perspective: 2400 }, 'ease-out'),
+        createKeyframe(1500, { rotateX: 0, translateY: 0, scale: 1, perspective: 2400 }, 'ease-out'),
+      ]),
+      createTrack('Elastic Swing Fade', 'opacity', [
+        createKeyframe(0, { imageOpacity: 0 }, 'ease-out'),
+        createKeyframe(400, { imageOpacity: 1 }, 'ease-out'),
+      ]),
+    ],
+  },
+  {
+    id: 'spring-pop',
+    name: 'Spring Pop',
+    description: 'Quick pop with springy overshoot — great for callouts',
+    category: 'bounce',
+    duration: 800,
+    tracks: [
+      createTrack('Spring Pop', 'transform', [
+        createKeyframe(0, { scale: 0.85, perspective: 2400 }, 'ease-out'),
+        createKeyframe(400, { scale: 1.06, perspective: 2400 }, 'ease-out'),
+        createKeyframe(600, { scale: 0.98, perspective: 2400 }, 'ease-out'),
+        createKeyframe(800, { scale: 1, perspective: 2400 }, 'ease-out'),
+      ]),
+      createTrack('Spring Pop Fade', 'opacity', [
+        createKeyframe(0, { imageOpacity: 0 }, 'ease-out'),
+        createKeyframe(250, { imageOpacity: 1 }, 'ease-out'),
+      ]),
+    ],
+  },
+
+  // ============ EFFECTS — Creative Visual Effects ============
+  {
+    id: 'glitch',
+    name: 'Glitch',
+    description: 'Digital glitch effect with shake and distortion',
+    category: 'effects',
+    duration: 1000,
+    tracks: [
+      createTrack('Glitch Shake', 'transform', [
+        createKeyframe(0, { translateX: 0, translateY: 0, scale: 1, perspective: 2400 }, 'linear'),
+        createKeyframe(50, { translateX: 4, translateY: -2, scale: 1, perspective: 2400 }, 'linear'),
+        createKeyframe(100, { translateX: -3, translateY: 1, scale: 1, perspective: 2400 }, 'linear'),
+        createKeyframe(150, { translateX: 0, translateY: 0, scale: 1, perspective: 2400 }, 'linear'),
+        createKeyframe(200, { translateX: -5, translateY: -1, scale: 1.01, perspective: 2400 }, 'linear'),
+        createKeyframe(250, { translateX: 2, translateY: 3, scale: 1, perspective: 2400 }, 'linear'),
+        createKeyframe(300, { translateX: 0, translateY: 0, scale: 1, perspective: 2400 }, 'linear'),
+        createKeyframe(700, { translateX: 3, translateY: -2, scale: 1, perspective: 2400 }, 'linear'),
+        createKeyframe(750, { translateX: -2, translateY: 1, scale: 1, perspective: 2400 }, 'linear'),
+        createKeyframe(800, { translateX: 0, translateY: 0, scale: 1, perspective: 2400 }, 'linear'),
+      ]),
+      createTrack('Glitch Flicker', 'opacity', [
+        createKeyframe(0, { imageOpacity: 0.8 }, 'linear'),
+        createKeyframe(50, { imageOpacity: 0.3 }, 'linear'),
+        createKeyframe(100, { imageOpacity: 0.9 }, 'linear'),
+        createKeyframe(150, { imageOpacity: 0.4 }, 'linear'),
+        createKeyframe(200, { imageOpacity: 0.7 }, 'linear'),
+        createKeyframe(300, { imageOpacity: 1 }, 'linear'),
+      ]),
+    ],
+  },
+  {
+    id: 'blur-in',
+    name: 'Blur In',
+    description: 'Sharpens from blur to crisp focus',
+    category: 'effects',
+    duration: 1200,
+    tracks: [
+      createTrack('Blur In Transform', 'transform', [
+        createKeyframe(0, { scale: 0.97, perspective: 2400 }, 'ease-out'),
+        createKeyframe(1200, { scale: 1, perspective: 2400 }, 'ease-out-cubic'),
+      ]),
+      createTrack('Blur In Opacity', 'opacity', [
+        createKeyframe(0, { imageOpacity: 0 }, 'ease-out'),
+        createKeyframe(400, { imageOpacity: 1 }, 'ease-out'),
+      ]),
+    ],
+  },
+  {
+    id: 'stretch',
+    name: 'Stretch',
+    description: 'Vertical stretching entrance with snap-back',
+    category: 'effects',
+    duration: 900,
+    tracks: [
+      createTrack('Stretch', 'transform', [
+        createKeyframe(0, { scale: 1, rotateX: 75, perspective: 1200, translateY: -20 }, 'ease-out'),
+        createKeyframe(450, { scale: 1.02, rotateX: -5, perspective: 2400, translateY: 3 }, 'ease-out'),
+        createKeyframe(700, { scale: 1, rotateX: 2, perspective: 2400, translateY: 0 }, 'ease-out'),
+        createKeyframe(900, { scale: 1, rotateX: 0, perspective: 2400, translateY: 0 }, 'ease-out'),
+      ]),
+      createTrack('Stretch Fade', 'opacity', [
+        createKeyframe(0, { imageOpacity: 0 }, 'ease-out'),
+        createKeyframe(250, { imageOpacity: 1 }, 'ease-out'),
+      ]),
+    ],
+  },
+  {
+    id: 'pulse',
+    name: 'Pulse',
+    description: 'Gentle pulsing loop that draws attention',
+    category: 'effects',
+    duration: 2000,
+    tracks: [
+      createTrack('Pulse', 'transform', [
+        createKeyframe(0, { scale: 1, perspective: 2400 }, 'ease-in-out'),
+        createKeyframe(1000, { scale: 1.04, perspective: 2400 }, 'ease-in-out'),
+        createKeyframe(2000, { scale: 1, perspective: 2400 }, 'ease-in-out'),
+      ]),
+    ],
+  },
+  {
+    id: 'wobble',
+    name: 'Wobble',
+    description: 'Playful side-to-side wobble',
+    category: 'effects',
+    duration: 1200,
+    tracks: [
+      createTrack('Wobble', 'transform', [
+        createKeyframe(0, { rotateZ: 0, perspective: 2400 }, 'ease-in-out'),
+        createKeyframe(150, { rotateZ: -8, perspective: 2400 }, 'ease-in-out'),
+        createKeyframe(300, { rotateZ: 6, perspective: 2400 }, 'ease-in-out'),
+        createKeyframe(450, { rotateZ: -4, perspective: 2400 }, 'ease-in-out'),
+        createKeyframe(600, { rotateZ: 2, perspective: 2400 }, 'ease-in-out'),
+        createKeyframe(800, { rotateZ: 0, perspective: 2400 }, 'ease-in-out'),
+      ]),
+    ],
+  },
+  {
+    id: 'morph-3d',
+    name: 'Morph 3D',
+    description: 'Morphs between 3D perspectives for a dynamic feel',
+    category: 'effects',
+    duration: 2000,
+    tracks: [
+      createTrack('Morph 3D', 'transform', [
+        createKeyframe(0, { rotateX: 0, rotateY: 0, rotateZ: 0, scale: 1, perspective: 2400 }, 'ease-in-out'),
+        createKeyframe(500, { rotateX: 15, rotateY: -15, rotateZ: 3, scale: 0.97, perspective: 2000 }, 'ease-in-out'),
+        createKeyframe(1000, { rotateX: 0, rotateY: 0, rotateZ: 0, scale: 1, perspective: 2400 }, 'ease-in-out'),
+        createKeyframe(1500, { rotateX: -10, rotateY: 10, rotateZ: -2, scale: 0.98, perspective: 2000 }, 'ease-in-out'),
+        createKeyframe(2000, { rotateX: 0, rotateY: 0, rotateZ: 0, scale: 1, perspective: 2400 }, 'ease-in-out'),
+      ]),
+    ],
+  },
 ];
 
 // Get presets by category
@@ -608,7 +797,7 @@ export function getPresetById(id: string): AnimationPreset | undefined {
 }
 
 // Category display names
-export const CATEGORY_LABELS: Record<AnimationPreset['category'], string> = {
+export const CATEGORY_LABELS: Record<string, string> = {
   reveal: 'Reveal',
   slide: 'Slide',
   fade: 'Fade',
@@ -617,4 +806,6 @@ export const CATEGORY_LABELS: Record<AnimationPreset['category'], string> = {
   orbit: 'Orbit',
   depth: 'Depth',
   kenburns: 'Ken Burns',
+  bounce: 'Bounce',
+  effects: 'Effects',
 };

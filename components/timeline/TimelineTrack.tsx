@@ -6,7 +6,7 @@ import { KeyframeMarker } from './KeyframeMarker';
 import { Button } from '@/components/ui/button';
 import { ViewIcon, ViewOffIcon, Delete02Icon, SquareLockPasswordIcon, SquareUnlock01Icon } from 'hugeicons-react';
 import { cn } from '@/lib/utils';
-import type { AnimationTrack, Keyframe } from '@/types/animation';
+import type { AnimationTrack } from '@/types/animation';
 
 interface TimelineTrackProps {
   track: AnimationTrack;
