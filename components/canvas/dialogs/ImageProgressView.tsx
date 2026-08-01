@@ -11,8 +11,23 @@ export function getStatusMessage(progress: number): string {
   return "Polishing your masterpiece...";
 }
 
-export function ImageExportProgressView({ progress, format }: { progress: number; format: ExportFormat }) {
-  const statusMessage = useMemo(() => getStatusMessage(progress), [progress]);
+export function ImageExportProgressView({
+  progress,
+  format,
+  slideIndex,
+  slideTotal,
+}: {
+  progress: number;
+  format: ExportFormat;
+  slideIndex?: number;
+  slideTotal?: number;
+}) {
+  const statusMessage = useMemo(() => {
+    if (slideIndex !== undefined && slideTotal !== undefined) {
+      return `Exporting slide ${slideIndex} of ${slideTotal}...`;
+    }
+    return getStatusMessage(progress);
+  }, [progress, slideIndex, slideTotal]);
   const formatLabel = format === "jpeg" ? "JPEG" : format === "webp" ? "WebP" : "PNG";
 
   return (
