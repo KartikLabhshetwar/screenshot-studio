@@ -20,9 +20,11 @@ import {
   MagicWand01Icon,
   GridIcon,
   RulerIcon,
+  FileZipIcon,
 } from 'hugeicons-react';
 import { useEditorStore, useImageStore } from '@/lib/store';
 import { useExport } from '@/hooks/useExport';
+import { useBatchExport } from '@/hooks/useBatchExport';
 import { aspectRatios } from '@/lib/constants/aspect-ratios';
 import { AspectRatioPicker } from '@/components/aspect-ratio/aspect-ratio-picker';
 import {
@@ -31,6 +33,7 @@ import {
   PopoverContent,
 } from '@/components/ui/popover';
 import { CopyProgressDialog } from '@/components/canvas/dialogs/CopyProgressDialog';
+import { BatchExportProgressDialog } from '@/components/canvas/dialogs/BatchExportProgressDialog';
 import { ExportSlideshowDialog } from '@/lib/export-slideshow-dialog';
 import { ImageExportProgressView } from '@/components/canvas/dialogs/ImageProgressView';
 import { FormatSelector, QualityPresetSelector, ScaleSlider } from '@/components/export';
@@ -89,6 +92,8 @@ export function EditorHeader() {
     updateQualityPreset,
   } = useExport(selectedAspectRatio);
 
+  const { isBatchExporting, batchProgress, exportAllSlides } = useBatchExport(selectedAspectRatio, exportSettings);
+
   const handleExport = async () => {
     setExportError(null);
     try {
@@ -97,6 +102,11 @@ export function EditorHeader() {
     } catch (err) {
       setExportError(err instanceof Error ? err.message : 'Export failed. Please try again.');
     }
+  };
+
+  const handleExportAll = async () => {
+    setExportOpen(false);
+    await exportAllSlides();
   };
 
   const formatLabel = exportSettings.format === 'jpeg' ? 'JPEG' : exportSettings.format === 'webp' ? 'WebP' : 'PNG';
@@ -329,6 +339,18 @@ export function EditorHeader() {
                     <Download01Icon size={16} className="mr-2" />
                     Export as {formatLabel}
                   </Button>
+
+                  {slides.length > 1 && (
+                    <Button
+                      onClick={handleExportAll}
+                      disabled={isExporting || isBatchExporting}
+                      variant="outline"
+                      className="w-full h-10 text-sm font-semibold rounded-lg transition-all"
+                    >
+                      <FileZipIcon size={16} className="mr-2" />
+                      Export All ({slides.length})
+                    </Button>
+                  )}
                 </div>
               )}
             </PopoverContent>
@@ -380,6 +402,12 @@ export function EditorHeader() {
       </header>
 
       <CopyProgressDialog open={isCopying} progress={copyProgress} />
+
+      <BatchExportProgressDialog
+        open={isBatchExporting}
+        batchProgress={batchProgress}
+        format={exportSettings.format}
+      />
 
       <ExportSlideshowDialog
         open={exportSlideshowOpen}

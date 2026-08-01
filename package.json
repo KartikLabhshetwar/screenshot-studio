@@ -45,6 +45,7 @@
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "hugeicons-react": "^0.4.0",
+    "jszip": "^3.10.1",
     "lucide-react": "^0.552.0",
     "modern-screenshot": "^4.6.6",
     "motion": "^12.23.24",
