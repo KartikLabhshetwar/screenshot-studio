@@ -198,8 +198,8 @@ export async function getStorageUsage(): Promise<{ used: number; quota: number; 
 
 export async function checkStorageAndCleanup(): Promise<boolean> {
   try {
-    const { used, percentage } = await getStorageUsage();
-    if (used > MAX_STORAGE_BYTES || percentage > 80) {
+    const draftSize = await getDraftSize();
+    if (draftSize > MAX_STORAGE_BYTES) {
       await clearAllDrafts();
       return true;
     }

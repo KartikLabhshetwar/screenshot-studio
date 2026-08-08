@@ -39,7 +39,10 @@ export function useAutosaveDraft() {
         await migrateFromLocalStorage();
 
         // Auto-clean IndexedDB on startup (removes old/corrupted data)
-        await autoCleanIndexedDB();
+        const cleanResult = await autoCleanIndexedDB();
+        if (cleanResult.cleaned) {
+          console.warn('[draft] autoCleanIndexedDB wiped the draft:', cleanResult.reason);
+        }
 
         const draft = await getDraft();
         if (!draft) {
