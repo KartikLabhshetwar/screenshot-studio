@@ -198,9 +198,9 @@ export function useAutosaveDraft() {
             ib: imageBorder,
             ish: imageShadow,
             p3d: perspective3D,
-            tc: textOverlays.length,
-            oc: imageOverlays.length,
-            mc: mockups.length,
+            to: textOverlays,
+            ov: imageOverlays,
+            mk: mockups,
           });
 
           if (snapshot === lastSnapshotRef.current) {
