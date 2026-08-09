@@ -85,12 +85,6 @@ export function Frame3DOverlay({
 
   const isDark = frame.type.includes('dark');
 
-  const borderWidth = frame.width || 8;
-
-  // For arc frames, the border should wrap tightly around the image
-  // The outer radius = inner radius + border width
-  const arcOuterRadius = screenshotRadius + borderWidth;
-
   switch (frame.type) {
     case 'arc-light':
     case 'arc-dark':

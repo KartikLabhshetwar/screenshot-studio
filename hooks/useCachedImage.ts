@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueries } from '@tanstack/react-query';
 
 /**
  * Hook to cache images in memory using TanStack Query.
@@ -30,8 +30,18 @@ export function useCachedImage(imageUrl: string | null | undefined) {
  * Useful for preloading thumbnails.
  */
 export function usePrefetchImages(imageUrls: string[]) {
-  // This hook doesn't return anything, it just triggers prefetching
-  imageUrls.forEach((url) => {
-    useCachedImage(url);
+  useQueries({
+    queries: imageUrls.map((url) => ({
+      queryKey: ['image', url],
+      queryFn: async () => {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error(`Failed to fetch image: ${response.status}`);
+        const blob = await response.blob();
+        return URL.createObjectURL(blob);
+      },
+      enabled: !!url,
+      staleTime: Infinity,
+      gcTime: 24 * 60 * 60 * 1000,
+    })),
   });
 }

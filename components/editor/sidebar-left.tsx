@@ -20,15 +20,6 @@ export function SidebarLeft({
   const { 
     uploadedImageUrl, 
     selectedAspectRatio,
-    selectedGradient,
-    borderRadius,
-    backgroundBorderRadius,
-    backgroundConfig,
-    textOverlays,
-    imageOpacity,
-    imageScale,
-    imageBorder,
-    imageShadow,
   } = useImageStore();
   const [exportDialogOpen, setExportDialogOpen] = React.useState(false);
 
