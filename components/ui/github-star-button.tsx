@@ -1,66 +1,45 @@
-'use client';
+"use client";
 
-import { useEffect, useState, useRef } from 'react';
-import Link from 'next/link';
-import { cn } from '@/lib/utils';
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { cn } from "@/lib/utils";
+import { CountUp } from "@/components/ui/CountUp";
 
-const REPO = 'KartikLabhshetwar/screenshot-studio';
-const CACHE_KEY = 'gh-stars-v2';
+const REPO = "KartikLabhshetwar/screenshot-studio";
+const CACHE_KEY = "gh-stars-v2";
 const CACHE_TTL = 5 * 60 * 1000;
 
-function GitHubIcon({ className }: { className?: string }) {
+export function GitHubIcon({ className }: { className?: string }) {
   return (
-    <svg className={className} fill="currentColor" viewBox="0 0 24 24">
+    <svg
+      className={className}
+      fill="none"
+      viewBox="0 0 20 20"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+    >
       <path
-        fillRule="evenodd"
         clipRule="evenodd"
-        d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.17 6.839 9.49.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.604-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.464-1.11-1.464-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.167 22 16.418 22 12c0-5.523-4.477-10-10-10z"
+        fillRule="evenodd"
+        fill="currentColor"
+        d="M9.97616 2C5.56555 2 2 5.59184 2 10.0354C2 13.5874 4.28457 16.5941 7.45388 17.6583C7.85012 17.7383 7.99527 17.4854 7.99527 17.2727C7.99527 17.0864 7.9822 16.4478 7.9822 15.7825C5.76343 16.2616 5.30139 14.8247 5.30139 14.8247C4.94482 13.8934 4.41649 13.654 4.41649 13.654C3.69029 13.1618 4.46939 13.1618 4.46939 13.1618C5.27494 13.215 5.69763 13.9866 5.69763 13.9866C6.41061 15.2104 7.55951 14.8647 8.02171 14.6518C8.08767 14.1329 8.2991 13.7737 8.52359 13.5742C6.75396 13.3879 4.89208 12.6962 4.89208 9.60963C4.89208 8.73159 5.20882 8.01322 5.71069 7.45453C5.63151 7.25502 5.35412 6.43004 5.79004 5.32588C5.79004 5.32588 6.46351 5.11298 7.98204 6.15069C8.63218 5.9748 9.30265 5.88532 9.97616 5.88457C10.6496 5.88457 11.3362 5.9778 11.9701 6.15069C13.4888 5.11298 14.1623 5.32588 14.1623 5.32588C14.5982 6.43004 14.3207 7.25502 14.2415 7.45453C14.7566 8.01322 15.0602 8.73159 15.0602 9.60963C15.0602 12.6962 13.1984 13.3745 11.4155 13.5742C11.7061 13.8269 11.9569 14.3058 11.9569 15.0642C11.9569 16.1417 11.9438 17.0065 11.9438 17.2725C11.9438 17.4854 12.0891 17.7383 12.4852 17.6584C15.6545 16.594 17.9391 13.5874 17.9391 10.0354C17.9522 5.59184 14.3736 2 9.97616 2Z"
       />
     </svg>
   );
 }
 
-function StarIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 16 16" fill="currentColor">
-      <path d="M8 .25a.75.75 0 01.673.418l1.882 3.815 4.21.612a.75.75 0 01.416 1.279l-3.046 2.97.719 4.192a.75.75 0 01-1.088.791L8 12.347l-3.766 1.98a.75.75 0 01-1.088-.79l.72-4.194L.818 6.374a.75.75 0 01.416-1.28l4.21-.611L7.327.668A.75.75 0 018 .25z" />
-    </svg>
-  );
-}
-
-function AnimatedNumber({ value }: { value: number }) {
-  const [display, setDisplay] = useState(0);
-  const rafRef = useRef(0);
-
-  useEffect(() => {
-    // Always animate from 0 to value
-    cancelAnimationFrame(rafRef.current);
-    setDisplay(0);
-
-    const start = performance.now();
-    const duration = 1400;
-
-    const tick = (now: number) => {
-      const t = Math.min((now - start) / duration, 1);
-      const eased = t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
-      setDisplay(Math.round(value * eased));
-      if (t < 1) {
-        rafRef.current = requestAnimationFrame(tick);
-      }
-    };
-
-    rafRef.current = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(rafRef.current);
-  }, [value]);
-
-  return <>{display.toLocaleString()}</>;
+function formatStarCount(count: number): string {
+  const rounded = Math.round(count);
+  if (rounded < 1000) return rounded.toLocaleString();
+  const thousands = rounded / 1000;
+  if (thousands >= 100) return `${Math.round(thousands)}K`;
+  return `${thousands.toFixed(1).replace(/\.0$/, "")}K`;
 }
 
 function useStarCount() {
   const [stars, setStars] = useState<number | null>(null);
 
   useEffect(() => {
-    // Check cache
     try {
       const cached = localStorage.getItem(CACHE_KEY);
       if (cached) {
@@ -70,10 +49,12 @@ function useStarCount() {
           return;
         }
       }
-    } catch {}
+    } catch {
+      setStars(null);
+    }
 
     fetch(`https://api.github.com/repos/${REPO}`, {
-      headers: { Accept: 'application/vnd.github.v3+json' },
+      headers: { Accept: "application/vnd.github.v3+json" },
     })
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
@@ -83,9 +64,11 @@ function useStarCount() {
           try {
             localStorage.setItem(
               CACHE_KEY,
-              JSON.stringify({ count, timestamp: Date.now() })
+              JSON.stringify({ count, timestamp: Date.now() }),
             );
-          } catch {}
+          } catch {
+            return;
+          }
         }
       })
       .catch(() => {});
@@ -102,30 +85,35 @@ export function GitHubStarButton({ compact }: { compact?: boolean }) {
       href={`https://github.com/${REPO}`}
       target="_blank"
       rel="noopener noreferrer"
+      aria-label={
+        stars != null && stars > 0
+          ? `GitHub repository, ${formatStarCount(stars)} stars`
+          : "GitHub repository"
+      }
       className={cn(
-        'inline-flex items-center gap-1.5 rounded-lg border border-border/60 transition-colors',
-        'text-muted-foreground hover:text-foreground hover:border-border hover:bg-muted/50',
-        compact ? 'h-8 px-2.5 text-xs' : 'h-9 px-3 text-sm'
+        "inline-flex items-center justify-center gap-1.5 rounded-md font-medium tabular-nums",
+        "text-foreground active:scale-[0.99]",
+        "transition-[color,filter,text-shadow] duration-150",
+        "hover:text-foreground hover:[text-shadow:0_0_12px_var(--nav-cta-glow)]",
+        "hover:[&_svg]:text-foreground hover:[&_svg]:drop-shadow-[0_0_8px_var(--nav-cta-glow)]",
+        compact ? "h-9 px-2.5 text-sm" : "h-9 pl-2 pr-1.5 text-sm",
       )}
     >
-      <GitHubIcon className={compact ? 'w-3.5 h-3.5' : 'w-4 h-4'} />
-      {!compact && (
-        <span className="font-medium hidden sm:inline">Star</span>
-      )}
-      {stars !== null && stars > 0 && (
-        <>
-          <span className="w-px h-3.5 bg-border/60" />
-          <span className="font-medium flex items-center gap-0.5 tabular-nums">
-            <StarIcon
-              className={cn(
-                'text-amber-400',
-                compact ? 'w-2.5 h-2.5' : 'w-3 h-3'
-              )}
-            />
-            <AnimatedNumber value={stars} />
-          </span>
-        </>
-      )}
+      <GitHubIcon
+        className={cn(
+          "size-[18px] shrink-0 text-foreground/60 transition-[color,filter] duration-150",
+        )}
+      />
+      {stars !== null && stars > 0 ? (
+        <CountUp
+          from={0}
+          to={stars}
+          direction="up"
+          duration={1.4}
+          delay={0}
+          format={formatStarCount}
+        />
+      ) : null}
     </Link>
   );
 }

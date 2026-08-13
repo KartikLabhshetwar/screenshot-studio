@@ -96,7 +96,7 @@ export function UploadArea({ onUpload, error, className }: UploadAreaProps) {
     <div ref={containerRef} className={cn("w-full max-w-2xl mx-auto", className)}>
       <div className="space-y-6 sm:space-y-8">
         <div className="text-center space-y-3">
-          <h2 className="text-xl sm:text-2xl font-semibold tracking-tight">Upload Image</h2>
+          <h2 className="text-xl sm:text-2xl font-semibold tracking-tight text-foreground">Upload Image</h2>
           <p className="text-xs sm:text-sm text-muted-foreground px-2">
             Drag and drop, paste, or click to upload an image
           </p>
@@ -105,13 +105,13 @@ export function UploadArea({ onUpload, error, className }: UploadAreaProps) {
         <div
           {...getRootProps()}
           className={cn(
-            "relative border-2 border-dashed rounded-lg p-8 sm:p-12 md:p-16",
+            "relative border border-dashed rounded-md p-8 sm:p-12 md:p-16",
             "cursor-pointer transition-all duration-200",
             "flex flex-col items-center justify-center",
             "min-h-[240px] sm:min-h-[280px]",
             active
-              ? "border-primary bg-primary/5 scale-[1.01]"
-              : "border-border hover:border-primary/50 hover:bg-accent/50",
+              ? "border-primary bg-foreground/5 scale-[1.01]"
+              : "border-foreground/15 hover:border-foreground/30 hover:bg-foreground/[0.03]",
             error && "border-destructive"
           )}
         >
@@ -120,7 +120,7 @@ export function UploadArea({ onUpload, error, className }: UploadAreaProps) {
           <div
             className={cn(
               "mb-4 sm:mb-6 transition-colors",
-              active ? "text-primary" : "text-muted-foreground"
+              active ? "text-foreground" : "text-muted-foreground"
             )}
           >
             <Image01Icon className="size-12 sm:hidden" />
@@ -128,10 +128,10 @@ export function UploadArea({ onUpload, error, className }: UploadAreaProps) {
           </div>
 
           {active ? (
-            <p className="text-sm sm:text-base font-medium text-primary">Drop the image here...</p>
+            <p className="text-sm sm:text-base font-medium text-foreground">Drop the image here...</p>
           ) : (
             <div className="space-y-2 text-center px-2">
-              <p className="text-sm sm:text-base font-medium">
+              <p className="text-sm sm:text-base font-medium text-foreground">
                 Drag & drop an image here
               </p>
               <p className="text-xs sm:text-sm text-muted-foreground">

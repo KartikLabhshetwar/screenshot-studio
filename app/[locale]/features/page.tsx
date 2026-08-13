@@ -1,8 +1,15 @@
 import { Metadata } from "next";
 import Link from "next/link";
+import {
+  ArrowRight01Icon,
+  BrowserIcon,
+  CubeIcon,
+  MagicWand01Icon,
+  Share08Icon,
+  Video01Icon,
+} from "hugeicons-react";
 import { Navigation } from "@/components/landing/Navigation";
 import { Footer } from "@/components/landing/Footer";
-import { ArrowRight, Sparkles, Share2, Play, Box, Globe } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Features - Screenshot Studio | All Tools & Capabilities",
@@ -33,9 +40,18 @@ export const metadata: Metadata = {
   },
 };
 
+const INTER =
+  'Inter, "Inter Fallback", Arial, Helvetica, sans-serif';
+
+const ctaClassName =
+  "relative inline-flex items-center justify-center rounded-md border-0 bg-[var(--nav-cta-bg)] px-6 py-2.5 text-base font-medium text-[var(--nav-cta-fg)] shadow-none transition-[transform,box-shadow] duration-150 ease-out [text-shadow:var(--nav-cta-text-shadow)] hover:shadow-[var(--nav-cta-hover-shadow)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 active:scale-[0.97]";
+
+const cardSurface =
+  "rounded-2xl bg-card ring-1 ring-border shadow-[var(--card-edge-shadow)]";
+
 const features = [
   {
-    icon: Sparkles,
+    icon: MagicWand01Icon,
     title: "Screenshot Beautifier",
     description:
       "Transform plain screenshots into professional visuals. Add backgrounds, shadows, and rounded corners.",
@@ -43,7 +59,7 @@ const features = [
     keywords: ["backgrounds", "shadows", "corners", "padding"],
   },
   {
-    icon: Share2,
+    icon: Share08Icon,
     title: "Social Media Graphics",
     description:
       "Create perfectly sized graphics for Twitter, LinkedIn, and Instagram. No design skills needed.",
@@ -51,7 +67,7 @@ const features = [
     keywords: ["Twitter", "LinkedIn", "Instagram", "posts"],
   },
   {
-    icon: Play,
+    icon: Video01Icon,
     title: "Animation Maker",
     description:
       "Bring screenshots to life with zoom, pan, and fade animations. Export as video or GIF.",
@@ -59,7 +75,7 @@ const features = [
     keywords: ["zoom", "pan", "slideshow", "video export"],
   },
   {
-    icon: Box,
+    icon: CubeIcon,
     title: "3D Effects",
     description:
       "Add stunning 3D perspective, rotation, and depth to flat screenshots. Real-time preview.",
@@ -67,14 +83,14 @@ const features = [
     keywords: ["perspective", "rotation", "depth", "mockups"],
   },
   {
-    icon: Globe,
+    icon: BrowserIcon,
     title: "Browser Mockups",
     description:
       "Add realistic Safari and Chrome browser frames to screenshots. Light and dark modes with custom URL.",
     href: "/features/browser-mockups",
     keywords: ["Safari", "Chrome", "browser frame", "URL bar"],
   },
-];
+] as const;
 
 export default function FeaturesPage() {
   const structuredData = {
@@ -98,52 +114,61 @@ export default function FeaturesPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
 
-      <Navigation ctaLabel="Try Free" ctaHref="/" />
+      <Navigation brandName="Screenshot Studio" />
 
       <main className="flex-1">
-        {/* Hero Section */}
-        <section className="py-20 px-4">
-          <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-4xl md:text-6xl font-bold mb-6">
+        <section className="px-6 pb-12 pt-32">
+          <div className="mx-auto max-w-4xl text-center">
+            <h1
+              className="mb-6 text-4xl font-semibold tracking-[-0.03em] text-foreground md:text-6xl"
+              style={{ fontFamily: INTER }}
+            >
               All Features
             </h1>
-            <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
+            <p className="mx-auto mb-8 max-w-2xl text-lg text-muted-foreground md:text-xl">
               Everything you need to create stunning visuals from screenshots.
               100% free, no signup required.
             </p>
           </div>
         </section>
 
-        {/* Features Grid */}
-        <section className="py-16 px-4">
-          <div className="max-w-6xl mx-auto">
-            <div className="grid md:grid-cols-2 gap-8">
-              {features.map((feature) => (
+        <section className="px-6 pb-16">
+          <div className="mx-auto max-w-6xl">
+            <div className="grid gap-4 md:grid-cols-2">
+              {features.map((feature, index) => (
                 <Link
                   key={feature.title}
                   href={feature.href}
-                  className="group p-8 bg-muted/30 rounded-2xl border hover:border-primary transition-all"
+                  className={`group p-8 transition-[box-shadow,ring-color] duration-150 hover:ring-ring/40 ${cardSurface} ${
+                    index === features.length - 1
+                      ? "md:col-span-2 md:max-w-xl md:justify-self-center"
+                      : ""
+                  }`}
                 >
-                  <feature.icon className="w-12 h-12 text-primary mb-6" />
-                  <h2 className="text-2xl font-bold mb-3 group-hover:text-primary transition-colors">
+                  <feature.icon
+                    className="mb-6 size-8 text-foreground"
+                    aria-hidden
+                  />
+                  <h2 className="mb-3 text-2xl font-semibold tracking-tight text-foreground">
                     {feature.title}
                   </h2>
-                  <p className="text-muted-foreground mb-4">
-                    {feature.description}
-                  </p>
-                  <div className="flex flex-wrap gap-2 mb-4">
+                  <p className="mb-4 text-muted-foreground">{feature.description}</p>
+                  <div className="mb-4 flex flex-wrap gap-2">
                     {feature.keywords.map((keyword) => (
                       <span
                         key={keyword}
-                        className="text-xs px-2 py-1 bg-background rounded-full border"
+                        className="rounded-md bg-foreground/[0.04] px-2 py-1 text-xs text-muted-foreground ring-1 ring-border"
                       >
                         {keyword}
                       </span>
                     ))}
                   </div>
-                  <span className="inline-flex items-center gap-1 text-primary font-medium">
+                  <span className="inline-flex items-center gap-1 text-sm font-medium text-foreground/90 transition-colors group-hover:text-foreground">
                     Learn more
-                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    <ArrowRight01Icon
+                      className="size-3.5 transition-transform group-hover:translate-x-0.5"
+                      aria-hidden
+                    />
                   </span>
                 </Link>
               ))}
@@ -151,21 +176,19 @@ export default function FeaturesPage() {
           </div>
         </section>
 
-        {/* CTA */}
-        <section className="py-20 px-4 bg-muted/30">
-          <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-3xl font-bold mb-4">
+        <section className="border-t border-border px-6 py-20">
+          <div className="mx-auto max-w-4xl text-center">
+            <h2
+              className="mb-4 text-3xl font-semibold tracking-[-0.03em] text-foreground"
+              style={{ fontFamily: INTER }}
+            >
               Ready to Create?
             </h2>
-            <p className="text-muted-foreground mb-8">
+            <p className="mb-8 text-muted-foreground">
               All features, zero cost. Start creating in seconds.
             </p>
-            <Link
-              href="/"
-              className="inline-flex items-center gap-2 bg-primary text-primary-foreground font-semibold px-8 py-4 rounded-full hover:opacity-90 transition-opacity"
-            >
+            <Link href="/" className={ctaClassName}>
               Open Editor
-              <ArrowRight className="w-5 h-5" />
             </Link>
           </div>
         </section>

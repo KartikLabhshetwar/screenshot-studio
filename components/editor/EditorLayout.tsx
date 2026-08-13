@@ -9,21 +9,27 @@ import { EditorCanvas } from "@/components/canvas/EditorCanvas";
 import { EditorStoreSync } from "@/components/canvas/EditorStoreSync";
 import { EditorHeader } from "./EditorHeader";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Sheet, SheetContent } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { Settings02Icon } from "hugeicons-react";
+import { Settings02Icon, VideoReplayIcon } from "hugeicons-react";
 import { useAutosaveDraft } from "@/hooks/useAutosaveDraft";
 import { MobileBanner } from "./MobileBanner";
 import { TimelineEditor } from "@/components/timeline";
 import { useImageStore } from "@/lib/store";
 import { trackEditorOpen } from "@/lib/analytics";
-import { VideoReplayIcon } from "hugeicons-react";
 import { cn } from "@/lib/utils";
 
 function EditorMain() {
   const isMobile = useIsMobile();
   const [mobileSheetOpen, setMobileSheetOpen] = React.useState(false);
-  const { uploadedImageUrl, slides, showTimeline, toggleTimeline } = useImageStore();
+  const {
+    uploadedImageUrl,
+    slides,
+    showTimeline,
+    toggleTimeline,
+    showTemplates,
+    setShowTemplates,
+  } = useImageStore();
 
   // enable autosave
   useAutosaveDraft();
@@ -38,77 +44,95 @@ function EditorMain() {
     };
   }, []);
 
+  // Templates overlay lives in UnifiedRightPanel, which only mounts when the
+  // sheet is open. Opening Templates from the header must open the sheet too.
+  React.useEffect(() => {
+    if (isMobile && showTemplates) {
+      setMobileSheetOpen(true);
+    }
+  }, [isMobile, showTemplates]);
+
+  const handleMobileSheetOpenChange = (open: boolean): void => {
+    setMobileSheetOpen(open);
+    if (!open) {
+      setShowTemplates(false);
+    }
+  };
+
   return (
     <div className="h-screen flex flex-col bg-background overflow-hidden">
       <EditorStoreSync />
 
-      {/* Mobile Banner */}
       <MobileBanner />
 
-      {/* Global Header */}
       <EditorHeader />
 
-      {/* Mobile Settings Button */}
       {isMobile && (
-        <div className="bg-background border-b border-border flex items-center justify-end px-4 py-2 z-10">
+        <div className="bg-background border-b border-foreground/10 flex items-center justify-end px-3 py-2 z-10 shrink-0">
           <Button
             variant="ghost"
-            size="icon"
+            size="sm"
             onClick={() => setMobileSheetOpen(true)}
-            className="h-9 w-9"
+            className="h-8 gap-1.5 rounded-md px-2.5 text-xs text-muted-foreground hover:text-foreground hover:bg-foreground/[0.06] border border-foreground/10 bg-foreground/[0.04]"
           >
-            <Settings02Icon size={20} />
+            <Settings02Icon size={15} />
+            <span>Settings</span>
           </Button>
         </div>
       )}
 
       <div className="flex-1 flex overflow-hidden">
-        {/* Left Panel - Desktop */}
         {!isMobile && <LeftEditPanel />}
 
-        {/* Center Canvas */}
-        <div className="flex-1 flex flex-col overflow-hidden bg-background relative">
-          <div className="flex-1 flex items-center justify-center overflow-y-auto overflow-x-hidden relative">
+        <div className="flex-1 flex flex-col overflow-hidden bg-background relative min-w-0">
+          <div
+            className={cn(
+              "flex-1 flex items-center justify-center overflow-y-auto overflow-x-hidden relative min-h-0",
+              // Dock space for the Animate chip so portrait stages don't sit under it
+              hasContent && !showTimeline && !isMobile && "pb-14"
+            )}
+          >
             <EditorContent>
               <EditorCanvas />
             </EditorContent>
 
-            {/* Floating Animate Button - bottom center of canvas */}
             {hasContent && !showTimeline && !isMobile && (
               <button
+                type="button"
                 onClick={toggleTimeline}
                 className={cn(
-                  'absolute bottom-4 left-1/2 -translate-x-1/2 z-20',
-                  'flex items-center gap-2 px-5 py-2.5 rounded-full',
-                  'bg-card/90 backdrop-blur-md border border-border/50',
-                  'text-muted-foreground hover:text-foreground',
-                  'shadow-lg hover:shadow-xl',
-                  'transition-all duration-200 ease-out',
-                  'hover:bg-card hover:border-border',
-                  'group'
+                  'absolute bottom-3 left-1/2 z-20 -translate-x-1/2',
+                  'inline-flex h-9 cursor-pointer items-center gap-2 rounded-md px-4',
+                  'bg-card text-sm font-medium text-foreground',
+                  'border border-foreground/10',
+                  'shadow-lg',
+                  'transition-all duration-150 ease-out',
+                  'hover:bg-muted hover:border-foreground/15',
+                  'active:scale-[0.98]'
                 )}
               >
-                <VideoReplayIcon size={16} className="text-primary group-hover:text-primary" />
-                <span className="text-sm font-medium">Animate</span>
+                <VideoReplayIcon size={15} className="text-foreground" />
+                <span>Animate</span>
               </button>
             )}
           </div>
 
-          {/* Timeline Editor - shown when content exists and timeline is enabled */}
           {hasContent && showTimeline && !isMobile && <TimelineEditor />}
         </div>
 
-        {/* Right Panel - Desktop */}
         {!isMobile && <RightSettingsPanel />}
 
-        {/* Mobile Sheet - uses full UnifiedRightPanel with all tabs */}
         {isMobile && (
-          <Sheet open={mobileSheetOpen} onOpenChange={setMobileSheetOpen}>
+          <Sheet open={mobileSheetOpen} onOpenChange={handleMobileSheetOpenChange}>
             <SheetContent
               side="left"
-              className="w-[460px] p-0 sm:max-w-[460px]"
+              showCloseButton={false}
+              className="h-full w-full max-w-[min(100%,460px)] gap-0 overflow-hidden p-0 sm:max-w-[min(100%,460px)]"
             >
-              <UnifiedRightPanel />
+              <SheetTitle className="sr-only">Editor settings</SheetTitle>
+              <UnifiedRightPanel
+                onClose={() => handleMobileSheetOpenChange(false)}
+              />
             </SheetContent>
           </Sheet>
         )}

@@ -1,4 +1,8 @@
-import { useId } from "react";
+import {
+  ImageUploadIcon,
+  PaintBrush01Icon,
+  Download04Icon,
+} from "hugeicons-react";
 
 interface Step {
   step: number;
@@ -11,38 +15,47 @@ interface HowItWorksProps {
   title?: string;
 }
 
-export function HowItWorks({
-  steps,
-  title = "How It Works",
-}: HowItWorksProps) {
-  const titleId = useId();
+const STEP_ICONS: (typeof ImageUploadIcon)[] = [
+  ImageUploadIcon,
+  PaintBrush01Icon,
+  Download04Icon,
+];
+
+const ICON_HOVER = [
+  "group-hover:-translate-y-1 group-hover:scale-110",
+  "group-hover:rotate-12 group-hover:scale-110",
+  "group-hover:translate-y-1 group-hover:scale-110",
+] as const;
+
+export function HowItWorks({ steps }: HowItWorksProps) {
   return (
     <section
-      aria-labelledby={titleId}
-      className="py-16 sm:py-24 px-6 bg-background"
+      aria-label="How it works"
+      className="bg-background px-6 pt-4 pb-12 sm:pb-16 md:pt-12 md:pb-20"
     >
-      <div className="max-w-4xl mx-auto">
-        <h2
-          id={titleId}
-          className="text-2xl sm:text-3xl md:text-4xl font-semibold text-center mb-16 tracking-tight"
-        >
-          {title}
-        </h2>
-
-        <div className="grid md:grid-cols-3 gap-12 md:gap-10">
-          {steps.map((step) => (
-            <div key={step.step} className="text-center md:text-left">
-              <span className="inline-block text-5xl font-bold text-primary/20 mb-4 leading-none">
-                {step.step}
-              </span>
-              <h3 className="text-lg font-semibold mb-2 text-foreground">
-                {step.title}
-              </h3>
-              <p className="text-muted-foreground text-sm">
-                {step.description}
-              </p>
-            </div>
-          ))}
+      <div className="mx-auto w-full max-w-6xl">
+        <div className="grid grid-cols-1 items-stretch gap-4 md:grid-cols-3">
+          {steps.map((step, index) => {
+            const Icon = STEP_ICONS[index] ?? ImageUploadIcon;
+            const iconHover = ICON_HOVER[index] ?? ICON_HOVER[0];
+            return (
+              <div
+                key={step.step}
+                className="group flex h-full flex-col rounded-2xl bg-card px-5 py-4"
+              >
+                <Icon
+                  className={`size-5 shrink-0 text-foreground transition-transform duration-200 ease-out will-change-transform ${iconHover}`}
+                  aria-hidden
+                />
+                <h3 className="mt-3 text-sm leading-5 font-semibold text-foreground">
+                  {step.title}
+                </h3>
+                <p className="mt-1.5 text-sm leading-5 text-pretty text-muted-foreground">
+                  {step.description}
+                </p>
+              </div>
+            );
+          })}
         </div>
       </div>
     </section>

@@ -8,7 +8,6 @@ import type { AnimationPreset } from '@/types/animation';
 import { Button } from '@/components/ui/button';
 import { Delete02Icon, Add01Icon } from 'hugeicons-react';
 
-// Group presets by category
 const PRESET_BY_CATEGORY = ANIMATION_PRESETS.reduce(
   (acc, preset) => {
     if (!acc[preset.category]) {
@@ -39,12 +38,10 @@ export function AnimationPresetGallery() {
   const previewImageUrl = uploadedImageUrl || screenshot?.src || null;
 
   const handlePresetClick = (preset: AnimationPreset) => {
-    // Calculate start time - add at end of existing clips or at 0
     const lastClipEnd = animationClips.reduce((max, clip) => {
       return Math.max(max, clip.startTime + clip.duration);
     }, 0);
 
-    // Extend timeline if needed
     const newEndTime = lastClipEnd + preset.duration;
     if (newEndTime > timeline.duration) {
       setTimelineDuration(newEndTime);
@@ -87,21 +84,20 @@ export function AnimationPresetGallery() {
 
   return (
     <div className="space-y-5">
-      {/* Header with clear button */}
       {hasAnimation && (
-        <div className="flex items-center justify-between p-3 bg-primary/10 border border-primary/20 rounded-lg">
+        <div className="flex items-center justify-between p-3 bg-foreground/[0.04] border border-foreground/10 rounded-md">
           <div>
-            <span className="text-xs font-medium text-foreground/80">
+            <span className="text-xs font-medium text-foreground">
               {animationClips.length} animation{animationClips.length > 1 ? 's' : ''} added
             </span>
-            <p className="text-[10px] text-foreground/50 mt-0.5">
+            <p className="text-[10px] text-muted-foreground mt-0.5">
               Click presets to add more, or drag clips in timeline
             </p>
           </div>
           <Button
             variant="ghost"
             size="sm"
-            className="h-7 text-xs text-red-500/70 hover:text-red-500 hover:bg-red-500/10"
+            className="h-7 text-xs text-muted-foreground hover:text-destructive hover:bg-destructive/10"
             onClick={handleClearAnimation}
           >
             <Delete02Icon size={14} className="mr-1" />
@@ -110,7 +106,6 @@ export function AnimationPresetGallery() {
         </div>
       )}
 
-      {/* Preset categories */}
       {Object.entries(PRESET_BY_CATEGORY).map(([category, presets]) => (
         <div key={category} className="space-y-2">
           <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
@@ -118,26 +113,24 @@ export function AnimationPresetGallery() {
           </h4>
           <div className="grid grid-cols-3 gap-2">
             {presets.map((preset) => {
-              const isApplied = animationClips.some(c => c.presetId === preset.id);
+              const isApplied = animationClips.some((c) => c.presetId === preset.id);
               return (
                 <button
                   key={preset.id}
+                  type="button"
                   onClick={() => handlePresetClick(preset)}
                   className={cn(
-                    'relative flex flex-col items-center gap-1.5 p-1.5 rounded-lg transition-all group',
-                    'bg-muted/60 hover:bg-card/80',
-                    'border-2',
+                    'relative flex flex-col items-center gap-1.5 p-1.5 rounded-md transition-all group cursor-pointer',
+                    'bg-foreground/[0.04] border',
                     isApplied
-                      ? 'border-primary/50'
-                      : 'border-transparent hover:border-border/50'
+                      ? 'border-foreground/30 ring-1 ring-foreground/20'
+                      : 'border-foreground/10 hover:border-foreground/20 hover:bg-foreground/[0.06]'
                   )}
                 >
-                  {/* Preview container */}
                   <div
                     className="relative w-full aspect-[4/3] rounded-md overflow-hidden"
                     style={getBackgroundStyle()}
                   >
-                    {/* Mini preview */}
                     <div className="absolute inset-0 flex items-center justify-center p-1">
                       {previewImageUrl ? (
                         <div className="w-3/4 h-3/4">
@@ -154,32 +147,28 @@ export function AnimationPresetGallery() {
                           />
                         </div>
                       ) : (
-                        <div className="w-3/4 h-3/4 bg-muted-foreground/40 rounded" />
+                        <div className="w-3/4 h-3/4 bg-foreground/[0.08] rounded-md border border-foreground/10" />
                       )}
                     </div>
 
-                    {/* Hover add indicator */}
-                    <div className="absolute inset-0 bg-foreground/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <div className="bg-foreground/20 rounded-full p-2">
-                        <Add01Icon size={16} className="text-primary-foreground" />
+                    <div className="absolute inset-0 bg-background/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <div className="bg-foreground/[0.12] border border-foreground/15 rounded-md p-2">
+                        <Add01Icon size={16} className="text-foreground" />
                       </div>
                     </div>
 
-                    {/* Duration badge */}
-                    <div className="absolute bottom-1 right-1 px-1 py-0.5 bg-foreground/60 rounded text-[8px] text-background/80">
+                    <div className="absolute bottom-1 right-1 px-1 py-0.5 bg-background/80 border border-foreground/10 rounded-md text-[8px] text-muted-foreground">
                       {(preset.duration / 1000).toFixed(1)}s
                     </div>
 
-                    {/* Applied indicator */}
-                    {isApplied && (
-                      <div className="absolute top-1 left-1 px-1 py-0.5 bg-primary rounded text-[7px] text-primary-foreground font-medium">
+                    {isApplied ? (
+                      <div className="absolute top-1 left-1 px-1 py-0.5 bg-card border border-foreground/20 rounded-md text-[7px] text-foreground font-medium">
                         Added
                       </div>
-                    )}
+                    ) : null}
                   </div>
 
-                  {/* Preset name */}
-                  <span className="text-[9px] font-medium text-foreground/70 truncate w-full text-center">
+                  <span className="text-[9px] font-medium text-muted-foreground truncate w-full text-center">
                     {preset.name}
                   </span>
                 </button>
@@ -189,22 +178,20 @@ export function AnimationPresetGallery() {
         </div>
       ))}
 
-      {/* Info text */}
       {!previewImageUrl && (
-        <div className="p-3 rounded-lg bg-muted/50 border border-border text-center">
+        <div className="p-3 rounded-md bg-foreground/[0.04] border border-foreground/10 text-center">
           <p className="text-xs text-muted-foreground">
             Upload an image to see animation previews
           </p>
         </div>
       )}
 
-      {/* Instructions */}
-      <div className="p-3 rounded-lg bg-muted/50 border border-border/30 space-y-1">
-        <p className="text-xs text-foreground/60">
+      <div className="p-3 rounded-md bg-foreground/[0.04] border border-foreground/10 space-y-1">
+        <p className="text-xs text-muted-foreground">
           Click any preset to add it to the timeline.
           You can add multiple animations and arrange them.
         </p>
-        <p className="text-[10px] text-foreground/40">
+        <p className="text-[10px] text-muted-foreground/70">
           Use the timeline at the bottom to resize and reorder clips.
         </p>
       </div>

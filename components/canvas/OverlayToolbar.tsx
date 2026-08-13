@@ -21,6 +21,9 @@ interface OverlayToolbarProps {
   containerRef: React.RefObject<HTMLDivElement | null>;
 }
 
+const toolBtn =
+  'flex h-7 w-7 cursor-pointer items-center justify-center rounded-md text-muted-foreground transition-colors duration-150 hover:bg-foreground/[0.06] hover:text-foreground';
+
 export function OverlayToolbar({
   position,
   overlay,
@@ -77,9 +80,9 @@ export function OverlayToolbar({
     <div
       ref={toolbarRef}
       className={cn(
-        'absolute z-50 flex items-center gap-1 p-1.5',
-        'bg-card/95 backdrop-blur-sm rounded-xl',
-        'border border-border/40 shadow-lg',
+        'absolute z-50 flex h-8 items-center gap-0.5 rounded-md px-1',
+        'bg-card border border-foreground/10',
+        'shadow-lg',
         'animate-in fade-in-0 zoom-in-95 duration-150'
       )}
       style={{
@@ -89,102 +92,80 @@ export function OverlayToolbar({
       }}
       onClick={(e) => e.stopPropagation()}
     >
-      {/* Rotate controls */}
       <button
+        type="button"
         onClick={(e) => {
           e.stopPropagation();
           handleRotate(-45);
         }}
-        className={cn(
-          'flex items-center justify-center w-8 h-8 rounded-lg',
-          'text-muted-foreground hover:text-foreground',
-          'hover:bg-accent transition-colors duration-150'
-        )}
+        className={toolBtn}
         title="Rotate -45°"
       >
-        <RotateLeft01Icon size={16} />
+        <RotateLeft01Icon size={14} />
       </button>
       <button
+        type="button"
         onClick={(e) => {
           e.stopPropagation();
           handleRotate(45);
         }}
-        className={cn(
-          'flex items-center justify-center w-8 h-8 rounded-lg',
-          'text-muted-foreground hover:text-foreground',
-          'hover:bg-accent transition-colors duration-150'
-        )}
+        className={toolBtn}
         title="Rotate +45°"
       >
-        <RotateRight01Icon size={16} />
+        <RotateRight01Icon size={14} />
       </button>
 
-      <div className="w-px h-5 bg-border/40" />
+      <div className="mx-0.5 h-3.5 w-px bg-foreground/10" aria-hidden />
 
-      {/* Size controls */}
       <button
+        type="button"
         onClick={(e) => {
           e.stopPropagation();
           handleResize(-20);
         }}
-        className={cn(
-          'flex items-center justify-center w-8 h-8 rounded-lg',
-          'text-muted-foreground hover:text-foreground',
-          'hover:bg-accent transition-colors duration-150'
-        )}
+        className={toolBtn}
         title="Decrease size"
       >
-        <MinusSignIcon size={16} />
+        <MinusSignIcon size={14} />
       </button>
       <button
+        type="button"
         onClick={(e) => {
           e.stopPropagation();
           handleResize(20);
         }}
-        className={cn(
-          'flex items-center justify-center w-8 h-8 rounded-lg',
-          'text-muted-foreground hover:text-foreground',
-          'hover:bg-accent transition-colors duration-150'
-        )}
+        className={toolBtn}
         title="Increase size"
       >
-        <PlusSignIcon size={16} />
+        <PlusSignIcon size={14} />
       </button>
 
-      <div className="w-px h-5 bg-border/40" />
+      <div className="mx-0.5 h-3.5 w-px bg-foreground/10" aria-hidden />
 
-      {/* Duplicate */}
       <button
+        type="button"
         onClick={(e) => {
           e.stopPropagation();
           onDuplicate();
         }}
-        className={cn(
-          'flex items-center justify-center w-8 h-8 rounded-lg',
-          'text-muted-foreground hover:text-foreground',
-          'hover:bg-accent transition-colors duration-150'
-        )}
+        className={toolBtn}
         title="Duplicate"
       >
-        <Copy01Icon size={16} />
+        <Copy01Icon size={14} />
       </button>
 
-      <div className="w-px h-5 bg-border/40" />
+      <div className="mx-0.5 h-3.5 w-px bg-foreground/10" aria-hidden />
 
-      {/* Delete */}
       <button
+        type="button"
         onClick={(e) => {
           e.stopPropagation();
           onDelete();
         }}
-        className={cn(
-          'flex items-center justify-center w-8 h-8 rounded-lg',
-          'text-muted-foreground hover:text-red-500',
-          'hover:bg-red-500/10 transition-colors duration-150'
-        )}
+        className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-md text-muted-foreground transition-colors duration-150 hover:bg-destructive/15 hover:text-destructive"
         title="Delete"
       >
-        <Delete02Icon size={16} />
+        <Delete02Icon size={14} />
       </button>
     </div>
   );

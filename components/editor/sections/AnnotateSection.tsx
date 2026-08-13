@@ -5,7 +5,7 @@ import { useImageStore } from '@/lib/store';
 import type { AnnotationToolType } from '@/lib/store';
 import { SectionWrapper } from './SectionWrapper';
 import { cn } from '@/lib/utils';
-import { Delete02Icon } from 'hugeicons-react';
+import { ColorPickerIcon, Delete02Icon } from 'hugeicons-react';
 import { Slider } from '@/components/ui/slider';
 
 // ── Tool definitions ──────────────────────────────────────────────────────────
@@ -137,7 +137,6 @@ export function AnnotateSection() {
     <SectionWrapper title="Draw & Markup" defaultOpen={true}>
       <div className="space-y-3">
 
-        {/* ── Tool grid ── */}
         <div className="grid grid-cols-3 gap-1.5 p-1">
           {TOOLS.map((tool) => {
             const isActive = activeAnnotationTool === tool.id;
@@ -145,12 +144,12 @@ export function AnnotateSection() {
               <button
                 key={tool.id}
                 onClick={() => handleToolClick(tool.id)}
-                title={`${tool.label} — click, then draw on canvas`}
+                title={`${tool.label}. Click, then draw on canvas`}
                 className={cn(
-                  'flex flex-col items-center justify-center gap-1 py-2.5 rounded-xl text-[11px] font-medium transition-all duration-150',
+                  'flex flex-col items-center justify-center gap-1 py-2.5 rounded-md text-[11px] font-medium transition-all duration-150 border',
                   isActive
-                    ? 'bg-primary text-primary-foreground'
-                    : 'bg-muted/40 text-muted-foreground hover:bg-accent hover:text-foreground'
+                    ? 'bg-foreground/[0.1] text-foreground border-foreground/20'
+                    : 'bg-foreground/[0.04] text-muted-foreground border-foreground/10 hover:bg-foreground/[0.06] hover:text-foreground'
                 )}
               >
                 {tool.svg}
@@ -160,14 +159,12 @@ export function AnnotateSection() {
           })}
         </div>
 
-        {/* ── Active tool hint ── */}
         {activeAnnotationTool && (
-          <div className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg bg-primary/8 border border-primary/15">
+          <div className="flex items-center gap-2.5 px-3 py-2.5 rounded-md bg-foreground/[0.04] border border-foreground/10">
             <span className="relative flex h-2 w-2 shrink-0">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-50" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-foreground/70" />
             </span>
-            <span className="text-xs text-primary/90">
+            <span className="text-xs text-muted-foreground">
               {activeAnnotationTool === 'blur'
                 ? 'Draw a region on the canvas to blur'
                 : `Click and drag on canvas to draw ${activeAnnotationTool}`}
@@ -175,20 +172,17 @@ export function AnnotateSection() {
           </div>
         )}
 
-        {/* ── Editing hint (when annotation selected, no tool active) ── */}
         {selectedAnnotation && !activeAnnotationTool && (
-          <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-primary/6 border border-primary/12">
-            <div className="w-2.5 h-2.5 rounded-full bg-primary/60 shrink-0" />
-            <span className="text-xs text-primary/80">
-              Editing <span className="font-medium capitalize">{selectedAnnotation.type}</span> — click canvas to deselect
+          <div className="flex items-center gap-2 px-3 py-2 rounded-md bg-foreground/[0.04] border border-foreground/10">
+            <div className="w-2.5 h-2.5 rounded-full bg-foreground/50 shrink-0" />
+            <span className="text-xs text-muted-foreground">
+              Editing <span className="font-medium capitalize text-foreground">{selectedAnnotation.type}</span>. Click canvas to deselect
             </span>
           </div>
         )}
 
-        {/* ── Color + stroke (only for non-blur tools) ── */}
         {activeAnnotationTool !== 'blur' && (
           <div className="space-y-3">
-            {/* Color palette */}
             <div className="space-y-2">
               <span className="text-xs font-medium text-muted-foreground">Color</span>
               <div className="flex items-center gap-1.5 flex-wrap">
@@ -200,29 +194,46 @@ export function AnnotateSection() {
                     className={cn(
                       'w-7 h-7 rounded-full transition-all duration-150 shrink-0',
                       currentColor === value
-                        ? 'ring-2 ring-primary ring-offset-2 ring-offset-background scale-110'
+                        ? 'ring-1 ring-foreground/40 ring-offset-2 ring-offset-background scale-110'
                         : 'hover:scale-110'
                     )}
                     style={{
                       backgroundColor: value,
                       boxShadow: value === '#ffffff'
-                        ? 'inset 0 0 0 1.5px hsl(var(--border))'
+                        ? 'inset 0 0 0 1.5px color-mix(in srgb, var(--foreground) 20%, transparent)'
                         : '0 1px 2px rgba(0,0,0,0.15)',
                     }}
                   />
                 ))}
-                <div className="w-px h-5 bg-border/40 mx-0.5" />
-                <input
-                  type="color"
-                  value={currentColor}
-                  onChange={(e) => handleColorChange(e.target.value)}
+                <div className="w-px h-5 bg-foreground/10 mx-0.5" />
+                <label
                   title="Pick any color"
-                  className="w-7 h-7 rounded-full cursor-pointer border border-border/50 appearance-none bg-transparent [&::-webkit-color-swatch-wrapper]:p-0 [&::-webkit-color-swatch]:rounded-full [&::-webkit-color-swatch]:border-0"
-                />
+                  className={cn(
+                    'relative flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-full',
+                    'border border-foreground/20 bg-foreground/[0.04] text-muted-foreground',
+                    'transition-colors hover:bg-foreground/[0.08] hover:text-foreground'
+                  )}
+                >
+                  <input
+                    type="color"
+                    value={currentColor}
+                    onChange={(e) => handleColorChange(e.target.value)}
+                    aria-label="Pick any color"
+                    className="absolute inset-0 z-20 cursor-pointer opacity-0"
+                  />
+                  <ColorPickerIcon
+                    size={13}
+                    className="pointer-events-none relative z-10 mb-0.5"
+                  />
+                  <span
+                    aria-hidden
+                    className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-1.5 border-t border-background/25"
+                    style={{ backgroundColor: currentColor }}
+                  />
+                </label>
               </div>
             </div>
 
-            {/* Stroke width */}
             <div className="space-y-1.5">
               <span className="text-xs font-medium text-muted-foreground">Stroke</span>
               <Slider
@@ -237,14 +248,13 @@ export function AnnotateSection() {
           </div>
         )}
 
-        {/* ── Blur regions list ── */}
         {blurRegions.length > 0 && (
           <div className="space-y-1.5">
             <span className="text-xs font-medium text-muted-foreground">Blur Regions</span>
             {blurRegions.map((region, index) => (
               <div
                 key={region.id}
-                className="flex items-center gap-2 py-1.5 px-2.5 rounded-lg bg-muted/30 border border-border/30"
+                className="flex items-center gap-2 py-1.5 px-2.5 rounded-md bg-foreground/[0.04] border border-foreground/10"
               >
                 <span className="text-[11px] text-muted-foreground shrink-0 w-8">#{index + 1}</span>
                 <Slider
@@ -269,9 +279,8 @@ export function AnnotateSection() {
           </div>
         )}
 
-        {/* ── Footer: count + clear ── */}
         {totalItems > 0 && (
-          <div className="flex items-center justify-between pt-2 border-t border-border/30">
+          <div className="flex items-center justify-between pt-2 border-t border-foreground/10">
             <span className="text-xs text-muted-foreground tabular-nums">
               {annotations.length > 0 && `${annotations.length} shape${annotations.length !== 1 ? 's' : ''}`}
               {annotations.length > 0 && blurRegions.length > 0 && ', '}

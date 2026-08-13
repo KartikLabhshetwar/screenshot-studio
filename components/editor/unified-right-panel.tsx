@@ -11,6 +11,8 @@ import {
   VideoReplayIcon,
   Cancel01Icon,
   LayersLogoIcon,
+  Image01Icon,
+  Globe02Icon,
 } from 'hugeicons-react';
 import {
   SettingsSection,
@@ -31,28 +33,44 @@ import {
 import { cn } from '@/lib/utils';
 import { useImageStore } from '@/lib/store';
 import { AnimationPresetGallery } from '@/components/timeline/AnimationPresetGallery';
+import { SegmentedControl } from '@/components/ui/segmented-control';
 
-
+type EditorMode = 'screenshot' | 'browser';
 type TabType = 'settings' | 'edit' | 'background' | 'transforms' | 'animate' | 'depth';
 
-const tabs: { id: TabType; icon: React.ReactNode; label: string }[] = [
-  { id: 'edit', icon: <SlidersHorizontalIcon size={20} />, label: 'Design' },
-  { id: 'depth', icon: <LayersLogoIcon size={20} />, label: 'Layers' },
-  { id: 'background', icon: <ColorsIcon size={20} />, label: 'BG' },
-  { id: 'settings', icon: <Settings02Icon size={20} />, label: 'Adjust' },
-  { id: 'transforms', icon: <RotateSquareIcon size={20} />, label: '3D' },
-  { id: 'animate', icon: <VideoReplayIcon size={20} />, label: 'Motion' },
+const modeTabs: { id: EditorMode; icon: React.ReactNode; label: string }[] = [
+  { id: 'screenshot', icon: <Image01Icon size={14} />, label: 'Screenshot' },
+  { id: 'browser', icon: <Globe02Icon size={14} />, label: 'Browser' },
 ];
 
-export function UnifiedRightPanel() {
-  const { activeRightPanelTab, setActiveRightPanelTab, showTemplates: templatesOpen, setShowTemplates: setTemplatesOpen, editorMode } = useImageStore();
+const tabs: { id: TabType; icon: React.ReactNode; label: string }[] = [
+  { id: 'edit', icon: <SlidersHorizontalIcon size={14} />, label: 'Design' },
+  { id: 'depth', icon: <LayersLogoIcon size={14} />, label: 'Layers' },
+  { id: 'background', icon: <ColorsIcon size={14} />, label: 'BG' },
+  { id: 'settings', icon: <Settings02Icon size={14} />, label: 'Adjust' },
+  { id: 'transforms', icon: <RotateSquareIcon size={14} />, label: '3D' },
+  { id: 'animate', icon: <VideoReplayIcon size={14} />, label: 'Motion' },
+];
+
+export function UnifiedRightPanel({
+  onClose,
+}: {
+  onClose?: () => void;
+} = {}) {
+  const {
+    activeRightPanelTab,
+    setActiveRightPanelTab,
+    showTemplates: templatesOpen,
+    setShowTemplates: setTemplatesOpen,
+    editorMode,
+    setEditorMode,
+  } = useImageStore();
   const activeTab = activeRightPanelTab;
   const setActiveTab = setActiveRightPanelTab;
 
   const [contentKey, setContentKey] = React.useState(activeTab);
   const [transitioning, setTransitioning] = React.useState(false);
 
-  // Handle tab content fade transition
   React.useEffect(() => {
     if (activeTab !== contentKey) {
       setTransitioning(true);
@@ -64,7 +82,6 @@ export function UnifiedRightPanel() {
     }
   }, [activeTab, contentKey]);
 
-  // Close templates overlay on Escape
   React.useEffect(() => {
     if (!templatesOpen) return;
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -75,45 +92,49 @@ export function UnifiedRightPanel() {
   }, [templatesOpen, setTemplatesOpen]);
 
   return (
-    <div className="w-full h-full bg-card flex flex-col overflow-hidden md:w-[460px] border-r border-border/40 relative">
-      {/* Tab Navigation */}
-      <div className="px-3 py-3 border-b border-border/30 shrink-0">
-        <div className="flex gap-1 p-1 bg-muted/80 dark:bg-muted/50 rounded-xl border border-border/20">
-          {tabs.map((tab) => {
-            const isActive = activeTab === tab.id;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={cn(
-                  'flex items-center justify-center py-2.5 px-3 rounded-lg',
-                  'transition-all duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)]',
-                  isActive
-                    ? 'bg-background dark:bg-accent text-foreground flex-[1.8] shadow-sm'
-                    : 'text-muted-foreground hover:text-foreground flex-1'
-                )}
-              >
-                <span className="shrink-0">{tab.icon}</span>
-                <span
-                  className={cn(
-                    'text-xs font-medium whitespace-nowrap overflow-hidden transition-all duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)]',
-                    isActive
-                      ? 'max-w-[80px] opacity-100 ml-2'
-                      : 'max-w-0 opacity-0 ml-0'
-                  )}
-                >
-                  {tab.label}
-                </span>
-              </button>
-            );
-          })}
+    <div className="relative flex h-full min-h-0 w-full flex-col overflow-hidden bg-background">
+      <div className="relative z-20 shrink-0 space-y-2.5 border-b border-foreground/10 px-3 pt-[max(0.75rem,env(safe-area-inset-top))] pb-3">
+        <div className="flex min-w-0 items-center gap-2">
+          <div className="min-w-0 flex-1 overflow-hidden">
+            <SegmentedControl
+              value={editorMode}
+              onChange={(id) => setEditorMode(id as EditorMode)}
+              options={modeTabs.map((tab) => ({
+                id: tab.id,
+                label: tab.label,
+                icon: tab.icon,
+                ariaLabel: tab.label,
+              }))}
+            />
+          </div>
+          {onClose ? (
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-foreground/[0.06] hover:text-foreground"
+              aria-label="Close"
+            >
+              <Cancel01Icon size={16} />
+            </button>
+          ) : null}
+        </div>
+        <div className="min-w-0 overflow-hidden">
+          <SegmentedControl
+            value={activeTab}
+            onChange={(id) => setActiveTab(id as TabType)}
+            size="sm"
+            options={tabs.map((tab) => ({
+              id: tab.id,
+              icon: tab.icon,
+              ariaLabel: tab.label,
+            }))}
+          />
         </div>
       </div>
 
-      {/* Scrollable Content with fade transition */}
-      <div className="flex-1 overflow-y-auto scrollbar-hide">
+      <div className="min-h-0 min-w-0 flex-1 overflow-x-hidden overflow-y-auto scrollbar-hide">
         <div
-          className="p-5 transition-all duration-150 ease-out"
+          className="p-3 transition-all duration-150 ease-out sm:p-4"
           style={{
             opacity: transitioning ? 0 : 1,
             transform: transitioning ? 'translateY(4px)' : 'translateY(0)',
@@ -159,32 +180,30 @@ export function UnifiedRightPanel() {
         </div>
       </div>
 
-      {/* Templates Overlay */}
       <div
         className={cn(
-          'absolute inset-0 z-50 bg-card flex flex-col transition-all duration-300 ease-out',
+          'absolute inset-0 z-50 flex flex-col bg-background transition-all duration-300 ease-out',
           templatesOpen
             ? 'translate-x-0 opacity-100'
             : '-translate-x-full opacity-0 pointer-events-none'
         )}
       >
-        {/* Overlay Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-border/30 shrink-0">
+        <div className="flex shrink-0 items-center justify-between border-b border-foreground/10 px-4 py-3">
           <div className="flex items-center gap-2.5">
-            <MagicWand01Icon size={20} className="text-primary" />
-            <h2 className="text-base font-semibold text-foreground">Templates</h2>
+            <MagicWand01Icon size={18} className="text-foreground" />
+            <h2 className="text-sm font-semibold text-foreground">Templates</h2>
           </div>
           <button
+            type="button"
             onClick={() => setTemplatesOpen(false)}
-            className="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-muted transition-colors duration-150 text-muted-foreground hover:text-foreground"
+            className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground transition-colors duration-150 hover:bg-foreground/[0.08] hover:text-foreground"
           >
-            <Cancel01Icon size={18} />
+            <Cancel01Icon size={16} />
           </button>
         </div>
 
-        {/* Overlay Content */}
         <div className="flex-1 overflow-y-auto scrollbar-hide">
-          <div className="p-5">
+          <div className="p-4">
             <PresetGallery />
           </div>
         </div>

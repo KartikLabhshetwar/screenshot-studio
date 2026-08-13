@@ -22,7 +22,7 @@ const frameToStyle: Record<string, BrowserStyle> = {
   'windows-dark': 'chrome-dark',
 };
 
-function BrowserPreview({ style, selected }: { style: BrowserStyle; selected: boolean }) {
+function BrowserPreview({ style }: { style: BrowserStyle }) {
   const isDark = style === 'safari-dark' || style === 'chrome-dark';
   const isSafari = style === 'safari' || style === 'safari-dark';
 
@@ -35,10 +35,7 @@ function BrowserPreview({ style, selected }: { style: BrowserStyle; selected: bo
 
   return (
     <div
-      className={cn(
-        'relative w-full aspect-square rounded-lg overflow-hidden transition-all',
-        selected ? 'ring-[1.5px] ring-primary ring-offset-1 ring-offset-card' : 'ring-1 ring-border/50',
-      )}
+      className="relative w-full aspect-square rounded-md overflow-hidden"
       style={{ backgroundColor: outerBg }}
     >
       <div
@@ -54,7 +51,6 @@ function BrowserPreview({ style, selected }: { style: BrowserStyle; selected: bo
       >
         {isSafari ? (
           <>
-            {/* Safari: single title bar */}
             <div
               style={{
                 background: titleBarBg,
@@ -73,7 +69,6 @@ function BrowserPreview({ style, selected }: { style: BrowserStyle; selected: bo
           </>
         ) : (
           <>
-            {/* Chrome: tab bar + address bar */}
             <div
               style={{
                 background: titleBarBg,
@@ -95,7 +90,6 @@ function BrowserPreview({ style, selected }: { style: BrowserStyle; selected: bo
             <div style={{ background: activeBg, height: '9%', flexShrink: 0 }} />
           </>
         )}
-        {/* Content area */}
         <div style={{ background: contentBg, flexGrow: 1 }} />
       </div>
     </div>
@@ -131,7 +125,16 @@ export function BrowserMockupSection() {
                   onClick={() => handleStyleChange(value)}
                   className="flex flex-col items-center gap-1.5 group"
                 >
-                  <BrowserPreview style={value} selected={isSelected} />
+                  <div
+                    className={cn(
+                      'w-full rounded-[10px] p-1 border transition-all',
+                      isSelected
+                        ? 'bg-foreground/[0.1] border-foreground/25'
+                        : 'border-transparent hover:bg-foreground/[0.04]'
+                    )}
+                  >
+                    <BrowserPreview style={value} />
+                  </div>
                   <span
                     className={cn(
                       'text-[10px] leading-tight transition-colors',
@@ -154,7 +157,7 @@ export function BrowserMockupSection() {
           value={browserUrl}
           onChange={(e) => setBrowserUrl(e.target.value)}
           placeholder="yourapp.com"
-          className="w-full h-9 px-3 text-xs rounded-[10px] bg-muted/80 dark:bg-muted/50 shadow-[0_0_0_1px] shadow-border/50 text-foreground placeholder:text-muted-foreground focus:outline-none focus:shadow-[0_0_0_2px] focus:shadow-primary transition-shadow"
+          className="w-full h-9 px-3 text-xs rounded-md bg-foreground/[0.04] border border-foreground/10 text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-foreground/25 focus:ring-1 focus:ring-foreground/15 transition-colors"
         />
       </div>
 

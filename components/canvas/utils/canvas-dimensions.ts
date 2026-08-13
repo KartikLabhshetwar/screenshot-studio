@@ -1,3 +1,5 @@
+import { MOBILE_BREAKPOINT } from "@/hooks/use-mobile";
+
 export interface CanvasDimensions {
   canvasW: number;
   canvasH: number;
@@ -38,31 +40,12 @@ export function calculateCanvasDimensions(
   browserHeaderSize?: number
 ): CanvasDimensions {
   const imageAspect = image.naturalWidth / image.naturalHeight;
-  const canvasAspect = containerWidth / containerHeight;
-  const isMobileViewport = viewportSize.width < 768;
+  const isMobileViewport = viewportSize.width < MOBILE_BREAKPOINT;
 
-  const availableWidth = Math.min(viewportSize.width * 1.1, containerWidth);
-  const availableHeight = Math.min(viewportSize.height * 1.1, containerHeight);
-
-  let canvasW: number, canvasH: number;
-  if (availableWidth / availableHeight > canvasAspect) {
-    canvasH = availableHeight - canvas.padding * 2;
-    canvasW = canvasH * canvasAspect;
-  } else {
-    canvasW = availableWidth - canvas.padding * 2;
-    canvasH = canvasW / canvasAspect;
-  }
-
-  // Maintain a minimum preview size on larger screens but keep true ratio on mobile.
-  const minContentSize = isMobileViewport ? 0 : 300;
-  if (minContentSize > 0) {
-    const minDimension = Math.min(canvasW, canvasH);
-    if (minDimension < minContentSize && minDimension > 0) {
-      const scaleFactor = minContentSize / minDimension;
-      canvasW *= scaleFactor;
-      canvasH *= scaleFactor;
-    }
-  }
+  // Stage footprint is locked to the responsive container so empty → loaded
+  // never changes size. Padding only insets the screenshot content area.
+  const canvasW = containerWidth;
+  const canvasH = containerHeight;
 
   // Adapt padding so small canvases don't end up with huge borders.
   const maxPaddingRatio = isMobileViewport ? 0.05 : 0.08;
@@ -91,7 +74,6 @@ export function calculateCanvasDimensions(
     imageScaledH *= 0.88;
   }
 
-  const isWindowFrame = ['macos-light', 'macos-dark', 'windows-light', 'windows-dark'].includes(frame.type);
   const isMacosFrame = frame.type === 'macos-light' || frame.type === 'macos-dark';
   const isWindowsFrame = frame.type === 'windows-light' || frame.type === 'windows-dark';
   const isPhotograph = frame.type === 'photograph';
@@ -159,4 +141,3 @@ export function calculateCanvasDimensions(
     imageY,
   };
 }
-

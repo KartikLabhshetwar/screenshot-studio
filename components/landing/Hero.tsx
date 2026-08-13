@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useRef } from "react";
+import Image from "next/image";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { HeroVideoDialog } from "@/components/ui/hero-video-dialog";
+import { motion, useInView, useReducedMotion } from "motion/react";
+import { EditorPreview } from "./EditorPreview";
 import { trackCTAClick } from "@/lib/analytics";
 
 interface HeroProps {
@@ -14,6 +15,48 @@ interface HeroProps {
   ctaHref?: string;
 }
 
+const MASK_EASE = [0.33, 1, 0.68, 1] as const;
+
+const DESC_DELAY = 0.42;
+const BUTTON_DELAY = 0.62;
+
+const headingMaskAnimation = {
+  initial: { y: "100%" },
+  enter: (i: number) => ({
+    y: "0%",
+    transition: {
+      duration: 0.75,
+      ease: MASK_EASE,
+      delay: 0.075 * i,
+    },
+  }),
+};
+
+const descriptionMaskAnimation = {
+  initial: { y: "100%" },
+  enter: {
+    y: "0%",
+    transition: {
+      duration: 0.32,
+      ease: MASK_EASE,
+      delay: DESC_DELAY,
+    },
+  },
+};
+
+const buttonAnimation = {
+  initial: { opacity: 0, y: 8 },
+  enter: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.25,
+      ease: MASK_EASE,
+      delay: BUTTON_DELAY,
+    },
+  },
+};
+
 export function Hero({
   title,
   subtitle,
@@ -21,88 +64,104 @@ export function Hero({
   ctaLabel = "Start Creating",
   ctaHref = "/",
 }: HeroProps) {
-  const [isVideoOpen, setIsVideoOpen] = useState(false);
-  const videoEmbedUrl = "https://www.youtube.com/embed/SKvVPLj5ZFo";
-  const videoThumbnailUrl =
-    "https://img.youtube.com/vi/SKvVPLj5ZFo/maxresdefault.jpg";
+  const headingRef = useRef<HTMLHeadingElement>(null);
+  const isInView = useInView(headingRef, { once: true, margin: "-10%" });
+  const prefersReducedMotion = useReducedMotion();
+  const lines = subtitle ? [title, subtitle] : [title];
+  const showMotion = prefersReducedMotion || isInView;
 
   return (
-    <main className="pt-24 pb-16 px-6" role="banner">
-      <div className="max-w-3xl mx-auto text-center">
-        {/* Tagline */}
-        <p className="text-sm text-muted-foreground mb-6">
-          The free browser-based screenshot editor
-        </p>
-
-        {/* Headline */}
-        <h1 className="text-4xl sm:text-5xl md:text-6xl font-semibold tracking-tight leading-[1.1]">
-          {title}
-          {subtitle && (
-            <>
-              <br />
-              <span className="text-primary">{subtitle}</span>
-            </>
-          )}
-        </h1>
-
-        {/* Description */}
-        <p className="mt-6 text-muted-foreground text-base md:text-lg max-w-lg mx-auto leading-relaxed">
-          {description}
-        </p>
-
-        {/* CTA Buttons */}
-        <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-          <Link
-            href={ctaHref}
-            onClick={() => trackCTAClick("hero", ctaLabel)}
+    <main className="relative z-10 pt-32 pb-24 sm:pt-36" role="banner">
+      <div className="mx-auto w-full max-w-6xl px-6">
+        <div className="text-left">
+          <motion.a
+            href="https://vercel.com/oss"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mb-5 inline-flex items-center gap-1.5 rounded-full bg-muted/40 px-3 py-1 text-xs ring-1 ring-border/60 transition-colors hover:bg-muted/55 hover:ring-border"
+            initial={prefersReducedMotion ? false : { opacity: 0, y: 6 }}
+            animate={
+              showMotion
+                ? {
+                    opacity: 1,
+                    y: 0,
+                    transition: {
+                      duration: 0.35,
+                      ease: MASK_EASE,
+                      delay: 0.12,
+                    },
+                  }
+                : { opacity: 0, y: 6 }
+            }
           >
-            <Button
-              size="lg"
-              className="text-base px-8 py-5 font-medium bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg"
+            <span className="text-muted-foreground">Backed by</span>
+            <Image
+              src="/vercel-icon.png"
+              alt=""
+              width={12}
+              height={10}
+              className="h-2.5 w-auto shrink-0 mix-blend-lighten"
+              aria-hidden="true"
+            />
+            <span className="font-medium text-foreground">
+              Vercel OSS Program
+            </span>
+          </motion.a>
+
+          <h1
+            ref={headingRef}
+            className="max-w-4xl text-[32px] leading-[38px] sm:text-[44px] sm:leading-[50px] md:text-[56px] md:leading-[64px] font-semibold tracking-[-0.03em] text-foreground"
+            style={{
+              fontFamily:
+                'Inter, "Inter Fallback", Arial, Helvetica, sans-serif',
+            }}
+          >
+            {lines.map((line, index) => (
+              <div key={line} className="overflow-hidden">
+                <motion.span
+                  className="block md:whitespace-nowrap"
+                  custom={index}
+                  variants={headingMaskAnimation}
+                  initial={prefersReducedMotion ? false : "initial"}
+                  animate={showMotion ? "enter" : "initial"}
+                >
+                  {line}
+                </motion.span>
+              </div>
+            ))}
+          </h1>
+
+          <div className="mt-6 max-w-2xl overflow-hidden">
+            <motion.p
+              className="text-[15px] md:text-base leading-normal text-muted-foreground"
+              variants={descriptionMaskAnimation}
+              initial={prefersReducedMotion ? false : "initial"}
+              animate={showMotion ? "enter" : "initial"}
+            >
+              {description}
+            </motion.p>
+          </div>
+
+          <motion.div
+            className="mt-8"
+            variants={buttonAnimation}
+            initial={prefersReducedMotion ? false : "initial"}
+            animate={showMotion ? "enter" : "initial"}
+          >
+            <Link
+              href={ctaHref}
+              onClick={() => trackCTAClick("hero", ctaLabel)}
+              className="relative inline-flex h-auto cursor-pointer items-center justify-center rounded-md border-0 bg-[var(--nav-cta-bg)] px-6 py-2.5 text-base font-medium text-[var(--nav-cta-fg)] shadow-none transition-[transform,box-shadow,background-color,color] duration-150 ease-out [text-shadow:var(--nav-cta-text-shadow)] hover:bg-[var(--nav-cta-bg)] hover:text-[var(--nav-cta-fg)] hover:shadow-[var(--nav-cta-hover-shadow)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 active:scale-[0.97] active:bg-[var(--nav-cta-bg)] active:text-[var(--nav-cta-fg)] active:shadow-none"
             >
               {ctaLabel}
-            </Button>
-          </Link>
-          <button
-            onClick={() => {
-              trackCTAClick("hero", "Watch demo");
-              setIsVideoOpen(true);
-            }}
-            className="text-muted-foreground hover:text-foreground transition-colors text-sm flex items-center gap-2 px-6 py-3 rounded-lg border border-border hover:bg-accent"
-            aria-label="Watch demo video"
-          >
-            <svg
-              className="w-4 h-4"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-              aria-hidden="true"
-            >
-              <path d="M6.5 5.5v9l7-4.5-7-4.5z" />
-            </svg>
-            Watch Demo
-          </button>
+            </Link>
+          </motion.div>
         </div>
 
-        {/* Trust indicators */}
-        <div className="mt-12 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-muted-foreground">
-          <span>Free forever</span>
-          <span className="hidden sm:inline text-border">·</span>
-          <span>No signup required</span>
-          <span className="hidden sm:inline text-border">·</span>
-          <span>Export in HD</span>
+        <div className="mt-14 md:mt-16">
+          <EditorPreview />
         </div>
       </div>
-
-      {/* Video Dialog */}
-      <HeroVideoDialog
-        videoSrc={videoEmbedUrl}
-        thumbnailSrc={videoThumbnailUrl}
-        thumbnailAlt="Screenshot Studio editor demo"
-        open={isVideoOpen}
-        onOpenChange={setIsVideoOpen}
-        showThumbnail={false}
-        animationStyle="from-center"
-      />
     </main>
   );
 }

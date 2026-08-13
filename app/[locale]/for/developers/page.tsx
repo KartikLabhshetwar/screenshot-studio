@@ -3,14 +3,14 @@ import Link from "next/link";
 import { Navigation } from "@/components/landing/Navigation";
 import { Footer } from "@/components/landing/Footer";
 import {
-  ArrowRight,
-  Code,
-  Github,
-  Terminal,
-  FileCode,
-  Layers,
-  Video,
-} from "lucide-react";
+  Github01Icon,
+  SourceCodeIcon,
+  ComputerTerminal01Icon,
+  DocumentCodeIcon,
+  Layers01Icon,
+  Video01Icon,
+  ArrowRight01Icon,
+} from "hugeicons-react";
 
 export const metadata: Metadata = {
   title: "Screenshot Editor for Developers - Free Tool",
@@ -43,39 +43,54 @@ export const metadata: Metadata = {
   },
 };
 
+const ctaClassName =
+  "relative inline-flex items-center justify-center rounded-md border-0 bg-[var(--nav-cta-bg)] px-6 py-2.5 text-base font-medium text-[var(--nav-cta-fg)] shadow-none transition-[transform,box-shadow] duration-150 ease-out [text-shadow:var(--nav-cta-text-shadow)] hover:shadow-[var(--nav-cta-hover-shadow)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 active:scale-[0.97]";
+
+const secondaryCtaClassName =
+  "inline-flex items-center justify-center rounded-md px-6 py-2.5 text-base font-medium text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground active:scale-[0.99]";
+
+const cardSurface =
+  "rounded-2xl bg-card p-6 ring-1 ring-inset ring-border shadow-[var(--card-highlight-shadow)]";
+
+const chipLinkClassName =
+  "group flex items-center justify-between rounded-md bg-foreground/[0.04] px-4 py-3 text-sm font-medium text-foreground/90 ring-1 ring-border transition-colors hover:bg-foreground/[0.08] hover:text-foreground";
+
+const INTER =
+  "Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif";
+
 const useCases = [
   {
-    icon: Github,
+    icon: Github01Icon,
     title: "GitHub README Images",
     description:
       "Make your open source projects stand out with polished screenshots in README files. Add backgrounds and shadows to app screenshots that show off your work at its best.",
   },
   {
-    icon: Code,
+    icon: SourceCodeIcon,
     title: "Code Snippet Sharing",
     description:
       "Share beautiful code screenshots on Twitter, LinkedIn, or dev blogs. Add gradient backgrounds and device frames that make your code pop in any feed.",
   },
   {
-    icon: Terminal,
+    icon: ComputerTerminal01Icon,
     title: "Terminal & CLI Output",
     description:
       "Turn raw terminal output into clean visuals for documentation and tutorials. Add macOS window frames and subtle shadows for a professional finish.",
   },
   {
-    icon: FileCode,
+    icon: DocumentCodeIcon,
     title: "Technical Blog Posts",
     description:
       "Create eye-catching hero images and inline screenshots for dev.to, Hashnode, or your personal blog. Consistent styling across all your content.",
   },
   {
-    icon: Layers,
+    icon: Layers01Icon,
     title: "Portfolio & Case Studies",
     description:
       "Showcase your projects with 3D perspective mockups and professional styling. Present your work the way it deserves to be seen.",
   },
   {
-    icon: Video,
+    icon: Video01Icon,
     title: "Demo Videos & GIFs",
     description:
       "Create animated walkthroughs of your apps with zoom, pan, and transition effects. Export as MP4 or GIF for issue trackers and pull requests.",
@@ -96,8 +111,33 @@ const workflows = [
   {
     title: "One-Click Presets",
     description:
-      "Pick a preset that matches your style — dark mode gradients, minimal whites, or vibrant colors. Done in seconds.",
+      "Pick a preset that matches your style. Dark mode gradients, minimal whites, or vibrant colors. Done in seconds.",
   },
+];
+
+const reasons = [
+  {
+    title: "Open Source",
+    description:
+      "Fully open source on GitHub. Inspect the code, contribute, or self-host.",
+  },
+  {
+    title: "Privacy First",
+    description:
+      "Everything runs in your browser. Your images never leave your machine.",
+  },
+  {
+    title: "Fast & Lightweight",
+    description:
+      "No heavy downloads or Electron apps. Just open a browser tab and start editing.",
+  },
+];
+
+const featureLinks = [
+  { href: "/features/screenshot-beautifier", label: "Screenshot Beautifier" },
+  { href: "/features/animation-maker", label: "Animation Maker" },
+  { href: "/features/3d-effects", label: "3D Effects" },
+  { href: "/features/social-media-graphics", label: "Social Media Graphics" },
 ];
 
 export default function ForDevelopersPage() {
@@ -146,70 +186,72 @@ export default function ForDevelopersPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="flex min-h-screen flex-col bg-background text-foreground">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
-      <Navigation ctaLabel="Open Editor" ctaHref="/" />
+      <Navigation />
 
       <main className="flex-1">
-        {/* Hero */}
-        <section className="pt-32 pb-20 px-4">
-          <div className="max-w-4xl mx-auto text-center">
-            <span className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6">
+        <section className="px-6 pb-20 pt-32">
+          <div className="mx-auto max-w-4xl text-center">
+            <p
+              className="mb-6 text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground"
+              style={{ fontFamily: INTER }}
+            >
               Built for Developers
-            </span>
-            <h1 className="text-4xl md:text-6xl font-bold mb-6 tracking-tight">
+            </p>
+            <h1
+              className="mb-6 text-4xl font-semibold tracking-[-0.04em] text-foreground md:text-6xl"
+              style={{ fontFamily: INTER }}
+            >
               Screenshot Editor for Developers
             </h1>
-            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
+            <p className="mx-auto mb-8 max-w-2xl text-lg text-muted-foreground md:text-xl">
               Make your code, projects, and portfolio look professional. Add
               backgrounds, device frames, 3D effects, and animations to any
               screenshot. Free in your browser.
             </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link
-                href="/"
-                className="inline-flex items-center gap-2 bg-primary text-primary-foreground font-semibold px-8 py-4 rounded-full hover:opacity-90 transition-opacity"
-              >
+            <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
+              <Link href="/" className={ctaClassName}>
                 Open Editor
-                <ArrowRight className="w-5 h-5" />
               </Link>
-              <Link
-                href="/features"
-                className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground font-medium px-6 py-4 transition-colors"
-              >
+              <Link href="/features" className={secondaryCtaClassName}>
                 See All Features
               </Link>
             </div>
           </div>
         </section>
 
-        {/* Use Cases */}
-        <section className="py-20 px-4 bg-muted/30">
-          <div className="max-w-6xl mx-auto">
-            <div className="text-center mb-16">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">
+        <section className="border-t border-border px-6 py-20">
+          <div className="mx-auto max-w-6xl">
+            <div className="mb-16 text-center">
+              <h2
+                className="mb-4 text-3xl font-semibold tracking-[-0.03em] text-foreground md:text-4xl"
+                style={{ fontFamily: INTER }}
+              >
                 How Developers Use Screenshot Studio
               </h2>
-              <p className="text-muted-foreground max-w-2xl mx-auto">
+              <p className="mx-auto max-w-2xl text-muted-foreground">
                 From README files to conference talks, make every screenshot
                 count.
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
               {useCases.map((uc) => (
-                <div
-                  key={uc.title}
-                  className="flex gap-4 p-6 bg-background rounded-xl border"
-                >
-                  <div className="flex-shrink-0">
-                    <uc.icon className="w-8 h-8 text-primary" />
+                <div key={uc.title} className={`${cardSurface} flex gap-4`}>
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-foreground/[0.06] text-foreground ring-1 ring-inset ring-border">
+                    <uc.icon size={20} strokeWidth={1.75} />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-lg mb-2">{uc.title}</h3>
+                    <h3
+                      className="mb-2 text-lg font-semibold tracking-[-0.02em] text-foreground"
+                      style={{ fontFamily: INTER }}
+                    >
+                      {uc.title}
+                    </h3>
                     <p className="text-sm text-muted-foreground">
                       {uc.description}
                     </p>
@@ -220,11 +262,13 @@ export default function ForDevelopersPage() {
           </div>
         </section>
 
-        {/* Workflow */}
-        <section className="py-20 px-4">
-          <div className="max-w-4xl mx-auto">
-            <div className="text-center mb-16">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">
+        <section className="border-t border-border px-6 py-20">
+          <div className="mx-auto max-w-4xl">
+            <div className="mb-16 text-center">
+              <h2
+                className="mb-4 text-3xl font-semibold tracking-[-0.03em] text-foreground md:text-4xl"
+                style={{ fontFamily: INTER }}
+              >
                 Fits Your Workflow
               </h2>
               <p className="text-muted-foreground">
@@ -233,104 +277,94 @@ export default function ForDevelopersPage() {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
               {workflows.map((w, i) => (
                 <div key={w.title} className="text-center">
-                  <div className="flex-shrink-0 w-12 h-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-xl mx-auto mb-4">
+                  <div className="mx-auto mb-4 flex size-12 items-center justify-center rounded-md bg-primary text-base font-semibold text-primary-foreground">
                     {i + 1}
                   </div>
-                  <h3 className="font-semibold text-lg mb-2">{w.title}</h3>
-                  <p className="text-sm text-muted-foreground">
-                    {w.description}
-                  </p>
+                  <h3
+                    className="mb-2 text-lg font-semibold tracking-[-0.02em] text-foreground"
+                    style={{ fontFamily: INTER }}
+                  >
+                    {w.title}
+                  </h3>
+                  <p className="text-sm text-muted-foreground">{w.description}</p>
                 </div>
               ))}
             </div>
           </div>
         </section>
 
-        {/* Why Devs Choose Us */}
-        <section className="py-20 px-4 bg-muted/30">
-          <div className="max-w-4xl mx-auto">
-            <h2 className="text-3xl font-bold text-center mb-12">
+        <section className="border-t border-border px-6 py-20">
+          <div className="mx-auto max-w-4xl">
+            <h2
+              className="mb-12 text-center text-3xl font-semibold tracking-[-0.03em] text-foreground"
+              style={{ fontFamily: INTER }}
+            >
               Why Developers Choose Screenshot Studio
             </h2>
             <div className="space-y-6">
-              <div className="flex gap-4">
-                <div className="flex-shrink-0 w-2 h-2 mt-3 rounded-full bg-primary" />
-                <div>
-                  <h3 className="font-semibold mb-1">Open Source</h3>
-                  <p className="text-muted-foreground">
-                    Fully open source on GitHub. Inspect the code, contribute, or
-                    self-host.
-                  </p>
+              {reasons.map((reason) => (
+                <div key={reason.title} className="flex gap-4">
+                  <div className="mt-3 h-2 w-2 shrink-0 rounded-full bg-primary" />
+                  <div>
+                    <h3
+                      className="mb-1 font-semibold tracking-[-0.02em] text-foreground"
+                      style={{ fontFamily: INTER }}
+                    >
+                      {reason.title}
+                    </h3>
+                    <p className="text-muted-foreground">{reason.description}</p>
+                  </div>
                 </div>
-              </div>
-              <div className="flex gap-4">
-                <div className="flex-shrink-0 w-2 h-2 mt-3 rounded-full bg-primary" />
-                <div>
-                  <h3 className="font-semibold mb-1">Privacy First</h3>
-                  <p className="text-muted-foreground">
-                    Everything runs in your browser. Your images never leave your
-                    machine.
-                  </p>
-                </div>
-              </div>
-              <div className="flex gap-4">
-                <div className="flex-shrink-0 w-2 h-2 mt-3 rounded-full bg-primary" />
-                <div>
-                  <h3 className="font-semibold mb-1">Fast & Lightweight</h3>
-                  <p className="text-muted-foreground">
-                    No heavy downloads or Electron apps. Just open a browser tab
-                    and start editing.
-                  </p>
-                </div>
-              </div>
+              ))}
             </div>
           </div>
         </section>
 
-        {/* Feature Links */}
-        <section className="py-16 px-4">
-          <div className="max-w-4xl mx-auto">
-            <h2 className="text-2xl font-bold mb-8 text-center">
+        <section className="border-t border-border px-6 py-16">
+          <div className="mx-auto max-w-4xl">
+            <h2
+              className="mb-8 text-center text-2xl font-semibold tracking-[-0.03em] text-foreground"
+              style={{ fontFamily: INTER }}
+            >
               Explore Features
             </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {[
-                { href: "/features/screenshot-beautifier", label: "Screenshot Beautifier" },
-                { href: "/features/animation-maker", label: "Animation Maker" },
-                { href: "/features/3d-effects", label: "3D Effects" },
-                { href: "/features/social-media-graphics", label: "Social Media Graphics" },
-              ].map((link) => (
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {featureLinks.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="flex items-center justify-between p-4 bg-muted/30 border rounded-xl hover:border-primary transition-colors group"
+                  className={chipLinkClassName}
                 >
-                  <span className="font-medium text-sm">{link.label}</span>
-                  <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                  <span>
+                    {link.label}
+                  </span>
+                  <ArrowRight01Icon
+                    size={14}
+                    strokeWidth={1.75}
+                    className="size-3.5 shrink-0 text-muted-foreground/70 transition-colors group-hover:text-foreground"
+                  />
                 </Link>
               ))}
             </div>
           </div>
         </section>
 
-        {/* CTA */}
-        <section className="py-20 px-4 bg-muted/30">
-          <div className="max-w-3xl mx-auto text-center">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+        <section className="border-t border-border px-6 py-20">
+          <div className="mx-auto max-w-3xl text-center">
+            <h2
+              className="mb-4 text-3xl font-semibold tracking-[-0.03em] text-foreground md:text-4xl"
+              style={{ fontFamily: INTER }}
+            >
               Ship Better Looking Projects
             </h2>
-            <p className="text-lg text-muted-foreground mb-8">
+            <p className="mb-8 text-lg text-muted-foreground">
               Free forever. No signup. No watermarks.
             </p>
-            <Link
-              href="/"
-              className="inline-flex items-center gap-2 bg-primary text-primary-foreground font-semibold px-8 py-4 rounded-full hover:opacity-90 transition-opacity"
-            >
+            <Link href="/" className={ctaClassName}>
               Open Editor
-              <ArrowRight className="w-5 h-5" />
             </Link>
           </div>
         </section>

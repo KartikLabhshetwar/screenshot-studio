@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import Moveable from 'react-moveable';
 import type { ImageOverlay } from '@/lib/store';
 import { cn } from '@/lib/utils';
@@ -37,7 +37,7 @@ function OverlayElement({
   overlay: ImageOverlay;
   overlayImg: HTMLImageElement;
   onSelect: () => void;
-  elRef: (el: HTMLDivElement | null) => void;
+  elRef?: (el: HTMLDivElement | null) => void;
 }) {
   const isShadow = useMemo(
     () => typeof overlay.src === 'string' && overlay.src.includes('overlay-shadow'),
@@ -133,47 +133,50 @@ function ContextToolbar({
     <div
       className={cn(
         'absolute left-1/2 -translate-x-1/2 bottom-0 translate-y-[calc(100%+8px)]',
-        'z-[999] flex items-center gap-1 px-1.5 py-1',
-        'bg-card/90 backdrop-blur-md rounded-lg',
-        'border border-border/50 shadow-lg',
+        'z-[999] flex h-8 items-center gap-0.5 rounded-md px-1',
+        'bg-card border border-foreground/10',
+        'shadow-lg',
         'animate-in fade-in-0 zoom-in-95 duration-100'
       )}
       style={{ pointerEvents: 'auto' }}
       onPointerDown={(e) => e.stopPropagation()}
     >
       <button
+        type="button"
         onClick={(e) => {
           e.stopPropagation();
           onUpdate({ layer: isFront ? 'back' : 'front' });
         }}
         className={cn(
-          'flex items-center justify-center w-7 h-7 rounded-md transition-colors duration-100',
-          'text-muted-foreground hover:text-foreground hover:bg-accent'
+          'flex h-7 w-7 cursor-pointer items-center justify-center rounded-md transition-colors duration-150',
+          'text-muted-foreground hover:bg-foreground/[0.06] hover:text-foreground'
         )}
         title={isFront ? 'Send behind image' : 'Bring to front'}
       >
-        {isFront ? <LayerSendToBackIcon size={15} /> : <LayerBringToFrontIcon size={15} />}
+        {isFront ? <LayerSendToBackIcon size={14} /> : <LayerBringToFrontIcon size={14} />}
       </button>
       <button
+        type="button"
         onClick={(e) => {
           e.stopPropagation();
           onDuplicate();
         }}
-        className="flex items-center justify-center w-7 h-7 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent transition-colors duration-100"
+        className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-md text-muted-foreground transition-colors duration-150 hover:bg-foreground/[0.06] hover:text-foreground"
         title="Duplicate"
       >
-        <Copy01Icon size={15} />
+        <Copy01Icon size={14} />
       </button>
-      <div className="w-px h-4 bg-border/50" />
+      <div className="mx-0.5 h-3.5 w-px bg-foreground/10" aria-hidden />
       <button
+        type="button"
         onClick={(e) => {
           e.stopPropagation();
           onDelete();
         }}
-        className="flex items-center justify-center w-7 h-7 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors duration-100"
+        className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-md text-muted-foreground transition-colors duration-150 hover:bg-destructive/15 hover:text-destructive"
         title="Delete"
       >
-        <Delete02Icon size={15} />
+        <Delete02Icon size={14} />
       </button>
     </div>
   );
@@ -193,16 +196,8 @@ export function HTMLImageOverlayLayer({
   onDelete,
   zIndex = 200,
 }: HTMLImageOverlayLayerProps) {
-  const overlayRefs = useRef<Map<string, HTMLDivElement>>(new Map());
+  const [selectedEl, setSelectedEl] = useState<HTMLDivElement | null>(null);
   const [interacting, setInteracting] = useState(false);
-
-  const setOverlayRef = useCallback((id: string) => (el: HTMLDivElement | null) => {
-    if (el) {
-      overlayRefs.current.set(id, el);
-    } else {
-      overlayRefs.current.delete(id);
-    }
-  }, []);
 
   const handleSelect = useCallback(
     (id: string) => {
@@ -217,7 +212,6 @@ export function HTMLImageOverlayLayer({
     ? imageOverlays.find((o) => o.id === selectedOverlayId)
     : null;
 
-  const selectedEl = selectedOverlayId ? overlayRefs.current.get(selectedOverlayId) ?? null : null;
   const isShadow = selectedOverlay?.src.includes('overlay-shadow');
 
   return (
@@ -241,12 +235,11 @@ export function HTMLImageOverlayLayer({
             overlay={overlay}
             overlayImg={overlayImg}
             onSelect={() => handleSelect(overlay.id)}
-            elRef={setOverlayRef(overlay.id)}
+            elRef={overlay.id === selectedOverlayId ? setSelectedEl : undefined}
           />
         );
       })}
 
-      {/* Moveable + Context toolbar for selected overlay */}
       {selectedOverlay && selectedEl && !isShadow && (
         <>
           <Moveable
@@ -311,7 +304,6 @@ export function HTMLImageOverlayLayer({
             }}
           />
 
-          {/* Minimal context toolbar below the selected overlay */}
           {!interacting && (
             <div
               style={{

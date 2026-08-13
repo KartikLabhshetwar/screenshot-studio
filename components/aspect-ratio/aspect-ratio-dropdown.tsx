@@ -27,11 +27,11 @@ export const AspectRatioDropdown = () => {
         <PopoverTrigger asChild>
           <Button
             variant="outline"
-            className="w-full justify-between h-auto py-2.5 px-3 border-border/50 hover:border-border hover:bg-accent/50"
+            className="w-full justify-between h-auto py-2.5 px-3 border-foreground/10 bg-foreground/[0.04] hover:border-foreground/20 hover:bg-foreground/[0.06]"
           >
             <div className="flex items-center gap-2.5 flex-1 min-w-0">
               <div
-                className="bg-primary/80 rounded shrink-0 border border-primary/30"
+                className="bg-foreground/20 rounded-sm shrink-0 border border-foreground/20"
                 style={{
                   width: '24px',
                   height: `${24 * (current?.ratio || 1)}px`,
@@ -65,8 +65,8 @@ export const AspectRatioDropdown = () => {
                   onClick={() => handleQuickSelect(id)}
                   className={`relative rounded-md border transition-all ${
                     isSelected
-                      ? 'border-primary bg-primary/10'
-                      : 'border-border/50 hover:border-border hover:bg-accent/50'
+                      ? 'border-foreground/40 bg-foreground/[0.1] ring-1 ring-foreground/20'
+                      : 'border-foreground/10 hover:border-foreground/20 hover:bg-foreground/[0.06]'
                   }`}
                   style={{
                     width: '32px',
@@ -75,11 +75,7 @@ export const AspectRatioDropdown = () => {
                     minHeight: '12px',
                   }}
                   title={`${ratio.name} (${ratio.width}:${ratio.height})`}
-                >
-                  {isSelected && (
-                    <div className="absolute inset-0 bg-primary/20 rounded-md" />
-                  )}
-                </button>
+                />
               );
             })}
           </div>

@@ -1,13 +1,19 @@
 import { Metadata } from "next";
 import Link from "next/link";
+import {
+  ArrowRight01Icon,
+  ColorsIcon,
+  Download04Icon,
+  Layers01Icon,
+  MagicWand01Icon,
+} from "hugeicons-react";
 import { Navigation } from "@/components/landing/Navigation";
 import { Footer } from "@/components/landing/Footer";
-import { ArrowRight, Sparkles, Palette, Download, Layers } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Free Screenshot Beautifier - Make Screenshots Look Professional",
   description:
-    "Transform plain screenshots into stunning mockups with our free screenshot beautifier. Add gradient backgrounds, browser frames, shadows, rounded corners, and padding. Better than Pika Style — export in high resolution. No signup required.",
+    "Transform plain screenshots into stunning mockups with our free screenshot beautifier. Add gradient backgrounds, browser frames, shadows, rounded corners, and padding. Better than Pika Style. Export in high resolution. No signup required.",
   keywords: [
     "screenshot beautifier",
     "screenshot editor online free",
@@ -39,32 +45,44 @@ export const metadata: Metadata = {
   },
 };
 
+const INTER =
+  'Inter, "Inter Fallback", Arial, Helvetica, sans-serif';
+
+const ctaClassName =
+  "relative inline-flex items-center justify-center rounded-md border-0 bg-[var(--nav-cta-bg)] px-6 py-2.5 text-base font-medium text-[var(--nav-cta-fg)] shadow-none transition-[transform,box-shadow] duration-150 ease-out [text-shadow:var(--nav-cta-text-shadow)] hover:shadow-[var(--nav-cta-hover-shadow)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 active:scale-[0.97]";
+
+const cardSurface =
+  "rounded-2xl bg-card ring-1 ring-border shadow-[var(--card-edge-shadow)]";
+
+const chipLinkClassName =
+  "group flex items-center justify-between rounded-md bg-foreground/[0.04] px-4 py-3 text-sm font-medium text-foreground/90 ring-1 ring-border transition-colors hover:bg-foreground/[0.08] hover:text-foreground";
+
 const features = [
   {
-    icon: Palette,
+    icon: ColorsIcon,
     title: "100+ Gradient Backgrounds",
     description:
       "Choose from stunning gradients, solid colors, or upload your own custom backgrounds.",
   },
   {
-    icon: Sparkles,
+    icon: MagicWand01Icon,
     title: "Professional Shadows",
     description:
       "Add realistic shadows with customizable blur, spread, and opacity for depth.",
   },
   {
-    icon: Layers,
+    icon: Layers01Icon,
     title: "Rounded Corners & Padding",
     description:
       "Adjust corner radius and padding to match any style or platform requirements.",
   },
   {
-    icon: Download,
+    icon: Download04Icon,
     title: "High-Res Export",
     description:
       "Export at up to 5x resolution. Perfect for retina displays and print.",
   },
-];
+] as const;
 
 const useCases = [
   {
@@ -89,14 +107,57 @@ const useCases = [
   },
 ];
 
+const howToSteps = [
+  {
+    step: "1",
+    title: "Upload Your Screenshot",
+    description:
+      "Drag and drop any image or paste from clipboard. Supports PNG, JPG, and WebP.",
+  },
+  {
+    step: "2",
+    title: "Choose Your Style",
+    description:
+      "Pick from 100+ backgrounds, adjust shadows, corners, and padding to match your brand.",
+  },
+  {
+    step: "3",
+    title: "Export & Share",
+    description:
+      "Download in PNG or JPG. Scale up to 5x for crisp, high-res output.",
+  },
+];
+
+const relatedLinks = [
+  { href: "/features/browser-mockups", label: "Browser Mockups" },
+  { href: "/features/social-media-graphics", label: "Social Media Graphics" },
+  { href: "/features/animation-maker", label: "Animation Maker" },
+  { href: "/features/3d-effects", label: "3D Effects" },
+] as const;
+
 export default function ScreenshotBeautifierPage() {
   const breadcrumb = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     itemListElement: [
-      { "@type": "ListItem", position: 1, name: "Home", item: "https://screenshot-studio.com" },
-      { "@type": "ListItem", position: 2, name: "Features", item: "https://screenshot-studio.com/features" },
-      { "@type": "ListItem", position: 3, name: "Screenshot Beautifier", item: "https://screenshot-studio.com/features/screenshot-beautifier" },
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: "https://screenshot-studio.com",
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Features",
+        item: "https://screenshot-studio.com/features",
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: "Screenshot Beautifier",
+        item: "https://screenshot-studio.com/features/screenshot-beautifier",
+      },
     ],
   };
 
@@ -133,26 +194,12 @@ export default function ScreenshotBeautifierPage() {
           "@type": "HowToTool",
           name: "Screenshot Studio",
         },
-        step: [
-          {
-            "@type": "HowToStep",
-            name: "Upload Your Screenshot",
-            text: "Drag and drop any image or paste from clipboard. Supports PNG, JPG, and WebP.",
-            position: 1,
-          },
-          {
-            "@type": "HowToStep",
-            name: "Choose Your Style",
-            text: "Pick from 100+ backgrounds, adjust shadows, corners, and padding to match your brand.",
-            position: 2,
-          },
-          {
-            "@type": "HowToStep",
-            name: "Export & Share",
-            text: "Download in PNG or JPG. Scale up to 5x for crisp, high-res output.",
-            position: 3,
-          },
-        ],
+        step: howToSteps.map((item, index) => ({
+          "@type": "HowToStep",
+          name: item.title,
+          text: item.description,
+          position: index + 1,
+        })),
       },
     ],
   };
@@ -168,55 +215,58 @@ export default function ScreenshotBeautifierPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
 
-      <Navigation ctaLabel="Try Free" ctaHref="/" />
+      <Navigation brandName="Screenshot Studio" />
 
       <main className="flex-1">
-        {/* Hero Section */}
-        <section className="py-20 px-4">
-          <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-4xl md:text-6xl font-bold mb-6">
+        <section className="px-6 pb-20 pt-32">
+          <div className="mx-auto max-w-4xl text-center">
+            <h1
+              className="mb-6 text-4xl font-semibold tracking-[-0.03em] text-foreground md:text-6xl"
+              style={{ fontFamily: INTER }}
+            >
               Free Screenshot Beautifier
             </h1>
-            <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
+            <p className="mx-auto mb-8 max-w-2xl text-lg text-muted-foreground md:text-xl">
               Transform plain screenshots into professional-looking visuals in
               seconds. Add stunning backgrounds, shadows, and export in high
               resolution.
             </p>
-            <Link
-              href="/"
-              className="inline-flex items-center gap-2 bg-primary text-primary-foreground font-semibold px-8 py-4 rounded-full hover:opacity-90 transition-opacity"
-            >
-              Beautify Your Screenshot
-              <ArrowRight className="w-5 h-5" />
-            </Link>
-            <p className="text-sm text-muted-foreground mt-4">
-              100% free. No signup required.
-            </p>
+            <div className="flex flex-col items-center">
+              <Link href="/" className={ctaClassName}>
+                Beautify Your Screenshot
+              </Link>
+              <p className="mt-4 inline-flex items-center gap-2 text-sm font-medium text-muted-foreground/70">
+                <span>100% Free</span>
+                <span className="h-3 w-px bg-border" aria-hidden />
+                <span>No Signup Required</span>
+              </p>
+            </div>
           </div>
         </section>
 
-        {/* Features Grid */}
-        <section className="py-16 px-4 bg-muted/30">
-          <div className="max-w-6xl mx-auto">
-            <h2 className="text-3xl font-bold text-center mb-12">
+        <section className="border-y border-border px-6 py-16">
+          <div className="mx-auto max-w-6xl">
+            <h2
+              className="mb-12 text-center text-3xl font-semibold tracking-[-0.03em] text-foreground"
+              style={{ fontFamily: INTER }}
+            >
               Everything You Need to Beautify Screenshots
             </h2>
-            <div className="grid md:grid-cols-2 gap-8">
+            <div className="grid gap-4 md:grid-cols-2">
               {features.map((feature) => (
                 <div
                   key={feature.title}
-                  className="flex gap-4 p-6 bg-background rounded-xl border"
+                  className={`flex gap-4 p-6 ${cardSurface}`}
                 >
-                  <div className="flex-shrink-0">
-                    <feature.icon className="w-8 h-8 text-primary" />
-                  </div>
+                  <feature.icon
+                    className="size-6 shrink-0 text-foreground"
+                    aria-hidden
+                  />
                   <div>
-                    <h3 className="font-semibold text-lg mb-2">
+                    <h3 className="mb-2 text-lg font-semibold text-foreground">
                       {feature.title}
                     </h3>
-                    <p className="text-muted-foreground">
-                      {feature.description}
-                    </p>
+                    <p className="text-muted-foreground">{feature.description}</p>
                   </div>
                 </div>
               ))}
@@ -224,23 +274,24 @@ export default function ScreenshotBeautifierPage() {
           </div>
         </section>
 
-        {/* Use Cases */}
-        <section className="py-16 px-4">
-          <div className="max-w-6xl mx-auto">
-            <h2 className="text-3xl font-bold text-center mb-4">
+        <section className="px-6 py-16">
+          <div className="mx-auto max-w-6xl">
+            <h2
+              className="mb-4 text-center text-3xl font-semibold tracking-[-0.03em] text-foreground"
+              style={{ fontFamily: INTER }}
+            >
               Perfect For Every Use Case
             </h2>
-            <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
+            <p className="mx-auto mb-12 max-w-2xl text-center text-muted-foreground">
               Whether you&apos;re a developer, marketer, or content creator, our
               screenshot beautifier helps you create stunning visuals.
             </p>
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
               {useCases.map((useCase) => (
-                <div
-                  key={useCase.title}
-                  className="p-6 border rounded-xl hover:border-primary transition-colors"
-                >
-                  <h3 className="font-semibold mb-2">{useCase.title}</h3>
+                <div key={useCase.title} className={`p-6 ${cardSurface}`}>
+                  <h3 className="mb-2 font-semibold text-foreground">
+                    {useCase.title}
+                  </h3>
                   <p className="text-sm text-muted-foreground">
                     {useCase.description}
                   </p>
@@ -250,113 +301,71 @@ export default function ScreenshotBeautifierPage() {
           </div>
         </section>
 
-        {/* How It Works */}
-        <section className="py-16 px-4 bg-muted/30">
-          <div className="max-w-4xl mx-auto">
-            <h2 className="text-3xl font-bold text-center mb-12">
+        <section className="border-y border-border px-6 py-16">
+          <div className="mx-auto max-w-4xl">
+            <h2
+              className="mb-12 text-center text-3xl font-semibold tracking-[-0.03em] text-foreground"
+              style={{ fontFamily: INTER }}
+            >
               How to Beautify Screenshots
             </h2>
             <div className="space-y-8">
-              <div className="flex gap-6 items-start">
-                <div className="flex-shrink-0 w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold">
-                  1
+              {howToSteps.map((item) => (
+                <div key={item.step} className="flex items-start gap-6">
+                  <div className="flex size-10 shrink-0 items-center justify-center rounded-md bg-primary text-sm font-semibold text-primary-foreground">
+                    {item.step}
+                  </div>
+                  <div>
+                    <h3 className="mb-1 text-lg font-semibold text-foreground">
+                      {item.title}
+                    </h3>
+                    <p className="text-muted-foreground">{item.description}</p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-semibold text-lg mb-1">
-                    Upload Your Screenshot
-                  </h3>
-                  <p className="text-muted-foreground">
-                    Drag and drop any image or paste from clipboard. Supports
-                    PNG, JPG, and WebP.
-                  </p>
-                </div>
-              </div>
-              <div className="flex gap-6 items-start">
-                <div className="flex-shrink-0 w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold">
-                  2
-                </div>
-                <div>
-                  <h3 className="font-semibold text-lg mb-1">
-                    Choose Your Style
-                  </h3>
-                  <p className="text-muted-foreground">
-                    Pick from 100+ backgrounds, adjust shadows, corners, and
-                    padding to match your brand.
-                  </p>
-                </div>
-              </div>
-              <div className="flex gap-6 items-start">
-                <div className="flex-shrink-0 w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold">
-                  3
-                </div>
-                <div>
-                  <h3 className="font-semibold text-lg mb-1">
-                    Export & Share
-                  </h3>
-                  <p className="text-muted-foreground">
-                    Download in PNG or JPG. Scale up to 5x for crisp, high-res
-                    output.
-                  </p>
-                </div>
-              </div>
+              ))}
             </div>
           </div>
         </section>
 
-        {/* Related Features */}
-        <section className="py-16 px-4 bg-muted/30">
-          <div className="max-w-4xl mx-auto">
-            <h2 className="text-2xl font-bold mb-8 text-center">
+        <section className="px-6 py-16">
+          <div className="mx-auto max-w-4xl">
+            <h2
+              className="mb-8 text-center text-2xl font-semibold tracking-[-0.03em] text-foreground"
+              style={{ fontFamily: INTER }}
+            >
               Explore More Features
             </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <Link
-                href="/features/browser-mockups"
-                className="flex items-center justify-between p-4 bg-background border rounded-xl hover:border-primary transition-colors group"
-              >
-                <span className="font-medium text-sm">Browser Mockups</span>
-                <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
-              </Link>
-              <Link
-                href="/features/social-media-graphics"
-                className="flex items-center justify-between p-4 bg-background border rounded-xl hover:border-primary transition-colors group"
-              >
-                <span className="font-medium text-sm">Social Media Graphics</span>
-                <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
-              </Link>
-              <Link
-                href="/features/animation-maker"
-                className="flex items-center justify-between p-4 bg-background border rounded-xl hover:border-primary transition-colors group"
-              >
-                <span className="font-medium text-sm">Animation Maker</span>
-                <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
-              </Link>
-              <Link
-                href="/features/3d-effects"
-                className="flex items-center justify-between p-4 bg-background border rounded-xl hover:border-primary transition-colors group"
-              >
-                <span className="font-medium text-sm">3D Effects</span>
-                <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
-              </Link>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              {relatedLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={chipLinkClassName}
+                >
+                  <span>{link.label}</span>
+                  <ArrowRight01Icon
+                    className="size-3.5 text-muted-foreground/70 transition-colors group-hover:text-foreground"
+                    aria-hidden
+                  />
+                </Link>
+              ))}
             </div>
           </div>
         </section>
 
-        {/* CTA */}
-        <section className="py-20 px-4">
-          <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-3xl font-bold mb-4">
+        <section className="border-t border-border px-6 py-20">
+          <div className="mx-auto max-w-4xl text-center">
+            <h2
+              className="mb-4 text-3xl font-semibold tracking-[-0.03em] text-foreground"
+              style={{ fontFamily: INTER }}
+            >
               Ready to Beautify Your Screenshots?
             </h2>
-            <p className="text-muted-foreground mb-8">
+            <p className="mb-8 text-muted-foreground">
               Join thousands of creators making professional graphics.
             </p>
-            <Link
-              href="/"
-              className="inline-flex items-center gap-2 bg-primary text-primary-foreground font-semibold px-8 py-4 rounded-full hover:opacity-90 transition-opacity"
-            >
+            <Link href="/" className={ctaClassName}>
               Start Free
-              <ArrowRight className="w-5 h-5" />
             </Link>
           </div>
         </section>

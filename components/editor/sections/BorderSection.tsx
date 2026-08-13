@@ -11,15 +11,12 @@ const borderPresets = [
   { value: 20, label: 'Round' },
 ] as const;
 
-function BorderPreview({ radius, selected }: { radius: number; selected: boolean }) {
+function BorderPreview({ radius }: { radius: number }) {
   const previewRadius = radius === 0 ? '0px' : radius === 12 ? '6px' : '12px';
 
   return (
     <div
-      className={cn(
-        'relative w-full aspect-square rounded-lg overflow-hidden transition-all',
-        selected ? 'ring-[1.5px] ring-primary ring-offset-1 ring-offset-card' : 'ring-1 ring-border/50',
-      )}
+      className="relative w-full aspect-square rounded-md overflow-hidden"
       style={{ backgroundColor: 'rgb(210, 210, 214)' }}
     >
       <div
@@ -27,7 +24,7 @@ function BorderPreview({ radius, selected }: { radius: number; selected: boolean
         style={{ top: '19.5%', left: '19.5%', width: '95.5%', height: '95.5%' }}
       >
         <div
-          className="w-full h-full bg-white"
+          className="w-full h-full bg-primary"
           style={{ borderRadius: previewRadius }}
         />
       </div>
@@ -69,7 +66,16 @@ export function BorderSection() {
                 onClick={() => setBorderRadius(value)}
                 className="flex flex-col items-center gap-1.5 group"
               >
-                <BorderPreview radius={value} selected={isSelected} />
+                <div
+                  className={cn(
+                    'w-full rounded-[10px] p-1 border transition-all',
+                    isSelected
+                      ? 'bg-foreground/[0.1] border-foreground/25'
+                      : 'border-transparent hover:bg-foreground/[0.04]'
+                  )}
+                >
+                  <BorderPreview radius={value} />
+                </div>
                 <span
                   className={cn(
                     'text-[10px] leading-tight transition-colors',

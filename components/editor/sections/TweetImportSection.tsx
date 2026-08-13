@@ -4,9 +4,9 @@ import * as React from 'react';
 import { useImageStore } from '@/lib/store';
 import { getAspectRatioPreset } from '@/lib/aspect-ratio-utils';
 import { SectionWrapper } from './SectionWrapper';
-import { cn } from '@/lib/utils';
 import { domToCanvas } from 'modern-screenshot';
 import { Loading03Icon, Cancel01Icon, LinkSquare02Icon } from 'hugeicons-react';
+import { SegmentedControl } from '@/components/ui/segmented-control';
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -164,7 +164,6 @@ function TweetCard({ tweet, theme }: { tweet: TweetData; theme: 'light' | 'dark'
         boxSizing: 'border-box',
       }}
     >
-      {/* Header */}
       <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
         <img
           src={avatarUrl}
@@ -205,7 +204,6 @@ function TweetCard({ tweet, theme }: { tweet: TweetData; theme: 'light' | 'dark'
         </div>
       </div>
 
-      {/* Tweet text */}
       <div
         style={{
           fontSize: 17,
@@ -219,7 +217,6 @@ function TweetCard({ tweet, theme }: { tweet: TweetData; theme: 'light' | 'dark'
         {displayText}
       </div>
 
-      {/* Media */}
       {photos.length > 0 && (
         <div
           style={{
@@ -250,7 +247,6 @@ function TweetCard({ tweet, theme }: { tweet: TweetData; theme: 'light' | 'dark'
         </div>
       )}
 
-      {/* Footer */}
       <div
         style={{
           marginTop: 12,
@@ -421,7 +417,6 @@ export function TweetImportSection() {
     <>
     <SectionWrapper title="Add Tweet" defaultOpen={false}>
       <div className="space-y-2.5">
-        {/* URL input */}
         <div className="relative">
           <LinkSquare02Icon size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground/50" />
           <input
@@ -438,13 +433,13 @@ export function TweetImportSection() {
             placeholder="Paste tweet URL or ID\u2026"
             spellCheck={false}
             autoComplete="off"
-            className="w-full h-9 pl-8 pr-16 rounded-lg border border-border/50 bg-muted/50 text-xs text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus-visible:ring-1 focus-visible:ring-primary/40 focus-visible:border-primary/40 transition-colors"
+            className="w-full h-9 pl-8 pr-16 rounded-md border border-foreground/10 bg-foreground/[0.04] text-xs text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus-visible:ring-1 focus-visible:ring-foreground/15 focus-visible:border-foreground/25 transition-colors"
           />
           {urlInput && (
             <button
               onClick={() => { setUrlInput(''); setError(null); setTweetData(null); setStatus('idle'); }}
               aria-label="Clear input"
-              className="absolute right-[52px] top-1/2 -translate-y-1/2 p-0.5 text-muted-foreground/40 hover:text-muted-foreground transition-colors"
+              className="absolute right-[52px] top-1/2 -translate-y-1/2 p-0.5 text-muted-foreground/40 hover:text-muted-foreground transition-colors cursor-pointer"
             >
               <Cancel01Icon size={12} />
             </button>
@@ -453,7 +448,7 @@ export function TweetImportSection() {
             onClick={() => fetchTweet(urlInput)}
             disabled={status === 'loading' || !urlInput.trim()}
             aria-label="Fetch tweet"
-            className="absolute right-1.5 top-1/2 -translate-y-1/2 h-6 px-2.5 rounded-md bg-primary text-primary-foreground text-[10px] font-semibold hover:bg-primary/90 disabled:opacity-40 disabled:cursor-not-allowed transition-colors focus-visible:ring-1 focus-visible:ring-primary/40"
+            className="absolute right-1.5 top-1/2 -translate-y-1/2 h-6 px-2.5 rounded-md bg-primary text-primary-foreground text-[10px] font-semibold hover:bg-foreground/90 disabled:opacity-40 disabled:cursor-not-allowed transition-colors focus-visible:ring-1 focus-visible:ring-foreground/25 cursor-pointer"
           >
             {status === 'loading' ? (
               <Loading03Icon size={12} className="animate-spin" />
@@ -465,57 +460,47 @@ export function TweetImportSection() {
 
         {error && <p className="text-[10px] text-destructive">{error}</p>}
 
-        {/* Loading skeleton */}
         {status === 'loading' && (
-          <div className="rounded-lg border border-border/30 bg-muted/30 p-3 animate-pulse">
+          <div className="rounded-md border border-foreground/10 bg-foreground/[0.04] p-3 animate-pulse">
             <div className="flex gap-2.5 items-center">
-              <div className="w-8 h-8 rounded-full bg-border/40" />
+              <div className="w-8 h-8 rounded-full bg-foreground/10" />
               <div className="flex-1 min-w-0 space-y-1.5">
-                <div className="h-2.5 w-20 rounded-full bg-border/40" />
-                <div className="h-2 w-14 rounded-full bg-border/40" />
+                <div className="h-2.5 w-20 rounded-full bg-foreground/10" />
+                <div className="h-2 w-14 rounded-full bg-foreground/10" />
               </div>
             </div>
             <div className="mt-2.5 space-y-1.5">
-              <div className="h-2 w-full rounded-full bg-border/40" />
-              <div className="h-2 w-2/3 rounded-full bg-border/40" />
+              <div className="h-2 w-full rounded-full bg-foreground/10" />
+              <div className="h-2 w-2/3 rounded-full bg-foreground/10" />
             </div>
           </div>
         )}
 
-        {/* Tweet loaded */}
         {tweetData && status !== 'loading' && (
           <div className="space-y-2.5">
-            {/* Theme toggle + dismiss */}
             <div className="flex items-center justify-between gap-2">
-              <div className="flex p-0.5 bg-muted/80 dark:bg-muted/50 rounded-lg border border-border/20">
-                {(['light', 'dark'] as const).map((t) => (
-                  <button
-                    key={t}
-                    onClick={() => setTweetTheme(t)}
-                    className={cn(
-                      'px-3 py-1 rounded-md text-[10px] font-medium transition-all',
-                      tweetTheme === t
-                        ? 'bg-background dark:bg-accent text-foreground shadow-sm'
-                        : 'text-muted-foreground hover:text-foreground'
-                    )}
-                  >
-                    {t === 'light' ? 'Light' : 'Dark'}
-                  </button>
-                ))}
-              </div>
+              <SegmentedControl
+                size="sm"
+                value={tweetTheme}
+                onChange={(id) => setTweetTheme(id as 'light' | 'dark')}
+                options={[
+                  { id: 'light', label: 'Light' },
+                  { id: 'dark', label: 'Dark' },
+                ]}
+                className="w-auto min-w-[140px]"
+              />
               <button
                 onClick={() => { setTweetData(null); setUrlInput(''); setStatus('idle'); }}
                 aria-label="Remove tweet"
-                className="p-1 rounded-md text-muted-foreground/50 hover:text-muted-foreground hover:bg-muted/50 transition-colors"
+                className="p-1 rounded-md text-muted-foreground/50 hover:text-muted-foreground hover:bg-foreground/[0.06] transition-colors cursor-pointer"
               >
                 <Cancel01Icon size={14} />
               </button>
             </div>
 
-            {/* Sidebar preview — renders at TWEET_WIDTH, scaled down to fit */}
             <div
               ref={previewWrapRef}
-              className="rounded-lg border border-border/30"
+              className="rounded-md border border-foreground/10"
               style={{
                 overflow: 'hidden',
                 height: previewHeight,
@@ -534,11 +519,10 @@ export function TweetImportSection() {
               </div>
             </div>
 
-            {/* Action button */}
             <button
               onClick={handleAddToCanvas}
               disabled={status === 'capturing'}
-              className="w-full h-8 rounded-lg text-[11px] font-semibold bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 transition-colors flex items-center justify-center gap-1.5 focus-visible:ring-1 focus-visible:ring-primary/40"
+              className="w-full h-8 rounded-md text-xs font-medium border border-foreground/15 bg-foreground/[0.04] text-foreground hover:bg-foreground/[0.08] hover:border-foreground/25 disabled:opacity-50 transition-colors flex items-center justify-center gap-1.5 focus-visible:ring-1 focus-visible:ring-foreground/25 cursor-pointer"
             >
               {status === 'capturing' ? (
                 <>
@@ -552,7 +536,6 @@ export function TweetImportSection() {
           </div>
         )}
 
-        {/* Hint when idle */}
         {status === 'idle' && !tweetData && !error && (
           <p className="text-[10px] text-muted-foreground/50 leading-relaxed">
             Paste any X/Twitter post URL to capture it as a screenshot.
@@ -561,7 +544,6 @@ export function TweetImportSection() {
       </div>
     </SectionWrapper>
 
-    {/* Hidden off-screen capture element at full TWEET_WIDTH (598px) */}
     {tweetData && (
       <div
         aria-hidden

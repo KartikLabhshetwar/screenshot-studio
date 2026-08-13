@@ -1,0 +1,126 @@
+.zoom-parallax {
+  height: 300vh;
+  position: relative;
+}
+
+.zoom-parallax__sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.zoom-parallax__el {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.zoom-parallax__frame {
+  position: relative;
+  width: 25vw;
+  height: 25vh;
+  overflow: hidden;
+  border-radius: 1rem;
+  background: color-mix(in srgb, var(--foreground) 4%, transparent);
+  box-shadow:
+    var(--card-edge-shadow),
+    0 0 0 1px color-mix(in srgb, var(--foreground) 10%, transparent);
+}
+
+.zoom-parallax__el:nth-of-type(2) .zoom-parallax__frame {
+  top: -30vh;
+  left: 5vw;
+  width: 35vw;
+  height: 30vh;
+}
+
+.zoom-parallax__el:nth-of-type(3) .zoom-parallax__frame {
+  top: -10vh;
+  left: -25vw;
+  width: 20vw;
+  height: 45vh;
+}
+
+.zoom-parallax__el:nth-of-type(4) .zoom-parallax__frame {
+  left: 27.5vw;
+  width: 25vw;
+  height: 25vh;
+}
+
+.zoom-parallax__el:nth-of-type(5) .zoom-parallax__frame {
+  top: 27.5vh;
+  left: 5vw;
+  width: 20vw;
+  height: 25vh;
+}
+
+.zoom-parallax__el:nth-of-type(6) .zoom-parallax__frame {
+  top: 27.5vh;
+  left: -22.5vw;
+  width: 30vw;
+  height: 25vh;
+}
+
+.zoom-parallax__el:nth-of-type(7) .zoom-parallax__frame {
+  top: 22.5vh;
+  left: 25vw;
+  width: 15vw;
+  height: 15vh;
+}
+
+@media (max-width: 767px) {
+  .zoom-parallax {
+    height: 220vh;
+  }
+
+  .zoom-parallax__frame {
+    width: 42vw;
+    height: 22vh;
+  }
+
+  .zoom-parallax__el:nth-of-type(2) .zoom-parallax__frame {
+    top: -28vh;
+    left: 4vw;
+    width: 48vw;
+    height: 24vh;
+  }
+
+  .zoom-parallax__el:nth-of-type(3) .zoom-parallax__frame {
+    top: -8vh;
+    left: -28vw;
+    width: 28vw;
+    height: 36vh;
+  }
+
+  .zoom-parallax__el:nth-of-type(4) .zoom-parallax__frame {
+    left: 30vw;
+    width: 32vw;
+    height: 20vh;
+  }
+
+  .zoom-parallax__el:nth-of-type(5) .zoom-parallax__frame {
+    top: 26vh;
+    left: 6vw;
+    width: 28vw;
+    height: 20vh;
+  }
+
+  .zoom-parallax__el:nth-of-type(6) .zoom-parallax__frame {
+    top: 26vh;
+    left: -26vw;
+    width: 36vw;
+    height: 20vh;
+  }
+
+  .zoom-parallax__el:nth-of-type(7) .zoom-parallax__frame {
+    top: 20vh;
+    left: 28vw;
+    width: 22vw;
+    height: 14vh;
+  }
+}

@@ -29,6 +29,13 @@ import { SectionWrapper } from './SectionWrapper';
 import { cn } from '@/lib/utils';
 import { domToCanvas } from 'modern-screenshot';
 import { Loading03Icon } from 'hugeicons-react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 // Max width of the off-screen render (px). Code wraps at this width.
 const MAX_RENDER_WIDTH = 1200;
@@ -127,27 +134,36 @@ function StyledSelect({
   className?: string;
 }) {
   return (
-    <div className={cn('relative', className)}>
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="appearance-none w-full h-7 pl-2 pr-6 rounded-md border border-border/50 bg-muted/50 text-[11px] text-foreground outline-none focus:border-primary/40 transition-colors cursor-pointer"
+    <Select value={value} onValueChange={onChange}>
+      <SelectTrigger
+        size="sm"
+        className={cn(
+          'w-full h-8 px-2.5 text-[11px] font-medium cursor-pointer',
+          'border-foreground/10 bg-foreground/[0.04] text-foreground shadow-none',
+          'hover:bg-foreground/[0.06] hover:border-foreground/20',
+          'focus-visible:border-foreground/25 focus-visible:ring-1 focus-visible:ring-foreground/15',
+          '[&_svg]:size-3.5 [&_svg]:opacity-60',
+          className
+        )}
+      >
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent
+        position="popper"
+        align="start"
+        className="max-h-56 border-foreground/10 bg-card"
       >
         {options.map((opt) => (
-          <option key={opt.id} value={opt.id}>
+          <SelectItem
+            key={opt.id}
+            value={opt.id}
+            className="text-xs rounded-md cursor-pointer focus:bg-foreground/[0.08] focus:text-foreground data-[highlighted]:bg-foreground/[0.08] data-[highlighted]:text-foreground"
+          >
             {opt.label}
-          </option>
+          </SelectItem>
         ))}
-      </select>
-      <svg
-        className="absolute right-1.5 top-1/2 -translate-y-1/2 text-muted-foreground/50 pointer-events-none"
-        width="10"
-        height="10"
-        viewBox="0 0 10 10"
-      >
-        <path d="M2.5 4L5 6.5L7.5 4" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
-    </div>
+      </SelectContent>
+    </Select>
   );
 }
 
@@ -255,17 +271,15 @@ export function CodeSnippetSection() {
     <>
     <SectionWrapper title="Add Code" defaultOpen={false}>
       <div className="space-y-2.5">
-        {/* Code textarea — primary input, shown first */}
         <textarea
           value={code}
           onChange={(e) => setCode(e.target.value)}
           rows={4}
           spellCheck={false}
           placeholder="Paste your code here..."
-          className="w-full px-3 py-2.5 rounded-lg border border-border/50 bg-muted/50 text-[11px] text-foreground font-mono placeholder:text-muted-foreground/50 resize-y focus:outline-none focus:border-primary/40 leading-relaxed transition-colors"
+          className="w-full px-3 py-2.5 rounded-md border border-foreground/10 bg-foreground/[0.04] text-[11px] text-foreground font-mono placeholder:text-muted-foreground/50 resize-y focus:outline-none focus:border-foreground/25 leading-relaxed transition-colors"
         />
 
-        {/* Compact controls row: Theme + Language */}
         <div className="grid grid-cols-2 gap-1.5 p-1">
           <StyledSelect
             value={themeId}
@@ -279,16 +293,15 @@ export function CodeSnippetSection() {
           />
         </div>
 
-        {/* Toggles row */}
         <div className="flex items-center gap-3">
           <button
             type="button"
             onClick={() => setShowLineNumbers(!showLineNumbers)}
             className={cn(
-              'flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-[10px] font-medium border transition-colors',
+              'flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-[10px] font-medium border transition-colors cursor-pointer',
               showLineNumbers
-                ? 'bg-primary/10 border-primary/20 text-primary'
-                : 'bg-muted/40 border-border/40 text-muted-foreground hover:text-foreground'
+                ? 'bg-foreground/[0.1] border-foreground/25 text-foreground'
+                : 'bg-foreground/[0.04] border-foreground/10 text-muted-foreground hover:text-foreground hover:bg-foreground/[0.06]'
             )}
           >
             <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 3h1M2 6h1M2 9h1M5 3h5M5 6h5M5 9h4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" /></svg>
@@ -298,10 +311,10 @@ export function CodeSnippetSection() {
             type="button"
             onClick={() => setShowTitleBar(!showTitleBar)}
             className={cn(
-              'flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-[10px] font-medium border transition-colors',
+              'flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-[10px] font-medium border transition-colors cursor-pointer',
               showTitleBar
-                ? 'bg-primary/10 border-primary/20 text-primary'
-                : 'bg-muted/40 border-border/40 text-muted-foreground hover:text-foreground'
+                ? 'bg-foreground/[0.1] border-foreground/25 text-foreground'
+                : 'bg-foreground/[0.04] border-foreground/10 text-muted-foreground hover:text-foreground hover:bg-foreground/[0.06]'
             )}
           >
             <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="3" cy="6" r="1" fill="currentColor"/><circle cx="6" cy="6" r="1" fill="currentColor"/><circle cx="9" cy="6" r="1" fill="currentColor"/></svg>
@@ -310,20 +323,18 @@ export function CodeSnippetSection() {
 
           <div className="flex-1" />
 
-          {/* Font picker toggle */}
           <button
             type="button"
             onClick={() => setShowSettings(!showSettings)}
             className={cn(
-              'text-[10px] text-muted-foreground hover:text-foreground transition-colors',
-              showSettings && 'text-primary'
+              'text-[10px] text-muted-foreground hover:text-foreground transition-colors cursor-pointer',
+              showSettings && 'text-foreground'
             )}
           >
             {showSettings ? 'Less' : 'Font'}
           </button>
         </div>
 
-        {/* Font picker */}
         {showSettings && (
           <StyledSelect
             value={fontId}
@@ -332,10 +343,9 @@ export function CodeSnippetSection() {
           />
         )}
 
-        {/* Scaled preview */}
         <div
           ref={previewWrapperRef}
-          className="overflow-hidden rounded-lg border border-border/30"
+          className="overflow-hidden rounded-md border border-foreground/10"
           style={{ height: cardHeight > 0 ? `${cardHeight * previewScale}px` : undefined }}
         >
           <div
@@ -391,11 +401,10 @@ export function CodeSnippetSection() {
           </div>
         </div>
 
-        {/* Action button */}
         <button
           onClick={handleAddToCanvas}
           disabled={status === 'capturing' || !code.trim()}
-          className="w-full h-8 rounded-lg text-[11px] font-semibold bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 transition-colors flex items-center justify-center gap-1.5"
+          className="w-full h-8 rounded-md text-xs font-medium border border-foreground/15 bg-foreground/[0.04] text-foreground hover:bg-foreground/[0.08] hover:border-foreground/25 disabled:opacity-50 transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
         >
           {status === 'capturing' ? (
             <>
@@ -409,7 +418,6 @@ export function CodeSnippetSection() {
       </div>
     </SectionWrapper>
 
-    {/* Hidden off-screen render for high-res capture — width: fit-content */}
     <div
       aria-hidden
       style={{

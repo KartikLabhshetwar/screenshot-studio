@@ -18,7 +18,10 @@ export function BatchExportProgressDialog({ open, batchProgress, format }: Batch
 
   return (
     <Dialog open={open} onOpenChange={() => {}}>
-      <DialogContent className="sm:max-w-[420px] max-h-[90vh] overflow-y-auto p-0">
+      <DialogContent
+        className="sm:max-w-[420px] max-h-[90vh] overflow-y-auto p-0"
+        showCloseButton={false}
+      >
         <div className="p-6 pb-4">
           <DialogHeader className="pb-1">
             <DialogTitle className="text-xl font-semibold text-foreground">

@@ -6,55 +6,76 @@ import { Footer } from "@/components/landing/Footer";
 export const metadata: Metadata = {
   title: "Terms & Conditions",
   description:
-    "Terms and Conditions for using Screenshot Studio — the free, open-source screenshot beautifier.",
+    "Terms and Conditions for using Screenshot Studio, the free, open-source screenshot beautifier.",
   alternates: {
     canonical: "/terms",
   },
 };
 
+const linkClassName =
+  "text-foreground underline decoration-foreground/30 underline-offset-4 transition-colors hover:decoration-foreground/60";
+
+const INTER =
+  "Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif";
+
 export default function TermsPage() {
   return (
-    <div className="min-h-screen flex flex-col bg-background">
-      <Navigation ctaLabel="Open Editor" ctaHref="/" />
+    <div className="flex min-h-screen flex-col bg-background text-foreground">
+      <Navigation />
 
-      <main className="flex-1 max-w-3xl mx-auto px-6 py-16 sm:py-24">
-        <h1 className="text-3xl sm:text-4xl font-bold tracking-tight mb-2">
+      <main className="mx-auto max-w-3xl flex-1 px-6 pb-16 pt-28 sm:pb-24">
+        <h1
+          className="mb-2 text-3xl font-semibold tracking-[-0.03em] text-foreground sm:text-4xl"
+          style={{ fontFamily: INTER }}
+        >
           Terms & Conditions
         </h1>
-        <p className="text-sm text-muted-foreground mb-12">
+        <p className="mb-12 text-sm text-muted-foreground">
           Last updated: June 2, 2026
         </p>
 
         <div className="space-y-8">
           <section>
-            <h2 className="text-xl font-semibold mb-3">
+            <h2
+              className="mb-3 text-xl font-semibold tracking-[-0.02em] text-foreground"
+              style={{ fontFamily: INTER }}
+            >
               1. Acceptance of Terms
             </h2>
-            <p className="text-muted-foreground leading-relaxed">
-              By accessing and using Screenshot Studio ("the Service"), you agree
-              to be bound by these Terms and Conditions. If you do not agree to
-              these terms, please do not use the Service.
+            <p className="leading-relaxed text-muted-foreground">
+              By accessing and using Screenshot Studio (&quot;the Service&quot;),
+              you agree to be bound by these Terms and Conditions. If you do not
+              agree to these terms, please do not use the Service.
             </p>
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold mb-3">
+            <h2
+              className="mb-3 text-xl font-semibold tracking-[-0.02em] text-foreground"
+              style={{ fontFamily: INTER }}
+            >
               2. Description of Service
             </h2>
-            <p className="text-muted-foreground leading-relaxed">
+            <p className="leading-relaxed text-muted-foreground">
               Screenshot Studio is a free, browser-based screenshot editing tool
-              that allows users to beautify screenshots with backgrounds, frames,
-              effects, and more. The tool processes images entirely within your
-              browser — no images are uploaded to our servers.
+              that allows users to beautify screenshots with backgrounds,
+              frames, effects, and more. The tool processes images entirely
+              within your browser. No images are uploaded to our servers.
             </p>
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold mb-3">3. Use of Service</h2>
-            <p className="text-muted-foreground leading-relaxed mb-3">
-              You agree to use the Service only for lawful purposes. You may not:
+            <h2
+              className="mb-3 text-xl font-semibold tracking-[-0.02em] text-foreground"
+              style={{ fontFamily: INTER }}
+            >
+              3. Use of Service
+            </h2>
+            <p className="mb-3 leading-relaxed text-muted-foreground">
+              You agree to use the Service only for lawful purposes. You may
+              not:
             </p>
-            <ul className="list-disc list-inside space-y-2 text-muted-foreground">
+            <ul className="list-inside list-disc space-y-2 text-muted-foreground">
               <li>Use the Service to create or distribute harmful content</li>
               <li>
                 Attempt to interfere with the Service&apos;s operation or
@@ -72,10 +93,13 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold mb-3">
+            <h2
+              className="mb-3 text-xl font-semibold tracking-[-0.02em] text-foreground"
+              style={{ fontFamily: INTER }}
+            >
               4. Intellectual Property
             </h2>
-            <p className="text-muted-foreground leading-relaxed">
+            <p className="leading-relaxed text-muted-foreground">
               The images you create with Screenshot Studio belong to you. We
               claim no ownership or rights over content you produce using the
               tool. The Screenshot Studio software itself is open source and
@@ -84,7 +108,7 @@ export default function TermsPage() {
                 href="https://github.com/KartikLabhshetwar/stage"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-primary hover:underline"
+                className={linkClassName}
               >
                 GitHub repository
               </Link>
@@ -93,10 +117,13 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold mb-3">
+            <h2
+              className="mb-3 text-xl font-semibold tracking-[-0.02em] text-foreground"
+              style={{ fontFamily: INTER }}
+            >
               5. Disclaimer of Warranties
             </h2>
-            <p className="text-muted-foreground leading-relaxed">
+            <p className="leading-relaxed text-muted-foreground">
               The Service is provided &quot;as is&quot; and &quot;as
               available&quot; without warranties of any kind, either express or
               implied. We do not guarantee that the Service will be
@@ -105,10 +132,13 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold mb-3">
+            <h2
+              className="mb-3 text-xl font-semibold tracking-[-0.02em] text-foreground"
+              style={{ fontFamily: INTER }}
+            >
               6. Limitation of Liability
             </h2>
-            <p className="text-muted-foreground leading-relaxed">
+            <p className="leading-relaxed text-muted-foreground">
               In no event shall Screenshot Studio or its creator be liable for
               any indirect, incidental, special, consequential, or punitive
               damages arising out of or related to your use of the Service.
@@ -116,8 +146,13 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold mb-3">7. Changes to Terms</h2>
-            <p className="text-muted-foreground leading-relaxed">
+            <h2
+              className="mb-3 text-xl font-semibold tracking-[-0.02em] text-foreground"
+              style={{ fontFamily: INTER }}
+            >
+              7. Changes to Terms
+            </h2>
+            <p className="leading-relaxed text-muted-foreground">
               We reserve the right to modify these terms at any time. Changes
               will be posted on this page with an updated date. Continued use of
               the Service after changes constitutes acceptance of the new terms.
@@ -125,10 +160,15 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold mb-3">8. Contact</h2>
-            <p className="text-muted-foreground leading-relaxed">
+            <h2
+              className="mb-3 text-xl font-semibold tracking-[-0.02em] text-foreground"
+              style={{ fontFamily: INTER }}
+            >
+              8. Contact
+            </h2>
+            <p className="leading-relaxed text-muted-foreground">
               For questions about these terms, please visit our{" "}
-              <Link href="/contact" className="text-primary hover:underline">
+              <Link href="/contact" className={linkClassName}>
                 contact page
               </Link>
               .
@@ -137,7 +177,7 @@ export default function TermsPage() {
         </div>
       </main>
 
-      <Footer />
+      <Footer brandName="Screenshot Studio" />
     </div>
   );
 }

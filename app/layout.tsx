@@ -33,6 +33,7 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import { QueryProvider } from "@/lib/query-client";
 import { GlobalDropZone } from "@/components/GlobalDropZone";
+import { PathTracker } from "@/components/landing/GoBackButton";
 import { getRootJsonLd } from "@/lib/seo/json-ld";
 import { getLocale } from "next-intl/server";
 
@@ -244,7 +245,8 @@ export const metadata: Metadata = {
     // yandex: "your-yandex-verification",
     // bing: "your-bing-verification",
   },
-  description: "Free screenshot editor and mockup tool — transform plain screenshots into professional graphics in seconds. 100+ gradient backgrounds, browser frames, shadows, animations, 3D effects, and video export. The best free alternative to Pika Style and Shots.so. No signup needed.",
+  description:
+    "Free screenshot editor and mockup tool — transform plain screenshots into professional graphics in seconds. 100+ gradient backgrounds, browser frames, shadows, animations, 3D effects, and video export. The best free alternative to Pika Style and Shots.so. No signup needed.",
   keywords: [
     // Primary keywords
     "screenshot editor online free",
@@ -287,10 +289,14 @@ export const metadata: Metadata = {
     "free online screenshot beautifier",
     "image presentation maker",
   ],
-  authors: [{ name: "Screenshot Studio", url: "https://screenshot-studio.com" }],
+  authors: [
+    { name: "Screenshot Studio", url: "https://screenshot-studio.com" },
+  ],
   creator: "Screenshot Studio",
   publisher: "Screenshot Studio",
-  metadataBase: new URL(process.env.BETTER_AUTH_URL || "https://screenshot-studio.com"),
+  metadataBase: new URL(
+    process.env.BETTER_AUTH_URL || "https://screenshot-studio.com",
+  ),
   alternates: {
     canonical: "/",
   },
@@ -300,7 +306,8 @@ export const metadata: Metadata = {
     url: "/",
     siteName: "Screenshot Studio",
     title: "Screenshot Studio - Free Screenshot Editor Online",
-    description: "Free screenshot editor online — create stunning social media graphics in seconds. 100+ backgrounds, animations, 3D effects, video export. No signup required.",
+    description:
+      "Free screenshot editor online — create stunning social media graphics in seconds. 100+ backgrounds, animations, 3D effects, video export. No signup required.",
     images: [
       {
         url: "https://screenshot-studio.com/og.jpg",
@@ -313,7 +320,8 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Screenshot Studio - Free Screenshot Editor Online",
-    description: "Free screenshot editor online — transform screenshots into stunning graphics. Animations, 3D effects, video export. No signup.",
+    description:
+      "Free screenshot editor online — transform screenshots into stunning graphics. Animations, 3D effects, video export. No signup.",
     images: ["https://screenshot-studio.com/og.jpg"],
     creator: "@code_kartik",
     site: "@code_kartik",
@@ -331,11 +339,14 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: "/favicon-96x96.png", type: "image/png", sizes: "96x96" },
-      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/favicon.svg?v=10", type: "image/svg+xml" },
+      { url: "/favicon-96x96.png?v=10", type: "image/png", sizes: "96x96" },
+      { url: "/favicon-32x32.png?v=10", type: "image/png", sizes: "32x32" },
+      { url: "/favicon-16x16.png?v=10", type: "image/png", sizes: "16x16" },
+      { url: "/favicon.ico?v=10", sizes: "16x16 32x32 48x48" },
     ],
-    shortcut: "/favicon.ico",
-    apple: "/apple-touch-icon.png",
+    shortcut: "/favicon.ico?v=10",
+    apple: [{ url: "/apple-touch-icon.png?v=10", sizes: "180x180", type: "image/png" }],
   },
   manifest: "/site.webmanifest",
   category: "Design Tools",
@@ -359,11 +370,19 @@ export default async function RootLayout({
   return (
     <html lang={locale} className="dark">
       <meta name="msvalidate.01" content="A3B8CB50BBD78710971A13FA3EE1E544" />
-      <link rel="alternate" type="text/markdown" href="/llms.txt" title="LLMs.txt" />
-      <link rel="alternate" type="text/markdown" href="/llms-full.txt" title="LLMs Full Documentation" />
-      <body
-        className={`${fontVariables} antialiased`}
-      >
+      <link
+        rel="alternate"
+        type="text/markdown"
+        href="/llms.txt"
+        title="LLMs.txt"
+      />
+      <link
+        rel="alternate"
+        type="text/markdown"
+        href="/llms-full.txt"
+        title="LLMs Full Documentation"
+      />
+      <body className={`${fontVariables} antialiased`}>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(rootJsonLd) }}
@@ -376,6 +395,7 @@ export default async function RootLayout({
         />
         <QueryProvider>
           <GlobalDropZone>
+            <PathTracker />
             {children}
           </GlobalDropZone>
           <Toaster />

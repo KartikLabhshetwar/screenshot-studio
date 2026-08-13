@@ -7,8 +7,9 @@ import { useResponsiveCanvasDimensions } from "@/hooks/useAspectRatioDimensions"
 import { generateNoiseTexture } from "@/lib/export/export-utils";
 import { MockupRenderer } from "@/components/mockups/MockupRenderer";
 import { calculateCanvasDimensions } from "./utils/canvas-dimensions";
+import { CanvasStageShell } from "./CanvasStageShell";
 import { Perspective3DOverlay } from "./overlays/Perspective3DOverlay";
-import { useBackgroundImage, useOverlayImages } from "./hooks/useImageLoading";
+import { useOverlayImages } from "./hooks/useImageLoading";
 import {
   HTMLCanvasRenderer,
   HTMLBackgroundLayer,
@@ -190,11 +191,6 @@ function CanvasRenderer({ image }: { image: HTMLImageElement }) {
   const containerWidth = responsiveDimensions.width;
   const containerHeight = responsiveDimensions.height;
 
-  const bgImage = useBackgroundImage(
-    backgroundConfig,
-    containerWidth,
-    containerHeight
-  );
   const loadedOverlayImages = useOverlayImages(imageOverlays);
 
   // Update global reference for export
@@ -234,7 +230,7 @@ function CanvasRenderer({ image }: { image: HTMLImageElement }) {
     return () => {
       document.removeEventListener('pointerdown', handlePointerDown, true);
     };
-  }, []);
+  }, [setSelectedAnnotationId]);
 
   // Keyboard shortcuts for delete and undo/redo
   useEffect(() => {
@@ -284,7 +280,6 @@ function CanvasRenderer({ image }: { image: HTMLImageElement }) {
   const handleDuplicateOverlay = () => {
     if (!selectedOverlay) return;
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { id: _id, ...overlayWithoutId } = selectedOverlay;
     addImageOverlay({
       ...overlayWithoutId,
@@ -430,44 +425,30 @@ function CanvasRenderer({ image }: { image: HTMLImageElement }) {
   return (
     <div
       ref={containerRef}
-      id="image-render-card"
-      className="flex items-center justify-center"
+      className="relative h-full w-full"
       style={{
-        width: `${containerWidth}px`,
-        maxWidth: `${containerWidth}px`,
-        aspectRatio: responsiveDimensions.aspectRatio,
-        maxHeight: "calc(100vh - 200px)",
-        backgroundColor: "transparent",
-        padding: "0px",
+        lineHeight: 0,
+        ...(showRulers ? { marginTop: 20, marginLeft: 20 } : {}),
       }}
     >
-      <div
+      {showRulers && (
+        <CanvasRulers
+          canvasRef={canvasContainerRef}
+          canvasW={canvasW}
+          majorEvery={rulerInterval}
+          selectedSelector={selectedSelector}
+        />
+      )}
+      <HTMLCanvasRenderer
+        ref={canvasContainerRef}
+        width={canvasW}
+        height={canvasH}
+        borderRadius={backgroundBorderRadius}
+        onPointerDown={handleCanvasDeselect}
         style={{
-          position: 'relative',
-          display: 'inline-block',
-          lineHeight: 0,
-          ...(showRulers ? { marginTop: 20, marginLeft: 20 } : {}),
+          isolation: "isolate",
         }}
       >
-        {showRulers && (
-          <CanvasRulers
-            canvasRef={canvasContainerRef}
-            canvasW={canvasW}
-            majorEvery={rulerInterval}
-            selectedSelector={selectedSelector}
-          />
-        )}
-        <HTMLCanvasRenderer
-          ref={canvasContainerRef}
-          width={canvasW}
-          height={canvasH}
-          borderRadius={backgroundBorderRadius}
-          onPointerDown={handleCanvasDeselect}
-          style={{
-            isolation: "isolate",
-          }}
-        >
-        {/* Background Layer */}
         <HTMLBackgroundLayer
           backgroundConfig={backgroundConfig}
           backgroundBlur={backgroundBlur}
@@ -478,7 +459,6 @@ function CanvasRenderer({ image }: { image: HTMLImageElement }) {
           backgroundNoise={backgroundNoise}
         />
 
-        {/* Pattern Layer */}
         <HTMLPatternLayer
           patternImage={patternImage}
           width={canvasW}
@@ -486,7 +466,6 @@ function CanvasRenderer({ image }: { image: HTMLImageElement }) {
           patternOpacity={patternStyle.opacity}
         />
 
-        {/* Noise Layer */}
         <HTMLNoiseLayer
           noiseImage={noiseImage}
           width={canvasW}
@@ -494,7 +473,6 @@ function CanvasRenderer({ image }: { image: HTMLImageElement }) {
           noiseOpacity={noise.opacity}
         />
 
-        {/* 3D Transform Overlay - renders when 3D transforms are active */}
         <Perspective3DOverlay
           has3DTransform={has3DTransform}
           perspective3D={perspective3D}
@@ -519,7 +497,6 @@ function CanvasRenderer({ image }: { image: HTMLImageElement }) {
           imageFilters={imageFilters}
         />
 
-        {/* 3D Drag Layer - allows dragging image when 3D transforms are active */}
         {has3DTransform && (
           <div
             onPointerDown={handle3DDragDown}
@@ -536,7 +513,6 @@ function CanvasRenderer({ image }: { image: HTMLImageElement }) {
           />
         )}
 
-        {/* Back Image Overlays - rendered behind the main image */}
         {backOverlays.length > 0 && (
           <HTMLImageOverlayLayer
             imageOverlays={backOverlays}
@@ -552,7 +528,6 @@ function CanvasRenderer({ image }: { image: HTMLImageElement }) {
           />
         )}
 
-        {/* Main Image Layer - renders when no 3D transform and no mockups */}
         {!hasMockups && !has3DTransform && (
           <>
             <SnapAlignmentGuides
@@ -589,7 +564,6 @@ function CanvasRenderer({ image }: { image: HTMLImageElement }) {
           </>
         )}
 
-        {/* Mockups Layer */}
         {mockups.map((mockup) => (
           <MockupRenderer
             key={mockup.id}
@@ -599,7 +573,6 @@ function CanvasRenderer({ image }: { image: HTMLImageElement }) {
           />
         ))}
 
-        {/* Text Overlay Layer */}
         <HTMLTextOverlayLayer
           textOverlays={textOverlays}
           canvasW={canvasW}
@@ -611,7 +584,6 @@ function CanvasRenderer({ image }: { image: HTMLImageElement }) {
           updateTextOverlay={updateTextOverlay}
         />
 
-        {/* Front Image Overlay Layer */}
         <HTMLImageOverlayLayer
           imageOverlays={frontOverlays}
           loadedOverlayImages={loadedOverlayImages}
@@ -624,7 +596,6 @@ function CanvasRenderer({ image }: { image: HTMLImageElement }) {
           onDelete={handleDeleteOverlay}
         />
 
-        {/* Blur Region Layer */}
         <HTMLBlurRegionLayer
           blurRegions={blurRegions}
           selectedBlurId={selectedBlurId}
@@ -633,7 +604,6 @@ function CanvasRenderer({ image }: { image: HTMLImageElement }) {
           removeBlurRegion={removeBlurRegion}
         />
 
-        {/* SVG Annotation Layer */}
         <SVGAnnotationLayer
           annotations={annotations}
           activeAnnotationTool={activeAnnotationTool}
@@ -656,12 +626,9 @@ function CanvasRenderer({ image }: { image: HTMLImageElement }) {
           }}
         />
 
-        {/* Toolbar is now integrated inside HTMLImageOverlayLayer */}
 
-        {/* Grid overlay — rendered on top of all content layers */}
         {showGrid && <HTMLGridLayer canvasW={canvasW} canvasH={canvasH} />}
       </HTMLCanvasRenderer>
-      </div>
     </div>
   );
 }
@@ -670,7 +637,15 @@ export function getCanvasContainer(): HTMLDivElement | null {
   return globalCanvasContainer;
 }
 
-export default function ClientCanvas() {
+type ClientCanvasProps = {
+  embedded?: boolean;
+  onReady?: () => void;
+};
+
+export default function ClientCanvas({
+  embedded = false,
+  onReady,
+}: ClientCanvasProps) {
   const [image, setImage] = useState<HTMLImageElement | null>(null);
   const [loadError, setLoadError] = useState(false);
   const { screenshot, setScreenshot } = useEditorStore();
@@ -690,7 +665,7 @@ export default function ClientCanvas() {
 
     const timeoutId = setTimeout(() => {
       if (!img.complete) {
-        console.warn('Image load timeout');
+        console.warn("Image load timeout");
         setLoadError(true);
         setScreenshot({ src: null });
       }
@@ -703,7 +678,7 @@ export default function ClientCanvas() {
 
     img.onerror = () => {
       clearTimeout(timeoutId);
-      console.warn('Image load error');
+      console.warn("Image load error");
       setLoadError(true);
       setScreenshot({ src: null });
     };
@@ -715,15 +690,20 @@ export default function ClientCanvas() {
     };
   }, [screenshot.src, uploadedImageUrl, setScreenshot]);
 
+  useEffect(() => {
+    if (image) {
+      onReady?.();
+    }
+  }, [image, onReady]);
+
   if (loadError || !screenshot.src || !uploadedImageUrl) {
     return null;
   }
 
   if (!image) {
+    if (embedded) return null;
     return (
-      <div className="flex-1 flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
+      <CanvasStageShell breathe showBackground className="overflow-hidden" />
     );
   }
 

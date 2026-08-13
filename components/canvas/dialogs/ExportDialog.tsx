@@ -83,7 +83,7 @@ export function ExportDialog({
             <ScaleSlider scale={scale} onScaleChange={onScaleChange} />
 
             {error && (
-              <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-lg border border-destructive/20">
+              <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md border border-destructive/20">
                 {error}
               </div>
             )}
@@ -91,10 +91,10 @@ export function ExportDialog({
             <Button
               onClick={handleExport}
               disabled={isExporting}
-              className="w-full h-12 text-base font-semibold bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl transition-all"
+              className="w-full h-10 text-sm font-semibold rounded-md"
             >
               <span className="flex items-center gap-2">
-                <Download01Icon size={18} />
+                <Download01Icon size={16} />
                 Export as {formatLabel}
               </span>
             </Button>

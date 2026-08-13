@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import * as React from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
-import { NewTwitterIcon } from 'hugeicons-react';
-import { Button } from '@/components/ui/button';
+import * as React from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { NewTwitterIcon } from "hugeicons-react";
+import { Button } from "@/components/ui/button";
 import {
   Download04Icon,
   Copy01Icon,
@@ -14,42 +14,65 @@ import {
   Delete02Icon,
   ArrowTurnBackwardIcon,
   ArrowTurnForwardIcon,
-  ArrowDown01Icon,
   Download01Icon,
   RefreshIcon,
   MagicWand01Icon,
   GridIcon,
   RulerIcon,
   FileZipIcon,
-} from 'hugeicons-react';
-import { useEditorStore, useImageStore } from '@/lib/store';
-import { useExport } from '@/hooks/useExport';
-import { useBatchExport } from '@/hooks/useBatchExport';
-import { aspectRatios } from '@/lib/constants/aspect-ratios';
-import { AspectRatioPicker } from '@/components/aspect-ratio/aspect-ratio-picker';
+} from "hugeicons-react";
+import { useEditorStore, useImageStore } from "@/lib/store";
+import { useExport } from "@/hooks/useExport";
+import { useBatchExport } from "@/hooks/useBatchExport";
+import { aspectRatios } from "@/lib/constants/aspect-ratios";
+import { AspectRatioPicker } from "@/components/aspect-ratio/aspect-ratio-picker";
 import {
   Popover,
   PopoverTrigger,
   PopoverContent,
-} from '@/components/ui/popover';
-import { CopyProgressDialog } from '@/components/canvas/dialogs/CopyProgressDialog';
-import { BatchExportProgressDialog } from '@/components/canvas/dialogs/BatchExportProgressDialog';
-import { ExportSlideshowDialog } from '@/lib/export-slideshow-dialog';
-import { ImageExportProgressView } from '@/components/canvas/dialogs/ImageProgressView';
-import { FormatSelector, QualityPresetSelector, ScaleSlider } from '@/components/export';
-import { cn } from '@/lib/utils';
-import { GitHubStarButton } from '@/components/ui/github-star-button';
-import { FeedbackWidget } from '@/components/FeedbackWidget';
+} from "@/components/ui/popover";
+import { CopyProgressDialog } from "@/components/canvas/dialogs/CopyProgressDialog";
+import { BatchExportProgressDialog } from "@/components/canvas/dialogs/BatchExportProgressDialog";
+import { ExportSlideshowDialog } from "@/lib/export-slideshow-dialog";
+import { ImageExportProgressView } from "@/components/canvas/dialogs/ImageProgressView";
+import {
+  FormatSelector,
+  QualityPresetSelector,
+  ScaleSlider,
+} from "@/components/export";
+import { cn } from "@/lib/utils";
+import { GitHubStarButton } from "@/components/ui/github-star-button";
+import { FeedbackWidget } from "@/components/FeedbackWidget";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export function EditorHeader() {
+  const isMobile = useIsMobile();
   const { screenshot } = useEditorStore();
-  const { selectedAspectRatio, slides, uploadedImageUrl, clearImage, timeline, animationClips, resetCanvasSettings, setShowTemplates, showRulers, showGrid, rulerInterval, toggleRulers, toggleGrid, setRulerInterval } = useImageStore();
+  const {
+    selectedAspectRatio,
+    slides,
+    uploadedImageUrl,
+    clearImage,
+    timeline,
+    animationClips,
+    resetCanvasSettings,
+    showTemplates,
+    setShowTemplates,
+    showRulers,
+    showGrid,
+    rulerInterval,
+    toggleRulers,
+    toggleGrid,
+    setRulerInterval,
+  } = useImageStore();
   const [aspectRatioOpen, setAspectRatioOpen] = React.useState(false);
   const [exportOpen, setExportOpen] = React.useState(false);
   const [exportSlideshowOpen, setExportSlideshowOpen] = React.useState(false);
   const [exportError, setExportError] = React.useState<string | null>(null);
 
-  const currentAspectRatio = aspectRatios.find((ar) => ar.id === selectedAspectRatio);
+  const currentAspectRatio = aspectRatios.find(
+    (ar) => ar.id === selectedAspectRatio,
+  );
   const hasImage = !!screenshot.src;
 
   // Undo/redo state
@@ -77,7 +100,10 @@ export function EditorHeader() {
     if (futureStates.length > 0) redo();
   }, []);
 
-  const showVideoExport = slides.length > 0 || timeline.tracks.length > 0 || animationClips.length > 0;
+  const showVideoExport =
+    slides.length > 0 ||
+    timeline.tracks.length > 0 ||
+    animationClips.length > 0;
 
   const {
     copyImage,
@@ -92,7 +118,10 @@ export function EditorHeader() {
     updateQualityPreset,
   } = useExport(selectedAspectRatio);
 
-  const { isBatchExporting, batchProgress, exportAllSlides } = useBatchExport(selectedAspectRatio, exportSettings);
+  const { isBatchExporting, batchProgress, exportAllSlides } = useBatchExport(
+    selectedAspectRatio,
+    exportSettings,
+  );
 
   const handleExport = async () => {
     setExportError(null);
@@ -100,7 +129,9 @@ export function EditorHeader() {
       await exportImage();
       setExportOpen(false);
     } catch (err) {
-      setExportError(err instanceof Error ? err.message : 'Export failed. Please try again.');
+      setExportError(
+        err instanceof Error ? err.message : "Export failed. Please try again.",
+      );
     }
   };
 
@@ -109,58 +140,82 @@ export function EditorHeader() {
     await exportAllSlides();
   };
 
-  const formatLabel = exportSettings.format === 'jpeg' ? 'JPEG' : exportSettings.format === 'webp' ? 'WebP' : 'PNG';
+  const formatLabel =
+    exportSettings.format === "jpeg"
+      ? "JPEG"
+      : exportSettings.format === "webp"
+        ? "WebP"
+        : "PNG";
 
   return (
     <>
-      <header className="h-14 bg-card border-b border-border/40 flex items-center justify-between px-4 shrink-0">
-        {/* Left - Logo + Undo/Redo */}
-        <div className="flex items-center gap-3">
-          <Link href="/landing" className="flex items-center gap-2.5 hover:opacity-80 transition-opacity">
+      <header
+        className={cn(
+          "h-16 bg-background border-b border-foreground/10 grid grid-cols-[1fr_auto_1fr] items-center shrink-0",
+          isMobile ? "gap-1 px-2" : "gap-3 px-4"
+        )}
+      >
+        <div className="flex items-center h-8 justify-self-start min-w-0">
+          <Link
+            href="/landing"
+            className="flex items-center gap-2.5 h-8 hover:opacity-80 transition-opacity shrink-0"
+          >
             <Image
-              src="/favicon.svg"
+              src="/logo-mark.png"
               alt="Screenshot Studio"
-              width={48}
-              height={48}
-              className="h-12 w-12"
+              width={32}
+              height={32}
+              className="h-8 w-8"
+              priority
             />
+            <span className="hidden sm:inline font-semibold text-foreground text-sm tracking-tight leading-none">
+              Screenshot Studio
+            </span>
           </Link>
 
+          <div
+            className={cn(
+              "h-4 w-px bg-foreground/10 shrink-0",
+              isMobile ? "mx-1.5" : "mx-2.5"
+            )}
+            aria-hidden
+          />
+
           <button
-            onClick={() => setShowTemplates(true)}
-            className="flex items-center gap-2 px-2.5 h-8 rounded-lg bg-muted/80 dark:bg-muted/50 border border-border/20 hover:bg-accent transition-colors duration-150 group"
+            type="button"
+            onClick={() => setShowTemplates(!showTemplates)}
+            aria-expanded={showTemplates}
+            aria-label="Templates"
+            className={cn(
+              "inline-flex items-center gap-1.5 h-8 px-2 rounded-md shrink-0 cursor-pointer",
+              "text-sm font-medium leading-none transition-colors duration-150",
+              showTemplates
+                ? "text-foreground hover:text-foreground/70"
+                : "text-muted-foreground hover:text-foreground"
+            )}
           >
-            <div className="flex items-center justify-center w-5 h-5 rounded bg-primary/10 text-primary">
-              <MagicWand01Icon size={12} />
-            </div>
-            <span className="text-xs font-medium text-foreground">Templates</span>
+            <MagicWand01Icon size={14} className="shrink-0" />
+            {!isMobile ? <span>Templates</span> : null}
           </button>
+        </div>
 
-          {uploadedImageUrl && (
-            <button
-              onClick={resetCanvasSettings}
-              className={cn(
-                'flex items-center justify-center w-8 h-8 rounded-lg',
-                'text-muted-foreground transition-all duration-150',
-                'hover:bg-accent hover:text-foreground active:scale-95'
-              )}
-              title="Reset to defaults"
-            >
-              <RefreshIcon size={16} />
-            </button>
+        <div
+          className={cn(
+            "flex items-center justify-center justify-self-center",
+            isMobile ? "gap-1" : "gap-2.5"
           )}
-
-          {hasImage && (
-            <div className="flex items-center gap-1 ml-1">
+        >
+          {hasImage ? (
+            <div className="flex items-center gap-1">
               <button
                 onClick={handleUndo}
                 disabled={!canUndo}
                 className={cn(
-                  'flex items-center justify-center w-8 h-8 rounded-lg',
-                  'text-muted-foreground transition-all duration-150',
+                  "flex items-center justify-center w-8 h-8 rounded-md shrink-0 cursor-pointer",
+                  "text-muted-foreground transition-all duration-150",
                   canUndo
-                    ? 'hover:bg-accent hover:text-foreground active:scale-95'
-                    : 'opacity-40 cursor-not-allowed'
+                    ? "hover:text-foreground active:scale-95"
+                    : "opacity-40 cursor-not-allowed",
                 )}
                 title="Undo (Cmd+Z)"
               >
@@ -170,36 +225,42 @@ export function EditorHeader() {
                 onClick={handleRedo}
                 disabled={!canRedo}
                 className={cn(
-                  'flex items-center justify-center w-8 h-8 rounded-lg',
-                  'text-muted-foreground transition-all duration-150',
+                  "flex items-center justify-center w-8 h-8 rounded-md shrink-0 cursor-pointer",
+                  "text-muted-foreground transition-all duration-150",
                   canRedo
-                    ? 'hover:bg-accent hover:text-foreground active:scale-95'
-                    : 'opacity-40 cursor-not-allowed'
+                    ? "hover:text-foreground active:scale-95"
+                    : "opacity-40 cursor-not-allowed",
                 )}
                 title="Redo (Cmd+Shift+Z)"
               >
                 <ArrowTurnForwardIcon size={16} />
               </button>
+            </div>
+          ) : null}
 
-              <div className="w-px h-4 bg-border/60 mx-0.5" />
+          {hasImage && !isMobile ? (
+            <div className="w-px h-4 bg-foreground/10 shrink-0" aria-hidden />
+          ) : null}
 
+          {hasImage && !isMobile ? (
+            <div className="flex items-center gap-1">
               <button
                 onClick={toggleRulers}
                 className={cn(
-                  'flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-150 active:scale-95',
+                  "flex items-center justify-center w-8 h-8 rounded-md shrink-0 cursor-pointer transition-all duration-150 active:scale-95",
                   showRulers
-                    ? 'bg-accent text-foreground'
-                    : 'text-muted-foreground hover:bg-accent hover:text-foreground'
+                    ? "bg-muted text-foreground"
+                    : "text-muted-foreground hover:text-foreground",
                 )}
                 title="Toggle rulers"
               >
                 <RulerIcon size={15} />
               </button>
-              {showRulers && (
+              {showRulers ? (
                 <select
                   value={rulerInterval}
                   onChange={(e) => setRulerInterval(Number(e.target.value))}
-                  className="h-7 px-1.5 text-[11px] rounded-md bg-accent text-foreground border-0 outline-none cursor-pointer"
+                  className="h-8 px-1.5 text-[11px] rounded-md bg-muted text-foreground border-0 outline-none cursor-pointer shrink-0"
                   title="Ruler interval"
                 >
                   <option value={25}>25px</option>
@@ -207,197 +268,239 @@ export function EditorHeader() {
                   <option value={100}>100px</option>
                   <option value={200}>200px</option>
                 </select>
-              )}
+              ) : null}
               <button
                 onClick={toggleGrid}
                 className={cn(
-                  'flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-150 active:scale-95',
+                  "flex items-center justify-center w-8 h-8 rounded-md shrink-0 cursor-pointer transition-all duration-150 active:scale-95",
                   showGrid
-                    ? 'bg-accent text-foreground'
-                    : 'text-muted-foreground hover:bg-accent hover:text-foreground'
+                    ? "bg-muted text-foreground"
+                    : "text-muted-foreground hover:text-foreground",
                 )}
                 title="Toggle grid"
               >
                 <GridIcon size={15} />
               </button>
             </div>
-          )}
-        </div>
+          ) : null}
 
-        {/* Right - All actions */}
-        <div className="flex items-center gap-1.5">
-          {/* Canvas controls */}
-          <Popover open={aspectRatioOpen} onOpenChange={setAspectRatioOpen}>
-            <PopoverTrigger asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-8 gap-1.5 rounded-lg text-muted-foreground hover:text-foreground px-2.5"
-              >
-                <AspectRatioIcon size={15} />
-                <span className="text-xs">{currentAspectRatio ? `${currentAspectRatio.width}:${currentAspectRatio.height}` : 'Auto'}</span>
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="p-0 w-[420px]" align="end" sideOffset={8} collisionPadding={16}>
-              <AspectRatioPicker onSelect={() => setAspectRatioOpen(false)} />
-            </PopoverContent>
-          </Popover>
+          {hasImage && !isMobile ? (
+            <div className="w-px h-4 bg-foreground/10 shrink-0" aria-hidden />
+          ) : null}
 
-          {/* Slide controls */}
-          {slides.length > 0 && (
-            <label className="cursor-pointer inline-flex">
-              <input
-                type="file"
-                accept="image/*"
-                multiple
-                className="hidden"
-                onChange={(e) => {
-                  if (e.target.files?.length) {
-                    useImageStore.getState().addImages(Array.from(e.target.files));
-                  }
-                }}
-              />
-              <span className="h-8 inline-flex items-center justify-center gap-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent text-xs transition-all font-medium px-2.5">
-                <Add01Icon size={14} />
-                <span>Add Slide</span>
-              </span>
-            </label>
-          )}
-
-          {showVideoExport && (
-            <Button
-              onClick={() => setExportSlideshowOpen(true)}
-              size="sm"
-              className="h-8 gap-1.5 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-medium px-3"
-            >
-              <Video01Icon size={14} />
-              <span>Export Video</span>
-            </Button>
-          )}
-
-          {/* Separator */}
-          {hasImage && <div className="w-px h-5 bg-border/60 mx-1" />}
-
-          {/* Export actions */}
-          <Button
-            onClick={() => copyImage()}
-            disabled={!hasImage || isExporting || isCopying}
-            variant="ghost"
-            size="sm"
-            className="h-8 gap-1.5 rounded-lg text-muted-foreground hover:text-foreground px-2.5 text-xs"
-          >
-            <Copy01Icon size={15} />
-            <span>Copy</span>
-          </Button>
-
-          <Popover open={exportOpen} onOpenChange={isExporting ? undefined : setExportOpen}>
-            <PopoverTrigger asChild>
-              <Button
-                disabled={!hasImage}
-                size="sm"
-                className="h-8 gap-1.5 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-medium px-3"
-              >
-                <Download04Icon size={15} />
-                <span>Save</span>
-                <ArrowDown01Icon size={12} className="ml-0.5 opacity-70" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent
-              className="w-[340px] p-0"
-              align="end"
-              sideOffset={8}
-              collisionPadding={16}
-              onPointerDownOutside={isExporting ? (e) => e.preventDefault() : undefined}
-            >
-              {isExporting ? (
-                <div className="p-5">
-                  <p className="text-sm font-medium text-foreground mb-1">Exporting...</p>
-                  <p className="text-xs text-muted-foreground mb-4">Rendering your creation</p>
-                  <ImageExportProgressView progress={progress} format={exportSettings.format} />
-                </div>
-              ) : (
-                <div className="p-4 space-y-4">
-                  <FormatSelector format={exportSettings.format} onFormatChange={updateFormat} />
-                  <QualityPresetSelector
-                    qualityPreset={exportSettings.qualityPreset}
-                    format={exportSettings.format}
-                    onQualityPresetChange={updateQualityPreset}
-                  />
-                  <ScaleSlider scale={exportSettings.scale} onScaleChange={updateScale} />
-
-                  {exportError && (
-                    <div className="text-xs text-destructive bg-destructive/10 p-2.5 rounded-lg border border-destructive/20">
-                      {exportError}
-                    </div>
+          <div className="flex items-center gap-1">
+            <Popover open={aspectRatioOpen} onOpenChange={setAspectRatioOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className={cn(
+                    "h-8 gap-1.5 rounded-md text-muted-foreground hover:text-foreground shrink-0",
+                    isMobile ? "px-1.5" : "px-2.5"
                   )}
+                >
+                  <AspectRatioIcon size={15} />
+                  <span className="text-xs leading-none">
+                    {currentAspectRatio
+                      ? `${currentAspectRatio.width}:${currentAspectRatio.height}`
+                      : "Auto"}
+                  </span>
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent
+                className="p-0 w-[420px]"
+                align="center"
+                sideOffset={8}
+                collisionPadding={16}
+              >
+                <AspectRatioPicker onSelect={() => setAspectRatioOpen(false)} />
+              </PopoverContent>
+            </Popover>
 
-                  <Button
-                    onClick={handleExport}
-                    disabled={isExporting}
-                    className="w-full h-10 text-sm font-semibold bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg transition-all"
-                  >
-                    <Download01Icon size={16} className="mr-2" />
-                    Export as {formatLabel}
-                  </Button>
+            {slides.length > 0 && !isMobile ? (
+              <label className="cursor-pointer inline-flex shrink-0">
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  className="hidden"
+                  onChange={(e) => {
+                    if (e.target.files?.length) {
+                      useImageStore
+                        .getState()
+                        .addImages(Array.from(e.target.files));
+                    }
+                  }}
+                />
+                <span className="h-8 inline-flex items-center justify-center gap-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted text-xs leading-none transition-all font-medium px-2.5">
+                  <Add01Icon size={14} />
+                  <span>Add Slide</span>
+                </span>
+              </label>
+            ) : null}
+          </div>
 
-                  {slides.length > 1 && (
-                    <Button
-                      onClick={handleExportAll}
-                      disabled={isExporting || isBatchExporting}
-                      variant="outline"
-                      className="w-full h-10 text-sm font-semibold rounded-lg transition-all"
-                    >
-                      <FileZipIcon size={16} className="mr-2" />
-                      Export All ({slides.length})
-                    </Button>
-                  )}
-                </div>
-              )}
-            </PopoverContent>
-          </Popover>
+          <div className="w-px h-4 bg-foreground/10 shrink-0" aria-hidden />
 
-          {/* Separator */}
-          {hasImage && <div className="w-px h-5 bg-border/60 mx-1" />}
-
-          {hasImage && (
+          <div className={cn("flex items-center", isMobile ? "gap-1" : "gap-1.5")}>
             <Button
-              onClick={clearImage}
+              onClick={() => copyImage()}
+              disabled={!hasImage || isExporting || isCopying}
               variant="ghost"
               size="sm"
-              className="h-8 gap-1.5 px-2.5 text-xs text-muted-foreground hover:text-destructive"
+              aria-label="Copy"
+              className={cn(
+                "h-8 gap-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-transparent dark:hover:bg-transparent text-xs leading-none shrink-0",
+                isMobile ? "px-1.5" : "px-2.5"
+              )}
             >
-              <Delete02Icon size={14} />
-              <span>Remove</span>
+              <Copy01Icon size={15} />
+              {!isMobile ? <span>Copy</span> : null}
             </Button>
-          )}
 
-          <div className="flex items-center gap-1 ml-1">
-            <FeedbackWidget />
-            <GitHubStarButton compact />
-            <a
-              href="https://x.com/code_kartik"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="p-2 hover:bg-muted rounded-lg transition-colors text-muted-foreground hover:text-foreground"
+            <Popover
+              open={exportOpen}
+              onOpenChange={isExporting ? undefined : setExportOpen}
             >
-              <NewTwitterIcon className="h-4 w-4" />
-            </a>
+              <PopoverTrigger asChild>
+                <Button
+                  disabled={!hasImage}
+                  size="sm"
+                  aria-label="Save"
+                  className={cn(
+                    "h-8 gap-1.5 rounded-md text-xs font-medium leading-none shrink-0",
+                    isMobile ? "px-2" : "px-3"
+                  )}
+                >
+                  <Download04Icon size={15} />
+                  {!isMobile ? <span>Save</span> : null}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent
+                className="w-[340px] p-0"
+                align="center"
+                sideOffset={8}
+                collisionPadding={16}
+                onPointerDownOutside={
+                  isExporting ? (e) => e.preventDefault() : undefined
+                }
+              >
+                {isExporting ? (
+                  <div className="p-5">
+                    <p className="text-sm font-medium text-foreground mb-1">
+                      Exporting...
+                    </p>
+                    <p className="text-xs text-muted-foreground mb-4">
+                      Rendering your creation
+                    </p>
+                    <ImageExportProgressView
+                      progress={progress}
+                      format={exportSettings.format}
+                    />
+                  </div>
+                ) : (
+                  <div className="p-4 space-y-4">
+                    <FormatSelector
+                      format={exportSettings.format}
+                      onFormatChange={updateFormat}
+                    />
+                    <QualityPresetSelector
+                      qualityPreset={exportSettings.qualityPreset}
+                      format={exportSettings.format}
+                      onQualityPresetChange={updateQualityPreset}
+                    />
+                    <ScaleSlider
+                      scale={exportSettings.scale}
+                      onScaleChange={updateScale}
+                    />
+
+                    {exportError && (
+                      <div className="text-xs text-destructive bg-destructive/10 p-2.5 rounded-md border border-destructive/20">
+                        {exportError}
+                      </div>
+                    )}
+
+                    <Button
+                      onClick={handleExport}
+                      disabled={isExporting}
+                      className="w-full h-10 text-sm font-semibold rounded-md transition-all"
+                    >
+                      <Download01Icon size={16} className="mr-2" />
+                      Export as {formatLabel}
+                    </Button>
+
+                    {slides.length > 1 && (
+                      <Button
+                        onClick={handleExportAll}
+                        disabled={isExporting || isBatchExporting}
+                        variant="outline"
+                        className="w-full h-10 text-sm font-semibold rounded-md transition-all"
+                      >
+                        <FileZipIcon size={16} className="mr-2" />
+                        Export All ({slides.length})
+                      </Button>
+                    )}
+                  </div>
+                )}
+              </PopoverContent>
+            </Popover>
+
+            {showVideoExport && !isMobile ? (
+              <Button
+                onClick={() => setExportSlideshowOpen(true)}
+                size="sm"
+                className="h-8 gap-1.5 rounded-md text-xs font-medium leading-none px-3 shrink-0"
+              >
+                <Video01Icon size={14} />
+                <span>Export Video</span>
+              </Button>
+            ) : null}
           </div>
 
-          <div className="hidden sm:flex items-center gap-3 ml-2 pl-2 border-l border-border/40">
-            <Link href="/about" className="text-[11px] text-muted-foreground hover:text-foreground transition-colors">
-              About
-            </Link>
-            <Link href="/privacy-policy" className="text-[11px] text-muted-foreground hover:text-foreground transition-colors">
-              Privacy
-            </Link>
-            <Link href="/terms" className="text-[11px] text-muted-foreground hover:text-foreground transition-colors">
-              Terms
-            </Link>
-            <Link href="/contact" className="text-[11px] text-muted-foreground hover:text-foreground transition-colors">
-              Contact
-            </Link>
-          </div>
+          {(hasImage || uploadedImageUrl) && !isMobile ? (
+            <>
+              <div className="w-px h-4 bg-foreground/10 shrink-0" aria-hidden />
+              <div className="flex items-center gap-1">
+                {uploadedImageUrl ? (
+                  <button
+                    onClick={resetCanvasSettings}
+                    className={cn(
+                      "flex items-center justify-center w-8 h-8 rounded-md shrink-0 cursor-pointer",
+                      "text-muted-foreground transition-all duration-150",
+                      "hover:text-foreground active:scale-95",
+                    )}
+                    title="Reset to defaults"
+                  >
+                    <RefreshIcon size={16} />
+                  </button>
+                ) : null}
+                {hasImage ? (
+                  <Button
+                    onClick={clearImage}
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 gap-1.5 px-2.5 text-xs leading-none text-muted-foreground hover:text-destructive hover:bg-transparent dark:hover:bg-transparent shrink-0"
+                  >
+                    <Delete02Icon size={14} />
+                    <span>Remove</span>
+                  </Button>
+                ) : null}
+              </div>
+            </>
+          ) : null}
+        </div>
+
+        <div className="flex items-center gap-1 justify-self-end">
+          {!isMobile ? <FeedbackWidget /> : null}
+          {!isMobile ? <GitHubStarButton compact /> : null}
+          <a
+            href="https://x.com/code_kartik"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-center w-9 h-9 rounded-md text-muted-foreground transition-[color,filter] duration-150 hover:text-foreground "
+          >
+            <NewTwitterIcon className="h-[18px] w-[18px]" />
+          </a>
         </div>
       </header>
 

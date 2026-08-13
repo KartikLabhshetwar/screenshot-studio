@@ -150,11 +150,11 @@ function PresetCard({
     <button
       onClick={onApply}
       className={cn(
-        'w-full rounded-lg border transition-all overflow-hidden text-left',
-        'focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
+        'w-full rounded-md border transition-all overflow-hidden text-left cursor-pointer',
+        'outline-none focus-visible:ring-2 focus-visible:ring-foreground/25',
         isActive
-          ? 'border-primary/50 ring-1 ring-primary/30'
-          : 'border-border/50 hover:border-border'
+          ? 'border-foreground/30 ring-1 ring-foreground/20'
+          : 'border-foreground/10 hover:border-foreground/20'
       )}
     >
       <div
@@ -268,10 +268,10 @@ function PresetCard({
       </div>
 
       <div className={cn(
-        "p-3 backdrop-blur-sm border-t",
+        "p-3 border-t",
         isActive
-          ? "bg-primary/5 border-primary/20"
-          : "bg-background/95 border-border/50"
+          ? "bg-foreground/[0.08] border-foreground/15"
+          : "bg-background border-foreground/10"
       )}>
         <div className="flex items-center gap-2">
           {isActive && (
@@ -456,12 +456,11 @@ export function PresetGallery({ onPresetSelect }: PresetGalleryProps) {
 
   return (
     <div className="space-y-3">
-      {/* Save Current as Preset */}
       <div>
         {!showSaveForm ? (
           <button
             onClick={() => setShowSaveForm(true)}
-            className="w-full rounded-lg border-2 border-dashed border-border/60 hover:border-border p-4 text-sm text-muted-foreground hover:text-foreground transition-colors"
+            className="w-full rounded-md border border-dashed border-foreground/15 hover:border-foreground/30 hover:bg-foreground/[0.04] p-4 text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
           >
             + Save Current as Preset
           </button>
@@ -477,12 +476,12 @@ export function PresetGallery({ onPresetSelect }: PresetGalleryProps) {
                 if (e.key === 'Escape') { setShowSaveForm(false); setPresetName(''); }
               }}
               placeholder="Preset name"
-              className="h-9 text-sm"
+              className="h-9 text-sm bg-foreground/[0.04] border-foreground/10"
             />
             <button
               onClick={handleSavePreset}
               disabled={!presetName.trim()}
-              className="shrink-0 h-9 px-3 rounded-md bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 disabled:opacity-50 disabled:pointer-events-none"
+              className="shrink-0 h-9 px-3 rounded-md bg-primary text-primary-foreground text-sm font-medium hover:bg-foreground/90 disabled:opacity-50 disabled:pointer-events-none cursor-pointer"
             >
               Save
             </button>
@@ -490,7 +489,6 @@ export function PresetGallery({ onPresetSelect }: PresetGalleryProps) {
         )}
       </div>
 
-      {/* My Presets */}
       {customPresets.length > 0 && (
         <>
           <div className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
@@ -509,7 +507,7 @@ export function PresetGallery({ onPresetSelect }: PresetGalleryProps) {
                   e.stopPropagation();
                   deletePreset(preset.id);
                 }}
-                className="absolute top-2 right-2 z-10 p-1.5 rounded-md bg-background/80 backdrop-blur-sm border border-border/50 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive hover:text-destructive-foreground hover:border-destructive"
+                className="absolute top-2 right-2 z-10 p-1.5 rounded-md bg-card border border-foreground/10 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive/20 hover:text-destructive hover:border-destructive/30 cursor-pointer"
               >
                 <Delete02Icon size={14} />
               </button>
@@ -521,7 +519,6 @@ export function PresetGallery({ onPresetSelect }: PresetGalleryProps) {
         </>
       )}
 
-      {/* Built-in Presets */}
       {presets.map((preset) => (
         <PresetCard
           key={preset.id}
@@ -533,7 +530,7 @@ export function PresetGallery({ onPresetSelect }: PresetGalleryProps) {
       ))}
 
       {!uploadedImageUrl && !screenshot?.src && (
-        <div className="p-4 rounded-lg bg-muted/50 border border-border text-center">
+        <div className="p-4 rounded-md bg-foreground/[0.04] border border-foreground/10 text-center">
           <p className="text-xs text-muted-foreground">
             Upload an image to see preset previews
           </p>

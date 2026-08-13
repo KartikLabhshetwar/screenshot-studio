@@ -50,7 +50,6 @@ export function ImageOverlaySection() {
   return (
     <SectionWrapper title="Stickers" defaultOpen={true}>
       <div className="space-y-2">
-        {/* Add Image button */}
         <input
           ref={fileInputRef}
           type="file"
@@ -61,9 +60,9 @@ export function ImageOverlaySection() {
         />
         <button
           onClick={() => fileInputRef.current?.click()}
-          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl bg-muted/40 border border-dashed border-border/40 hover:bg-accent/60 hover:border-primary/30 transition-all duration-150 group"
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-md bg-foreground/[0.04] border border-dashed border-foreground/15 hover:bg-foreground/[0.06] hover:border-foreground/25 transition-all duration-150 group"
         >
-          <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/10 text-primary">
+          <div className="flex items-center justify-center w-8 h-8 rounded-md bg-foreground/[0.08] text-foreground">
             <Image01Icon size={16} />
           </div>
           <span className="text-xs font-medium text-muted-foreground group-hover:text-foreground transition-colors">
@@ -71,18 +70,16 @@ export function ImageOverlaySection() {
           </span>
         </button>
 
-        {/* Depth panel link */}
         <button
           onClick={() => setActiveRightPanelTab('depth')}
-          className="w-full flex items-center gap-3 px-3 py-3 rounded-xl bg-muted/40 border border-border/30 hover:bg-accent/60 hover:border-border/50 transition-all duration-150 group"
+          className="w-full flex items-center gap-3 px-3 py-3 rounded-md bg-foreground/[0.04] border border-foreground/10 hover:bg-foreground/[0.06] hover:border-foreground/20 transition-all duration-150 group"
         >
-        {/* Stacked thumbnail preview or icon */}
         <div className="relative w-10 h-10 shrink-0">
           {previewOverlays.length > 0 ? (
             previewOverlays.map((overlay, i) => (
               <div
                 key={overlay.id}
-                className="absolute w-7 h-7 rounded-md bg-muted border border-border/40 overflow-hidden"
+                className="absolute w-7 h-7 rounded-md bg-card border border-foreground/10 overflow-hidden"
                 style={{
                   top: `${(previewOverlays.length - 1 - i) * 3}px`,
                   left: `${i * 3}px`,
@@ -98,13 +95,12 @@ export function ImageOverlaySection() {
               </div>
             ))
           ) : (
-            <div className="w-10 h-10 rounded-lg bg-muted/60 border border-border/30 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-md bg-foreground/[0.06] border border-foreground/10 flex items-center justify-center">
               <LayersLogoIcon size={18} className="text-muted-foreground/50" />
             </div>
           )}
         </div>
 
-        {/* Label + count */}
         <div className="flex-1 text-left min-w-0">
           <p className="text-xs font-medium text-foreground">
             {totalLayers > 0 ? `${totalLayers} layer${totalLayers !== 1 ? 's' : ''}` : 'No layers'}

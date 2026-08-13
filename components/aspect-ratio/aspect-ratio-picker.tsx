@@ -139,7 +139,6 @@ export const AspectRatioPicker = ({ onSelect }: AspectRatioPickerProps = {} as A
 
   return (
     <div className="p-3 max-h-[70vh] overflow-y-auto">
-      {/* Custom Dimensions */}
       <div className="flex items-center gap-2 mb-4">
         <div className="flex items-center gap-1.5 flex-1">
           <label className="text-xs text-muted-foreground font-medium shrink-0">W</label>
@@ -147,7 +146,7 @@ export const AspectRatioPicker = ({ onSelect }: AspectRatioPickerProps = {} as A
             type="number"
             value={customW}
             onChange={(e) => setCustomW(e.target.value)}
-            className="w-full h-8 bg-muted border border-border/50 rounded-md px-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            className="w-full h-8 bg-foreground/[0.04] border border-foreground/10 rounded-md px-2 text-xs text-foreground focus:outline-none focus:border-foreground/25 focus:ring-1 focus:ring-foreground/15 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
           />
         </div>
         <span className="text-xs text-muted-foreground">×</span>
@@ -157,7 +156,7 @@ export const AspectRatioPicker = ({ onSelect }: AspectRatioPickerProps = {} as A
             type="number"
             value={customH}
             onChange={(e) => setCustomH(e.target.value)}
-            className="w-full h-8 bg-muted border border-border/50 rounded-md px-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            className="w-full h-8 bg-foreground/[0.04] border border-foreground/10 rounded-md px-2 text-xs text-foreground focus:outline-none focus:border-foreground/25 focus:ring-1 focus:ring-foreground/15 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
           />
         </div>
         <button
@@ -166,15 +165,14 @@ export const AspectRatioPicker = ({ onSelect }: AspectRatioPickerProps = {} as A
           className={cn(
             'h-8 px-3 rounded-md text-xs font-medium transition-colors shrink-0',
             isCustomChanged
-              ? 'bg-primary text-primary-foreground hover:bg-primary/90'
-              : 'bg-muted text-muted-foreground cursor-not-allowed'
+              ? 'bg-primary text-primary-foreground hover:bg-foreground/90'
+              : 'bg-foreground/[0.04] text-muted-foreground border border-foreground/10 cursor-not-allowed'
           )}
         >
           Set
         </button>
       </div>
 
-      {/* Standard Ratios */}
       <div className="mb-3">
         <h4 className="text-xs font-medium text-muted-foreground mb-2">Standard</h4>
         <div className="grid grid-cols-3 gap-2">
@@ -188,17 +186,17 @@ export const AspectRatioPicker = ({ onSelect }: AspectRatioPickerProps = {} as A
                 key={id}
                 onClick={() => handleSelect(id)}
                 className={cn(
-                  'flex flex-col items-center justify-between rounded-lg p-2 cursor-pointer transition-all',
+                  'flex flex-col items-center justify-between rounded-md p-2 cursor-pointer transition-all border',
                   isSelected
-                    ? 'bg-primary/10 ring-2 ring-primary'
-                    : 'hover:bg-accent/50'
+                    ? 'bg-foreground/[0.08] border-foreground/30 ring-1 ring-foreground/20'
+                    : 'border-transparent hover:bg-foreground/[0.04] hover:border-foreground/10'
                 )}
               >
                 <div className="flex items-center justify-center h-[40px]">
                   <div
                     className={cn(
-                      'rounded-sm border-2 transition-colors',
-                      isSelected ? 'border-primary bg-primary/5' : 'border-muted-foreground/30'
+                      'rounded-sm border transition-colors',
+                      isSelected ? 'border-foreground/50 bg-foreground/[0.06]' : 'border-foreground/20'
                     )}
                     style={{ width: `${w}px`, height: `${h}px` }}
                   />
@@ -212,12 +210,11 @@ export const AspectRatioPicker = ({ onSelect }: AspectRatioPickerProps = {} as A
         </div>
       </div>
 
-      {/* Social Media Sections */}
       {socialSections.map((section) => {
         const Icon = section.icon;
         return (
           <div key={section.name} className="mb-3">
-            <div className="h-px bg-border/50 mb-3" />
+            <div className="h-px bg-foreground/10 mb-3" />
             <div className="flex items-center gap-1.5 mb-2">
               <Icon size={14} className="text-muted-foreground" />
               <h4 className="text-xs font-medium text-muted-foreground">{section.name}</h4>
@@ -233,17 +230,17 @@ export const AspectRatioPicker = ({ onSelect }: AspectRatioPickerProps = {} as A
                     key={`${section.name}-${preset.label}`}
                     onClick={() => handleSelect(preset.id)}
                     className={cn(
-                      'flex flex-col items-center justify-between rounded-lg p-2 cursor-pointer transition-all',
+                      'flex flex-col items-center justify-between rounded-md p-2 cursor-pointer transition-all border',
                       isSelected
-                        ? 'bg-primary/10 ring-2 ring-primary'
-                        : 'hover:bg-accent/50'
+                        ? 'bg-foreground/[0.08] border-foreground/30 ring-1 ring-foreground/20'
+                        : 'border-transparent hover:bg-foreground/[0.04] hover:border-foreground/10'
                     )}
                   >
                     <div className="flex items-center justify-center h-[40px]">
                       <div
                         className={cn(
-                          'rounded-sm border-2 transition-colors flex items-center justify-center',
-                          isSelected ? 'border-primary bg-primary/5' : 'border-muted-foreground/30'
+                          'rounded-sm border transition-colors flex items-center justify-center',
+                          isSelected ? 'border-foreground/50 bg-foreground/[0.06]' : 'border-foreground/20'
                         )}
                         style={{ width: `${w}px`, height: `${h}px` }}
                       >
@@ -252,7 +249,7 @@ export const AspectRatioPicker = ({ onSelect }: AspectRatioPickerProps = {} as A
                             size={iconSize}
                             className={cn(
                               'transition-colors',
-                              isSelected ? 'text-primary' : 'text-muted-foreground/40'
+                              isSelected ? 'text-foreground' : 'text-muted-foreground/40'
                             )}
                           />
                         )}
