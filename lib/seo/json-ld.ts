@@ -13,9 +13,9 @@ export function getOrganizationSchema() {
     url: BASE_URL,
     logo: {
       "@type": "ImageObject",
-      url: `${BASE_URL}/icon`,
-      width: 32,
-      height: 32,
+      url: `${BASE_URL}/icon-512.png`,
+      width: 512,
+      height: 512,
     },
     sameAs: [
       "https://github.com/KartikLabhshetwar/screenshot-studio",

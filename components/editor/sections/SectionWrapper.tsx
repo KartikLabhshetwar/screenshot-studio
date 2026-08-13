@@ -24,7 +24,7 @@ export function SectionWrapper({
   return (
     <div className={cn('mb-1', className)}>
       <div
-        className="w-full flex items-center justify-between gap-2 py-3 px-2 hover:bg-card/30 rounded-lg transition-colors group"
+        className="w-full flex items-center justify-between gap-2 py-3 px-2 group"
       >
         <button
           onClick={() => setIsOpen(!isOpen)}

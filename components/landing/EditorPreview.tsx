@@ -1,195 +1,913 @@
 "use client";
 
-import { motion } from "motion/react";
+import {
+  useLayoutEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type ReactNode,
+} from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { motion, useReducedMotion } from "motion/react";
+import { AspectRatioIcon, Globe02Icon, Image01Icon } from "hugeicons-react";
+import {
+  getBackgroundCSS,
+  type BackgroundConfig,
+} from "@/lib/constants/backgrounds";
+import { cn } from "@/lib/utils";
+import { trackCTAClick } from "@/lib/analytics";
 
-export function EditorPreview() {
+type AspectId = "16:9" | "1:1" | "9:16";
+type LayoutId = "flat" | "tilt-left" | "tilt-right" | "float";
+type BgKind = "mesh" | "glow" | "gradient" | "solid";
+
+const ASPECTS: { id: AspectId; label: string; w: number; h: number }[] = [
+  { id: "16:9", label: "16:9", w: 16, h: 9 },
+  { id: "1:1", label: "1:1", w: 1, h: 1 },
+  { id: "9:16", label: "9:16", w: 9, h: 16 },
+];
+
+const BG_KINDS: { id: BgKind; label: string }[] = [
+  { id: "mesh", label: "Mesh" },
+  { id: "glow", label: "Glow" },
+  { id: "gradient", label: "Grad" },
+  { id: "solid", label: "Solid" },
+];
+
+const BACKGROUNDS: {
+  id: string;
+  label: string;
+  kind: BgKind;
+  config: BackgroundConfig;
+}[] = [
+  {
+    id: "mesh-warm",
+    label: "Warm",
+    kind: "mesh",
+    config: { type: "gradient", value: "mesh:mesh_warm" },
+  },
+  {
+    id: "mesh-ocean",
+    label: "Ocean",
+    kind: "mesh",
+    config: { type: "gradient", value: "mesh:mesh_ocean" },
+  },
+  {
+    id: "mesh-forest",
+    label: "Forest",
+    kind: "mesh",
+    config: { type: "gradient", value: "mesh:mesh_forest" },
+  },
+  {
+    id: "mesh-peach",
+    label: "Peach",
+    kind: "mesh",
+    config: { type: "gradient", value: "mesh:mesh_peach" },
+  },
+  {
+    id: "mesh-mint",
+    label: "Mint",
+    kind: "mesh",
+    config: { type: "gradient", value: "mesh:mesh_mint" },
+  },
+  {
+    id: "mesh-rose",
+    label: "Rose",
+    kind: "mesh",
+    config: { type: "gradient", value: "mesh:mesh_rose" },
+  },
+  {
+    id: "mesh-sunset",
+    label: "Sunset",
+    kind: "mesh",
+    config: { type: "gradient", value: "mesh:mesh_sunset" },
+  },
+  {
+    id: "mesh-aurora",
+    label: "Aurora",
+    kind: "mesh",
+    config: { type: "gradient", value: "mesh:mesh_aurora" },
+  },
+  {
+    id: "mesh-cosmic",
+    label: "Cosmic",
+    kind: "mesh",
+    config: { type: "gradient", value: "mesh:mesh_cosmic" },
+  },
+  {
+    id: "glow-gold",
+    label: "Gold",
+    kind: "glow",
+    config: { type: "gradient", value: "magic:magic_gold_center" },
+  },
+  {
+    id: "glow-cyan",
+    label: "Cyan",
+    kind: "glow",
+    config: { type: "gradient", value: "magic:magic_cyan_center" },
+  },
+  {
+    id: "glow-mint",
+    label: "Mint",
+    kind: "glow",
+    config: { type: "gradient", value: "magic:magic_mint_center" },
+  },
+  {
+    id: "glow-orange",
+    label: "Orange",
+    kind: "glow",
+    config: { type: "gradient", value: "magic:magic_orange_glow" },
+  },
+  {
+    id: "glow-silver",
+    label: "Silver",
+    kind: "glow",
+    config: { type: "gradient", value: "magic:magic_silver_center" },
+  },
+  {
+    id: "glow-teal",
+    label: "Teal",
+    kind: "glow",
+    config: { type: "gradient", value: "magic:magic_teal_center" },
+  },
+  {
+    id: "glow-amber",
+    label: "Amber",
+    kind: "glow",
+    config: { type: "gradient", value: "magic:magic_amber_center" },
+  },
+  {
+    id: "glow-ring",
+    label: "Ring",
+    kind: "glow",
+    config: { type: "gradient", value: "magic:magic_gold_ring" },
+  },
+  {
+    id: "glow-corner",
+    label: "Corner",
+    kind: "glow",
+    config: { type: "gradient", value: "magic:magic_silver_topleft" },
+  },
+  {
+    id: "grad-warm",
+    label: "Warm",
+    kind: "gradient",
+    config: { type: "gradient", value: "vibrant_orange_pink" },
+  },
+  {
+    id: "grad-teal",
+    label: "Teal",
+    kind: "gradient",
+    config: { type: "gradient", value: "green_teal_navy" },
+  },
+  {
+    id: "grad-ocean",
+    label: "Ocean",
+    kind: "gradient",
+    config: { type: "gradient", value: "teal_navy" },
+  },
+  {
+    id: "grad-peach",
+    label: "Peach",
+    kind: "gradient",
+    config: { type: "gradient", value: "peach_coral" },
+  },
+  {
+    id: "grad-lime",
+    label: "Lime",
+    kind: "gradient",
+    config: { type: "gradient", value: "cyan_lime" },
+  },
+  {
+    id: "grad-sky",
+    label: "Sky",
+    kind: "gradient",
+    config: { type: "gradient", value: "sky_blue" },
+  },
+  {
+    id: "grad-mint",
+    label: "Mint",
+    kind: "gradient",
+    config: { type: "gradient", value: "mint_sky" },
+  },
+  {
+    id: "grad-night",
+    label: "Night",
+    kind: "gradient",
+    config: { type: "gradient", value: "navy_blue" },
+  },
+  {
+    id: "grad-flare",
+    label: "Flare",
+    kind: "gradient",
+    config: { type: "gradient", value: "pink_orange" },
+  },
+  {
+    id: "solid-ink",
+    label: "Ink",
+    kind: "solid",
+    config: { type: "solid", value: "#0a0a0a" },
+  },
+  {
+    id: "solid-charcoal",
+    label: "Charcoal",
+    kind: "solid",
+    config: { type: "solid", value: "#171717" },
+  },
+  {
+    id: "solid-slate",
+    label: "Slate",
+    kind: "solid",
+    config: { type: "solid", value: "#2a2a2a" },
+  },
+  {
+    id: "solid-paper",
+    label: "Paper",
+    kind: "solid",
+    config: { type: "solid", value: "#e8e4df" },
+  },
+  {
+    id: "solid-white",
+    label: "White",
+    kind: "solid",
+    config: { type: "solid", value: "#ffffff" },
+  },
+  {
+    id: "solid-sand",
+    label: "Sand",
+    kind: "solid",
+    config: { type: "solid", value: "#fff5e6" },
+  },
+  {
+    id: "solid-blue",
+    label: "Blue",
+    kind: "solid",
+    config: { type: "solid", value: "medium_blue" },
+  },
+  {
+    id: "solid-coral",
+    label: "Coral",
+    kind: "solid",
+    config: { type: "solid", value: "coral_red" },
+  },
+  {
+    id: "solid-mint",
+    label: "Mint",
+    kind: "solid",
+    config: { type: "solid", value: "light_mint_green" },
+  },
+];
+
+const LAYOUTS: {
+  id: LayoutId;
+  label: string;
+  transform: string;
+}[] = [
+  {
+    id: "flat",
+    label: "Flat",
+    transform: "none",
+  },
+  {
+    id: "tilt-left",
+    label: "Left",
+    transform: "perspective(900px) rotateY(12deg) rotateX(3deg)",
+  },
+  {
+    id: "tilt-right",
+    label: "Right",
+    transform: "perspective(900px) rotateY(-12deg) rotateX(3deg)",
+  },
+  {
+    id: "float",
+    label: "Float",
+    transform: "perspective(900px) rotateX(6deg) translateY(-2%)",
+  },
+];
+
+const DEMO_BY_ASPECT: Record<
+  AspectId,
+  {
+    src: string;
+    objectClass: string;
+    frameOrigin: string;
+    frameScale?: number;
+  }
+> = {
+  "16:9": {
+    src: "/demo/demo-5.png",
+    objectClass: "object-cover object-top",
+    frameOrigin: "center top",
+    frameScale: 1.03,
+  },
+  "1:1": {
+    src: "/demo/demo-mazie-1x1.jpg",
+    objectClass: "object-contain object-center",
+    frameOrigin: "center center",
+  },
+  "9:16": {
+    src: "/demo/demo-checkout-9x16.jpg",
+    objectClass: "object-contain object-center",
+    frameOrigin: "center center",
+  },
+};
+
+const PREVIEW_DESIGN_W = 768;
+const PREVIEW_DESIGN_H = 630;
+const PREVIEW_SCALE_MQ = "(max-width: 767px)";
+
+export function EditorPreview(): React.JSX.Element {
+  const prefersReducedMotion = useReducedMotion();
+  const scaleShellRef = useRef<HTMLDivElement>(null);
+  const shotPadRef = useRef<HTMLDivElement>(null);
+  const [mobileScale, setMobileScale] = useState<number | null>(null);
+  const [shotPad, setShotPad] = useState({ w: 0, h: 0 });
+  const [hasMeasuredShot, setHasMeasuredShot] = useState(false);
+  const [aspect, setAspect] = useState<AspectId>("16:9");
+  const [bgKind, setBgKind] = useState<BgKind>("solid");
+  const [bgId, setBgId] = useState("solid-ink");
+  const [showFrame, setShowFrame] = useState(false);
+  const [layout, setLayout] = useState<LayoutId>("flat");
+  const [radius, setRadius] = useState(27);
+  const [padding, setPadding] = useState(26);
+  const [shadow, setShadow] = useState(40);
+  const [border, setBorder] = useState(6);
+  const [noise, setNoise] = useState(9);
+  const [shotScale, setShotScale] = useState(100);
+
+  useLayoutEffect(() => {
+    const shell = scaleShellRef.current;
+    if (!shell) return;
+
+    const mq = window.matchMedia(PREVIEW_SCALE_MQ);
+    const update = (): void => {
+      if (!mq.matches) {
+        setMobileScale(null);
+        return;
+      }
+      setMobileScale(shell.clientWidth / PREVIEW_DESIGN_W);
+    };
+
+    const ro = new ResizeObserver(update);
+    ro.observe(shell);
+    mq.addEventListener("change", update);
+    update();
+    return () => {
+      ro.disconnect();
+      mq.removeEventListener("change", update);
+    };
+  }, []);
+
+  useLayoutEffect(() => {
+    const pad = shotPadRef.current;
+    if (!pad) return;
+
+    const update = (): void => {
+      const w = pad.clientWidth;
+      const h = pad.clientHeight;
+      // Ignore empty frames (common before the grid cell finishes layout).
+      if (w < 2 || h < 2) return;
+      setShotPad((prev) => (prev.w === w && prev.h === h ? prev : { w, h }));
+    };
+
+    update();
+    // Remeasure after layout settles (first paint can still be 0×0).
+    const raf = requestAnimationFrame(update);
+    const ro = new ResizeObserver(update);
+    ro.observe(pad);
+    return () => {
+      cancelAnimationFrame(raf);
+      ro.disconnect();
+    };
+  }, []);
+
+  const kindBackgrounds = BACKGROUNDS.filter((b) => b.kind === bgKind);
+  const background =
+    BACKGROUNDS.find((b) => b.id === bgId) ??
+    kindBackgrounds[0] ??
+    BACKGROUNDS[0];
+  const bgStyle = getBackgroundCSS(background.config);
+  const aspectMeta = ASPECTS.find((a) => a.id === aspect) ?? ASPECTS[0];
+  const demo = DEMO_BY_ASPECT[aspect];
+  const demoImageClass = showFrame
+    ? aspect === "16:9"
+      ? "object-cover object-top"
+      : "object-cover object-center"
+    : demo.objectClass;
+  const demoFrameScale = showFrame ? (demo.frameScale ?? 1.03) : undefined;
+  const demoFrameOrigin = showFrame
+    ? (demo.frameOrigin ?? "center center")
+    : undefined;
+  const layoutMeta = LAYOUTS.find((l) => l.id === layout) ?? LAYOUTS[0];
+  const shotTransition = prefersReducedMotion
+    ? undefined
+    : "background-color 200ms ease-out, border-radius 200ms ease-out, box-shadow 200ms ease-out, transform 280ms cubic-bezier(0.23, 1, 0.32, 1)";
+
+  const aspectRatio = aspectMeta.w / aspectMeta.h;
+  let shotW = 0;
+  let shotH = 0;
+  if (shotPad.w > 0 && shotPad.h > 0) {
+    shotW = shotPad.w;
+    shotH = shotW / aspectRatio;
+    if (shotH > shotPad.h) {
+      shotH = shotPad.h;
+      shotW = shotH * aspectRatio;
+    }
+  }
+  const hasShotSize = shotW > 0 && shotH > 0;
+
+  const selectBgKind = (kind: BgKind): void => {
+    setBgKind(kind);
+    const first = BACKGROUNDS.find((b) => b.kind === kind);
+    if (first) setBgId(first.id);
+  };
+
+  const shotRadius = showFrame ? 10 : radius;
+  const shotShadow = `0 0 0 ${border}px rgba(255,255,255,${border > 0 ? 0.2 : 0}), 0 ${6 + shadow * 0.18}px ${20 + shadow * 0.9}px rgba(0,0,0,${0.2 + shadow / 160})`;
+  const aspectMorph =
+    prefersReducedMotion || !hasShotSize || !hasMeasuredShot
+      ? { duration: 0 }
+      : { duration: 0.32, ease: [0.23, 1, 0.32, 1] as const };
+
+  useLayoutEffect(() => {
+    if (hasShotSize) setHasMeasuredShot(true);
+  }, [hasShotSize]);
+
   return (
     <motion.div
-      initial={{ opacity: 0, y: 30 }}
+      initial={prefersReducedMotion ? false : { opacity: 0, y: 24 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.8, delay: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
-      className="relative w-full max-w-5xl mx-auto"
+      transition={{ duration: 0.7, delay: 0.15, ease: [0.33, 1, 0.68, 1] }}
+      className="relative w-full"
     >
-      {/* Editor shell */}
-      <div className="relative rounded-xl border border-border/60 bg-card overflow-hidden">
-        {/* Top bar */}
-        <div className="flex items-center justify-between px-4 py-2.5 border-b border-border/40 bg-card">
-          <div className="flex items-center gap-3">
-            {/* Logo placeholder */}
-            <div className="w-6 h-6 rounded-md bg-primary/20 flex items-center justify-center">
-              <div className="w-3 h-3 rounded-sm bg-primary/60" />
-            </div>
-            <div className="flex items-center gap-1.5">
-              <div className="w-5 h-5 rounded text-muted-foreground/40">
-                <svg viewBox="0 0 20 20" fill="currentColor" className="w-full h-full">
-                  <path fillRule="evenodd" d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z" clipRule="evenodd" />
-                </svg>
-              </div>
-              <div className="w-5 h-5 rounded text-muted-foreground/40">
-                <svg viewBox="0 0 20 20" fill="currentColor" className="w-full h-full">
-                  <path fillRule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clipRule="evenodd" />
-                </svg>
-              </div>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <Pill>4:3</Pill>
-            <Pill>Animate</Pill>
-            <Pill accent>+ Add Slide</Pill>
-            <Pill accent>Export Video</Pill>
-            <Pill>Copy</Pill>
-            <PillButton>Save</PillButton>
-          </div>
-        </div>
+      <div
+        className="pointer-events-none absolute -inset-x-4 -inset-y-6 rounded-[28px] bg-[radial-gradient(ellipse_at_center,var(--preview-ambient-glow),transparent_70%)]"
+        aria-hidden
+      />
 
-        {/* Main editor area */}
-        <div className="flex" style={{ height: 420 }}>
-          {/* Left sidebar */}
-          <div className="w-52 border-r border-border/40 bg-card flex-shrink-0 overflow-hidden">
-            {/* Tabs */}
-            <div className="flex items-center gap-1 px-3 pt-3 pb-2">
-              <SidebarTab active>Design</SidebarTab>
-              <SidebarTab>BG</SidebarTab>
-              <SidebarTab>Layers</SidebarTab>
-            </div>
+      <div
+        ref={scaleShellRef}
+        className={cn(
+          "relative w-full",
+          mobileScale != null && "overflow-hidden",
+        )}
+        style={
+          mobileScale != null
+            ? { height: PREVIEW_DESIGN_H * mobileScale }
+            : undefined
+        }
+      >
+        <div
+          className={cn(
+            "relative mx-auto flex flex-col border border-border bg-card",
+            "shadow-[var(--preview-shell-shadow)]",
+            mobileScale == null && "h-[630px] w-full lg:h-[660px]",
+          )}
+          style={
+            {
+              "--preview-r": "12px",
+              "--preview-bw": "1px",
+              "--preview-pad": "6px",
+              "--preview-inner-r":
+                "max(0px, calc(var(--preview-r) - var(--preview-bw) - var(--preview-pad)))",
+              borderRadius: "var(--preview-r)",
+              padding: "var(--preview-pad)",
+              ...(mobileScale != null
+                ? {
+                    width: PREVIEW_DESIGN_W,
+                    height: PREVIEW_DESIGN_H,
+                    transform: `scale(${mobileScale})`,
+                    transformOrigin: "top left",
+                  }
+                : null),
+            } as CSSProperties
+          }
+        >
+          <div
+            className="relative flex min-h-0 flex-1 flex-col overflow-hidden border border-border"
+            style={{ borderRadius: "var(--preview-inner-r)" }}
+          >
+            <div
+              className="pointer-events-none absolute inset-px z-20 opacity-[0.035] mix-blend-overlay"
+              style={{
+                borderRadius: "max(0px, calc(var(--preview-inner-r) - 1px))",
+                backgroundImage:
+                  "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")",
+              }}
+              aria-hidden
+            />
 
-            {/* Sections */}
-            <div className="px-3 space-y-4 mt-2">
-              <SidebarSection title="ADD TWEET" />
-              <SidebarSection title="ADD CODE" />
-
-              <div>
-                <p className="text-[10px] font-medium text-muted-foreground/60 uppercase tracking-wider mb-2">Stickers</p>
-                <div className="flex items-center gap-2 p-2 rounded-lg bg-muted/50 border border-border/30">
-                  <div className="w-6 h-6 rounded bg-primary/20 flex items-center justify-center">
-                    <svg className="w-3 h-3 text-primary" viewBox="0 0 20 20" fill="currentColor">
-                      <path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" />
-                    </svg>
-                  </div>
-                  <span className="text-[11px] text-muted-foreground">Add Image to Canvas</span>
-                </div>
-              </div>
-
-              <div>
-                <p className="text-[10px] font-medium text-muted-foreground/60 uppercase tracking-wider mb-2">Draw & Markup</p>
-                <div className="grid grid-cols-3 gap-1.5">
-                  {["Arrow", "Curve", "Line", "Rect", "Circle", "Blur"].map((tool) => (
-                    <div
-                      key={tool}
-                      className="flex flex-col items-center gap-1 p-1.5 rounded-md hover:bg-muted/50"
-                    >
-                      <div className="w-4 h-4 rounded-sm bg-muted-foreground/15" />
-                      <span className="text-[9px] text-muted-foreground/70">{tool}</span>
-                    </div>
-                  ))}
-                </div>
+            <div className="relative z-30 grid h-12 shrink-0 grid-cols-[180px_minmax(0,1fr)_152px] items-center border-b border-border">
+              <div className="flex min-w-0 items-center gap-2 px-3">
+                <Image
+                  src="/logo-mark.png"
+                  alt=""
+                  width={20}
+                  height={20}
+                  className="h-5 w-5 shrink-0"
+                  aria-hidden
+                />
+                <span className="truncate text-[13px] font-semibold tracking-tight text-foreground">
+                  Screenshot Studio
+                </span>
               </div>
 
-              <div>
-                <p className="text-[10px] font-medium text-muted-foreground/60 uppercase tracking-wider mb-2">Color</p>
-                <div className="flex flex-wrap gap-1">
-                  {[
-                    "#ef4444", "#f97316", "#eab308", "#22c55e", "#06b6d4", "#3b82f6",
-                    "#a855f7", "#ec4899", "#f43f5e", "#6b7280", "#9ca3af", "#374151",
-                  ].map((color) => (
-                    <div
-                      key={color}
-                      className="w-4 h-4 rounded-full"
-                      style={{ backgroundColor: color }}
-                    />
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Canvas area */}
-          <div className="flex-1 bg-muted/30 flex items-center justify-center p-6 relative overflow-hidden">
-            {/* Canvas content - gradient background with inner screenshot */}
-            <div className="relative w-full max-w-md rounded-xl overflow-hidden shadow-xl" style={{ aspectRatio: "4/3" }}>
-              {/* Gradient background */}
-              <div
-                className="absolute inset-0"
-                style={{
-                  background: "linear-gradient(135deg, #f97316 0%, #ec4899 40%, #8b5cf6 70%, #3b82f6 100%)",
-                }}
-              />
-
-              {/* Inner "screenshot" */}
-              <div className="absolute inset-6 rounded-lg bg-[#1a1a2e] shadow-2xl overflow-hidden">
-                {/* Browser chrome */}
-                <div className="flex items-center gap-1.5 px-3 py-2 bg-[#16162a]">
-                  <div className="w-2 h-2 rounded-full bg-red-500/60" />
-                  <div className="w-2 h-2 rounded-full bg-yellow-500/60" />
-                  <div className="w-2 h-2 rounded-full bg-green-500/60" />
-                  <div className="ml-3 flex-1 h-4 rounded bg-white/5" />
-                </div>
-                {/* Content */}
-                <div className="p-4 space-y-3">
-                  <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 rounded bg-primary/40" />
-                    <div className="h-2 w-20 rounded-full bg-white/10" />
-                    <div className="ml-auto h-2 w-12 rounded-full bg-white/10" />
-                  </div>
-                  <div className="text-center mt-4 space-y-2">
-                    <div className="h-3 w-40 mx-auto rounded-full bg-white/20" />
-                    <div className="h-5 w-56 mx-auto rounded-full bg-white/15" />
-                    <div className="h-2 w-36 mx-auto rounded-full bg-white/8 mt-3" />
-                  </div>
-                  <div className="flex justify-center gap-2 mt-4">
-                    <div className="h-6 w-20 rounded-md bg-primary/50" />
-                    <div className="h-6 w-20 rounded-md bg-white/10" />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Right sidebar */}
-          <div className="w-44 border-l border-border/40 bg-card flex-shrink-0 overflow-hidden">
-            <div className="flex items-center gap-1 px-3 pt-3 pb-2">
-              <SidebarTab active>3D</SidebarTab>
-              <SidebarTab>Motion</SidebarTab>
-            </div>
-
-            <div className="px-3 space-y-3 mt-1">
-              {/* Zoom/Tilt tabs */}
-              <div className="flex rounded-md bg-muted/50 p-0.5">
-                <div className="flex-1 text-center text-[10px] py-1 rounded bg-card text-foreground font-medium">Zoom</div>
-                <div className="flex-1 text-center text-[10px] py-1 text-muted-foreground">Tilt</div>
-              </div>
-
-              {/* Zoom slider */}
-              <div className="flex items-center gap-2">
-                <span className="text-[10px] text-muted-foreground">Zoom</span>
-                <div className="flex-1 h-0.5 rounded-full bg-muted-foreground/20 relative">
-                  <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-foreground" />
-                </div>
-                <span className="text-[10px] text-muted-foreground">100%</span>
-              </div>
-
-              {/* Layout presets label */}
-              <div>
-                <p className="text-[10px] font-medium text-muted-foreground/60 uppercase tracking-wider mb-2">Layout Presets</p>
-                <p className="text-[10px] text-muted-foreground/50 mb-2">Popular</p>
-              </div>
-
-              {/* Preset thumbnails */}
-              <div className="space-y-2">
-                {[1, 2, 3].map((i) => (
-                  <div
-                    key={i}
-                    className="w-full aspect-[4/3] rounded-lg overflow-hidden border border-border/30"
-                    style={{
-                      background: `linear-gradient(${120 + i * 40}deg, #6366f1 0%, #ec4899 50%, #f97316 100%)`,
-                    }}
+              <div className="flex items-center justify-center gap-0.5 px-2">
+                {ASPECTS.map((item) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => setAspect(item.id)}
+                    className={cn(
+                      "inline-flex h-7 cursor-pointer items-center gap-1 px-2 text-[11px] font-medium transition-colors duration-150",
+                      aspect === item.id
+                        ? "text-foreground/90"
+                        : "text-muted-foreground hover:text-foreground/70",
+                    )}
+                    aria-pressed={aspect === item.id}
                   >
-                    <div className="w-full h-full flex items-center justify-center">
-                      <div className="w-3/4 h-2/3 rounded bg-black/30" />
-                    </div>
-                  </div>
+                    <AspectRatioIcon size={12} />
+                    {item.label}
+                  </button>
                 ))}
               </div>
+
+              <div className="flex items-center justify-end px-3">
+                <Link
+                  href="/"
+                  onClick={() =>
+                    trackCTAClick("hero-preview", "Open in editor")
+                  }
+                  className="inline-flex h-7 shrink-0 cursor-pointer items-center rounded-md bg-[var(--nav-cta-bg)] px-2.5 text-[11px] font-medium text-[var(--nav-cta-fg)] transition-[transform,box-shadow] duration-150 hover:shadow-[var(--nav-cta-hover-shadow)] active:scale-[0.98]"
+                >
+                  Open editor
+                </Link>
+              </div>
+            </div>
+
+            <div className="relative z-30 grid min-h-0 flex-1 grid-cols-[180px_minmax(0,1fr)_152px]">
+              <aside className="flex flex-col gap-3.5 overflow-y-auto border-r border-border p-3">
+                <div>
+                  <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                    Background
+                  </p>
+                  <div className="mb-2 grid grid-cols-4 gap-1">
+                    {BG_KINDS.map((kind) => (
+                      <button
+                        key={kind.id}
+                        type="button"
+                        onClick={() => selectBgKind(kind.id)}
+                        className={cn(
+                          "h-6 cursor-pointer rounded-md text-[10px] font-medium transition-colors duration-150",
+                          bgKind === kind.id
+                            ? "bg-foreground/10 text-foreground"
+                            : "text-muted-foreground hover:text-foreground",
+                        )}
+                      >
+                        {kind.label}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="grid grid-cols-3 gap-1.5">
+                    {kindBackgrounds.map((item) => {
+                      const swatch = getBackgroundCSS(item.config);
+                      const selected = item.id === bgId;
+                      return (
+                        <button
+                          key={item.id}
+                          type="button"
+                          title={item.label}
+                          aria-label={`${item.kind} background ${item.label}`}
+                          aria-pressed={selected}
+                          onClick={() => setBgId(item.id)}
+                          className={cn(
+                            "aspect-square cursor-pointer rounded-[10px] p-0.5 transition-all duration-150",
+                            selected
+                              ? "ring-1 ring-ring/40"
+                              : "ring-1 ring-border hover:ring-ring/25",
+                          )}
+                        >
+                          <span
+                            className="block h-full w-full rounded-md"
+                            style={swatch}
+                          />
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div>
+                  <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                    Frame
+                  </p>
+                  <div className="flex gap-1.5">
+                    <FrameChip
+                      active={!showFrame}
+                      onClick={() => setShowFrame(false)}
+                      icon={<Image01Icon size={13} />}
+                      label="None"
+                    />
+                    <FrameChip
+                      active={showFrame}
+                      onClick={() => setShowFrame(true)}
+                      icon={<Globe02Icon size={13} />}
+                      label="Browser"
+                    />
+                  </div>
+                </div>
+
+                <SliderRow
+                  label="Radius"
+                  value={`${radius}px`}
+                  min={0}
+                  max={36}
+                  valueNum={radius}
+                  onChange={setRadius}
+                  disabled={showFrame}
+                />
+                <SliderRow
+                  label="Padding"
+                  value={`${padding}px`}
+                  min={16}
+                  max={72}
+                  valueNum={padding}
+                  onChange={setPadding}
+                />
+                <SliderRow
+                  label="Border"
+                  value={`${border}px`}
+                  min={0}
+                  max={12}
+                  valueNum={border}
+                  onChange={setBorder}
+                />
+                <SliderRow
+                  label="Noise"
+                  value={`${noise}%`}
+                  min={0}
+                  max={40}
+                  valueNum={noise}
+                  onChange={setNoise}
+                />
+              </aside>
+
+              <div
+                className="relative min-h-0 overflow-hidden"
+                style={{
+                  ...bgStyle,
+                  transition: prefersReducedMotion
+                    ? undefined
+                    : "background 280ms ease-out",
+                }}
+              >
+                {noise > 0 ? (
+                  <div
+                    className="pointer-events-none absolute inset-0 z-[1]"
+                    style={{
+                      opacity: noise / 100,
+                      backgroundImage:
+                        "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")",
+                    }}
+                    aria-hidden
+                  />
+                ) : null}
+
+                <div
+                  className="absolute inset-0 z-[2]"
+                  style={{ padding, transition: "padding 200ms ease-out" }}
+                >
+                  <div
+                    ref={shotPadRef}
+                    className="relative flex h-full w-full items-center justify-center"
+                  >
+                    <motion.div
+                      className="relative flex flex-col overflow-hidden"
+                      initial={false}
+                      animate={
+                        hasShotSize
+                          ? { width: shotW, height: shotH }
+                          : false
+                      }
+                      transition={aspectMorph}
+                      style={{
+                        // Style size is the source of truth so first paint isn't a speck
+                        // if Motion hasn't applied animate yet.
+                        ...(hasShotSize
+                          ? { width: shotW, height: shotH }
+                          : {
+                              width: "100%",
+                              maxWidth: "100%",
+                              maxHeight: "100%",
+                              aspectRatio: `${aspectMeta.w} / ${aspectMeta.h}`,
+                            }),
+                        // Match chrome when framed so corner AA never flashes a light gap
+                        backgroundColor: showFrame ? "var(--card)" : "var(--background)",
+                        borderRadius: shotRadius,
+                        boxShadow: shotShadow,
+                        transform:
+                          [
+                            layoutMeta.transform === "none"
+                              ? null
+                              : layoutMeta.transform,
+                            shotScale !== 100
+                              ? `scale(${shotScale / 100})`
+                              : null,
+                          ]
+                            .filter(Boolean)
+                            .join(" ") || undefined,
+                        transition: shotTransition,
+                        transformStyle: "preserve-3d",
+                      }}
+                    >
+                      {showFrame ? (
+                        <div className="relative z-[1] flex h-7 shrink-0 items-center gap-1.5 bg-card px-2.5">
+                          <span className="h-1.5 w-1.5 rounded-full bg-foreground/25" />
+                          <span className="h-1.5 w-1.5 rounded-full bg-foreground/25" />
+                          <span className="h-1.5 w-1.5 rounded-full bg-foreground/25" />
+                          <span className="ml-2 h-2.5 flex-1 rounded-sm bg-foreground/6" />
+                        </div>
+                      ) : null}
+                      <div
+                        className={cn(
+                          "relative min-h-0 w-full flex-1 overflow-hidden",
+                          showFrame && "bg-card"
+                        )}
+                      >
+                        <Image
+                          key={demo.src}
+                          src={demo.src}
+                          alt="Sample screenshot in the editor preview"
+                          fill
+                          className={demoImageClass}
+                          sizes="(max-width: 768px) 90vw, 640px"
+                          priority={aspect === "16:9"}
+                          style={
+                            demoFrameScale
+                              ? {
+                                  transform: `scale(${demoFrameScale})`,
+                                  transformOrigin: demoFrameOrigin,
+                                }
+                              : undefined
+                          }
+                        />
+                      </div>
+                    </motion.div>
+                  </div>
+                </div>
+              </div>
+
+              <aside className="flex flex-col gap-3.5 overflow-y-auto border-l border-border p-3">
+                <div>
+                  <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                    Layout
+                  </p>
+                  <div className="grid grid-cols-2 gap-1.5">
+                    {LAYOUTS.map((item) => {
+                      const selected = item.id === layout;
+                      return (
+                        <button
+                          key={item.id}
+                          type="button"
+                          onClick={() => setLayout(item.id)}
+                          aria-pressed={selected}
+                          className="flex cursor-pointer flex-col gap-1.5"
+                        >
+                          <span
+                            className={cn(
+                              "rounded-md p-0.5 transition-colors duration-150",
+                              selected ? "bg-foreground/10" : "hover:bg-foreground/5",
+                            )}
+                          >
+                            <span
+                              className="relative flex aspect-4/3 items-center justify-center overflow-hidden rounded-[5px]"
+                              style={getBackgroundCSS(background.config)}
+                            >
+                              <span
+                                className="h-[48%] w-[62%] rounded-sm bg-background/55 ring-1 ring-ring/20"
+                                style={{
+                                  transform:
+                                    item.transform === "none"
+                                      ? undefined
+                                      : item.transform,
+                                  transition: prefersReducedMotion
+                                    ? undefined
+                                    : "transform 200ms ease-out",
+                                }}
+                              />
+                            </span>
+                          </span>
+                          <span className="text-center text-[10px] font-medium text-muted-foreground">
+                            {item.label}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <SliderRow
+                  label="Shadow"
+                  value={`${shadow}%`}
+                  min={0}
+                  max={80}
+                  valueNum={shadow}
+                  onChange={setShadow}
+                />
+                <SliderRow
+                  label="Scale"
+                  value={`${shotScale}%`}
+                  min={70}
+                  max={110}
+                  valueNum={shotScale}
+                  onChange={setShotScale}
+                />
+
+                <div>
+                  <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                    Export
+                  </p>
+                  <div className="grid grid-cols-3 gap-1">
+                    {(["PNG", "JPG", "WebP"] as const).map((fmt) => (
+                      <span
+                        key={fmt}
+                        className="flex h-7 items-center justify-center rounded-md border border-border bg-foreground/[0.04] text-[10px] font-medium text-muted-foreground"
+                      >
+                        {fmt}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                    Quick look
+                  </p>
+                  <div className="flex flex-col gap-1.5">
+                    {(
+                      [
+                        {
+                          id: "clean",
+                          label: "Clean flat",
+                          apply: () => {
+                            setLayout("flat");
+                            setShowFrame(false);
+                            setShadow(28);
+                            setPadding(48);
+                            setRadius(20);
+                            setBorder(0);
+                            setNoise(0);
+                            setShotScale(100);
+                            setBgKind("solid");
+                            setBgId("solid-paper");
+                          },
+                        },
+                        {
+                          id: "browser",
+                          label: "Browser shot",
+                          apply: () => {
+                            setLayout("flat");
+                            setShowFrame(true);
+                            setShadow(44);
+                            setPadding(36);
+                            setBorder(0);
+                            setNoise(0);
+                            setShotScale(100);
+                            setBgKind("mesh");
+                            setBgId("mesh-ocean");
+                          },
+                        },
+                        {
+                          id: "glow",
+                          label: "Dark glow",
+                          apply: () => {
+                            setLayout("flat");
+                            setShowFrame(false);
+                            setShadow(60);
+                            setPadding(44);
+                            setRadius(18);
+                            setBorder(1);
+                            setNoise(12);
+                            setShotScale(100);
+                            setBgKind("glow");
+                            setBgId("glow-cyan");
+                          },
+                        },
+                      ] as const
+                    ).map((preset) => (
+                      <button
+                        key={preset.id}
+                        type="button"
+                        onClick={preset.apply}
+                        className="h-8 cursor-pointer rounded-md border border-border px-2.5 text-left text-[11px] font-medium text-muted-foreground transition-colors duration-150 hover:border-foreground/20 hover:text-foreground"
+                      >
+                        {preset.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </aside>
             </div>
           </div>
         </div>
@@ -198,49 +916,72 @@ export function EditorPreview() {
   );
 }
 
-function Pill({ children, accent }: { children: React.ReactNode; accent?: boolean }) {
+function SliderRow({
+  label,
+  value,
+  min,
+  max,
+  valueNum,
+  onChange,
+  disabled,
+}: {
+  label: string;
+  value: string;
+  min: number;
+  max: number;
+  valueNum: number;
+  onChange: (v: number) => void;
+  disabled?: boolean;
+}): React.JSX.Element {
   return (
-    <span
-      className={`px-2 py-0.5 rounded text-[10px] font-medium ${
-        accent
-          ? "bg-primary/15 text-primary"
-          : "bg-muted/60 text-muted-foreground"
-      }`}
-    >
-      {children}
-    </span>
-  );
-}
-
-function PillButton({ children }: { children: React.ReactNode }) {
-  return (
-    <span className="px-3 py-1 rounded-md text-[10px] font-medium bg-primary text-primary-foreground">
-      {children}
-    </span>
-  );
-}
-
-function SidebarTab({ children, active }: { children: React.ReactNode; active?: boolean }) {
-  return (
-    <span
-      className={`px-2.5 py-1 rounded-md text-[11px] font-medium ${
-        active
-          ? "bg-muted text-foreground"
-          : "text-muted-foreground/60"
-      }`}
-    >
-      {children}
-    </span>
-  );
-}
-
-function SidebarSection({ title }: { title: string }) {
-  return (
-    <div className="flex items-center gap-1">
-      <svg className="w-3 h-3 text-muted-foreground/40" viewBox="0 0 20 20" fill="currentColor">
-        <path fillRule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clipRule="evenodd" />
-      </svg>
-      <span className="text-[10px] font-medium text-muted-foreground/60 uppercase tracking-wider">{title}</span>
+    <div className={cn(disabled && "opacity-40")}>
+      <div className="mb-2 flex items-center justify-between">
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+          {label}
+        </p>
+        <span className="text-[10px] tabular-nums text-muted-foreground">
+          {value}
+        </span>
+      </div>
+      <input
+        type="range"
+        min={min}
+        max={max}
+        value={valueNum}
+        disabled={disabled}
+        onChange={(e) => onChange(Number(e.target.value))}
+        className="h-1 w-full cursor-pointer appearance-none rounded-full bg-foreground/10 accent-foreground disabled:cursor-not-allowed"
+        aria-label={label}
+      />
     </div>
+  );
+}
+
+function FrameChip({
+  active,
+  onClick,
+  icon,
+  label,
+}: {
+  active: boolean;
+  onClick: () => void;
+  icon: ReactNode;
+  label: string;
+}): React.JSX.Element {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={active}
+      className={cn(
+        "inline-flex h-8 flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-md border text-[11px] font-medium transition-colors duration-150",
+        active
+          ? "border-foreground/25 bg-foreground/8 text-foreground"
+          : "border-border text-muted-foreground hover:border-foreground/20 hover:text-foreground",
+      )}
+    >
+      {icon}
+      {label}
+    </button>
   );
 }

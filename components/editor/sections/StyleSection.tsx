@@ -15,7 +15,7 @@ const stylePresets: { value: ImageStylePreset; label: string }[] = [
   { value: 'border-dark', label: 'Border Dark' },
 ];
 
-function StylePreview({ preset, selected }: { preset: ImageStylePreset; selected: boolean }) {
+function StylePreview({ preset }: { preset: ImageStylePreset }) {
   const isDark = preset === 'glass-dark' || preset === 'border-dark';
   const outerBg = isDark ? 'rgb(160, 160, 165)' : 'rgb(210, 210, 214)';
 
@@ -60,10 +60,7 @@ function StylePreview({ preset, selected }: { preset: ImageStylePreset; selected
 
   return (
     <div
-      className={cn(
-        'relative w-full aspect-square rounded-lg overflow-hidden transition-all',
-        selected ? 'ring-[1.5px] ring-primary ring-offset-1 ring-offset-card' : 'ring-1 ring-border/50',
-      )}
+      className="relative w-full aspect-square rounded-md overflow-hidden"
       style={{ backgroundColor: outerBg }}
     >
       <div
@@ -72,10 +69,10 @@ function StylePreview({ preset, selected }: { preset: ImageStylePreset; selected
       >
         {hasWrapper ? (
           <div className="w-full h-full" style={getWrapperStyle()}>
-            <div className="w-full h-full bg-white rounded-[5px]" />
+            <div className="w-full h-full bg-primary rounded-[5px]" />
           </div>
         ) : (
-          <div className="w-full h-full bg-white rounded-[8px]" />
+          <div className="w-full h-full bg-primary rounded-[8px]" />
         )}
       </div>
     </div>
@@ -102,7 +99,16 @@ export function StyleSection() {
                 onClick={() => setImageStylePreset(value)}
                 className="flex flex-col items-center gap-1.5 group"
               >
-                <StylePreview preset={value} selected={isSelected} />
+                <div
+                  className={cn(
+                    'w-full rounded-[10px] p-1 border transition-all',
+                    isSelected
+                      ? 'bg-foreground/[0.1] border-foreground/25'
+                      : 'border-transparent hover:bg-foreground/[0.04]'
+                  )}
+                >
+                  <StylePreview preset={value} />
+                </div>
                 <span
                   className={cn(
                     'text-[10px] leading-tight transition-colors',

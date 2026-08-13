@@ -5,15 +5,12 @@ import { useImageStore } from '@/lib/store';
 import { useDropzone } from 'react-dropzone';
 import { useResponsiveCanvasDimensions } from '@/hooks/useAspectRatioDimensions';
 import { ALLOWED_IMAGE_TYPES, MAX_IMAGE_SIZE } from '@/lib/constants';
-import { getR2ImageUrl } from '@/lib/r2';
 import {
   backgroundCategories,
   getBackgroundThumbnailUrl,
 } from '@/lib/r2-backgrounds';
 import { gradientColors, type GradientKey } from '@/lib/constants/gradient-colors';
-import { solidColors, type SolidColorKey } from '@/lib/constants/solid-colors';
 import { meshGradients, magicGradients, type MeshGradientKey, type MagicGradientKey } from '@/lib/constants/mesh-gradients';
-import { Button } from '@/components/ui/button';
 import { ColorPicker } from '@/components/ui/color-picker';
 import { SectionWrapper } from './SectionWrapper';
 import { Cancel01Icon, Image01Icon, ShuffleIcon } from 'hugeicons-react';
@@ -101,7 +98,6 @@ export function BackgroundSection() {
   const {
     getRootProps: getBgRootProps,
     getInputProps: getBgInputProps,
-    isDragActive: isBgDragActive,
   } = useDropzone({
     onDrop: onBgDrop,
     accept: { 'image/*': ALLOWED_IMAGE_TYPES.map((type) => type.split('/')[1]) },
@@ -168,17 +164,16 @@ export function BackgroundSection() {
 
   return (
     <>
-      {/* Shadow Overlays */}
       <SectionWrapper title="Light & Shadow" defaultOpen={true}>
         <div className="space-y-3">
           <div className="grid grid-cols-3 gap-2 p-1">
             <button
               onClick={handleRemoveShadows}
               className={cn(
-                'aspect-[16/9] flex items-center justify-center text-xs font-medium rounded-xl border transition-all',
+                'aspect-[16/9] flex items-center justify-center text-xs font-medium rounded-md border transition-all',
                 !currentShadow
-                  ? 'border-primary/50 text-foreground bg-primary/5'
-                  : 'border-dashed border-border/50 text-muted-foreground hover:border-border hover:bg-card/30'
+                  ? 'border-foreground/30 text-foreground bg-foreground/[0.08]'
+                  : 'border-dashed border-foreground/15 text-muted-foreground hover:border-foreground/25 hover:bg-foreground/[0.04]'
               )}
             >
               None
@@ -188,10 +183,10 @@ export function BackgroundSection() {
                 key={index}
                 onClick={() => handleAddShadow(shadowUrl)}
                 className={cn(
-                  'aspect-[16/9] rounded-xl overflow-hidden border transition-all bg-secondary dark:bg-secondary',
+                  'aspect-[16/9] rounded-md overflow-hidden border transition-all bg-card',
                   currentShadow?.src === shadowUrl
-                    ? 'border-primary/50 ring-1 ring-primary/30'
-                    : 'border-border/30 hover:border-border/60'
+                    ? 'border-foreground/30 ring-1 ring-foreground/20'
+                    : 'border-foreground/10 hover:border-foreground/20'
                 )}
               >
                 <img
@@ -206,30 +201,27 @@ export function BackgroundSection() {
         </div>
       </SectionWrapper>
 
-      {/* Custom BG */}
       <SectionWrapper title="Custom Background" defaultOpen={true}>
         <div className="grid grid-cols-3 gap-2 p-1">
-          {/* Image Upload */}
           <div
             {...getBgRootProps()}
             className={cn(
-              'flex flex-col items-center justify-center gap-1.5 py-2.5 rounded-xl border cursor-pointer transition-all',
+              'flex flex-col items-center justify-center gap-1.5 py-2.5 rounded-md border cursor-pointer transition-all',
               customBgType === 'image'
-                ? 'border-primary/50 bg-primary/5 ring-1 ring-primary/20'
-                : 'border-border/40 bg-muted/30 hover:bg-accent hover:border-border/60'
+                ? 'border-foreground/30 bg-foreground/[0.08] ring-1 ring-foreground/15'
+                : 'border-foreground/10 bg-foreground/[0.04] hover:bg-foreground/[0.06] hover:border-foreground/20'
             )}
           >
             <input {...getBgInputProps()} />
             <div className={cn(
-              "w-7 h-7 rounded-lg flex items-center justify-center",
-              customBgType === 'image' ? "bg-primary/10" : "bg-muted"
+              "w-7 h-7 rounded-md flex items-center justify-center",
+              customBgType === 'image' ? "bg-foreground/[0.1]" : "bg-foreground/[0.06]"
             )}>
-              <Image01Icon size={14} className={customBgType === 'image' ? "text-primary" : "text-muted-foreground"} />
+              <Image01Icon size={14} className={customBgType === 'image' ? "text-foreground" : "text-muted-foreground"} />
             </div>
             <span className={cn("text-[10px] font-medium", customBgType === 'image' ? "text-foreground" : "text-muted-foreground")}>Image</span>
           </div>
 
-          {/* Color Picker */}
           <ColorPicker
             color={customColor}
             onChange={(newColor) => {
@@ -238,32 +230,31 @@ export function BackgroundSection() {
               setBackgroundValue(newColor);
             }}
             className={cn(
-              'flex flex-col items-center justify-center gap-1.5 py-2.5 h-auto rounded-xl',
+              'flex flex-col items-center justify-center gap-1.5 py-2.5 h-auto rounded-md',
               customBgType === 'color'
-                ? 'border-primary/50 bg-primary/5 ring-1 ring-primary/20'
-                : 'border-border/40 bg-muted/30 hover:bg-accent hover:border-border/60'
+                ? 'border-foreground/30 bg-foreground/[0.08] ring-1 ring-foreground/15'
+                : 'border-foreground/10 bg-foreground/[0.04] hover:bg-foreground/[0.06] hover:border-foreground/20'
             )}
           />
 
-          {/* Transparent */}
           <button
             onClick={() => {
               setBackgroundType('solid');
               setBackgroundValue('transparent');
             }}
             className={cn(
-              'flex flex-col items-center justify-center gap-1.5 py-2.5 rounded-xl border transition-all',
+              'flex flex-col items-center justify-center gap-1.5 py-2.5 rounded-md border transition-all',
               customBgType === 'transparent'
-                ? 'border-primary/50 bg-primary/5 ring-1 ring-primary/20'
-                : 'border-border/40 bg-muted/30 hover:bg-accent hover:border-border/60'
+                ? 'border-foreground/30 bg-foreground/[0.08] ring-1 ring-foreground/15'
+                : 'border-foreground/10 bg-foreground/[0.04] hover:bg-foreground/[0.06] hover:border-foreground/20'
             )}
           >
             <div className={cn(
-              "w-7 h-7 rounded-lg flex items-center justify-center",
-              customBgType === 'transparent' ? "bg-primary/10" : "bg-muted"
+              "w-7 h-7 rounded-md flex items-center justify-center",
+              customBgType === 'transparent' ? "bg-foreground/[0.1]" : "bg-foreground/[0.06]"
             )}>
               <div
-                className="w-3.5 h-3.5 rounded-full border border-border/50"
+                className="w-3.5 h-3.5 rounded-full border border-foreground/20"
                 style={{
                   background: 'repeating-conic-gradient(#808080 0% 25%, #fff 0% 50%) 50% / 6px 6px',
                 }}
@@ -274,16 +265,15 @@ export function BackgroundSection() {
         </div>
         {bgUploadError && <p className="text-xs text-destructive mt-2">{bgUploadError}</p>}
 
-        {/* Current Image Preview */}
         {backgroundConfig.type === 'image' && backgroundConfig.value?.startsWith('blob:') && (
-          <div className="relative rounded-lg overflow-hidden border border-border/40 aspect-video bg-muted/50 mt-3">
+          <div className="relative rounded-md overflow-hidden border border-foreground/10 aspect-video bg-foreground/[0.04] mt-3">
             <img
               src={backgroundConfig.value}
               alt="Background"
               className="w-full h-full object-cover"
             />
             <button
-              className="absolute top-2 right-2 p-1 rounded-md bg-background/50 text-foreground hover:bg-destructive transition-colors"
+              className="absolute top-2 right-2 p-1 rounded-md bg-background/80 text-foreground hover:bg-foreground/10 transition-colors"
               onClick={() => {
                 setBackgroundType('gradient');
                 setBackgroundValue('vibrant_orange_pink');
@@ -296,7 +286,6 @@ export function BackgroundSection() {
         )}
       </SectionWrapper>
 
-      {/* Background Images - Each category shown separately */}
       {availableCategories.map((category) => (
         <SectionWrapper
           key={category}
@@ -312,10 +301,10 @@ export function BackgroundSection() {
                   setBackgroundType('image');
                 }}
                 className={cn(
-                  'aspect-square rounded-lg overflow-hidden border-2 transition-all hover:scale-105 relative',
+                  'aspect-square rounded-md overflow-hidden border transition-all hover:scale-105 relative',
                   backgroundConfig.value === imagePath
-                    ? 'border-primary ring-1 ring-primary/30'
-                    : 'border-transparent hover:border-border/50'
+                    ? 'border-foreground/30 ring-1 ring-foreground/20'
+                    : 'border-foreground/10 hover:border-foreground/20'
                 )}
               >
                 <CachedImage
@@ -329,7 +318,6 @@ export function BackgroundSection() {
         </SectionWrapper>
       ))}
 
-      {/* Magic Gradients */}
       <SectionWrapper
         title="Magic Gradients"
         defaultOpen={true}
@@ -339,7 +327,7 @@ export function BackgroundSection() {
               e.stopPropagation();
               shuffleMagicGradient();
             }}
-            className="py-0.5 bg-muted hover:bg-card cursor-pointer border border-border/20 rounded-md transition-colors flex text-[10px] text-muted-foreground space-x-1 px-2 items-center"
+            className="py-0.5 bg-foreground/[0.04] hover:bg-foreground/[0.08] cursor-pointer border border-foreground/10 rounded-md transition-colors flex text-[10px] text-muted-foreground space-x-1 px-2 items-center"
           >
             <span>SHUFFLE</span>
             <ShuffleIcon size={12} />
@@ -359,10 +347,10 @@ export function BackgroundSection() {
                   setBackgroundValue(`magic:${key}`);
                 }}
                 className={cn(
-                  'block h-8 w-8 shrink-0 cursor-pointer transition-all duration-200 border border-border/20 hover:scale-105',
+                  'block h-8 w-8 shrink-0 cursor-pointer transition-all duration-200 border border-foreground/10 hover:scale-105',
                   backgroundConfig.value === `magic:${key}`
-                    ? 'rounded-full scale-110'
-                    : 'rounded-lg'
+                    ? 'rounded-full scale-110 ring-1 ring-foreground/40'
+                    : 'rounded-md'
                 )}
                 style={{
                   background: magicGradients[key],
@@ -374,14 +362,12 @@ export function BackgroundSection() {
         </div>
       </SectionWrapper>
 
-      {/* Gradients */}
       <SectionWrapper title="Gradients" defaultOpen={true}>
         <div className="overflow-x-auto scrollbar-hide">
           <div
             className="grid grid-flow-col auto-cols-min gap-2 w-max"
             style={{ gridTemplateRows: 'repeat(2, 1fr)', gridAutoFlow: 'column' }}
           >
-            {/* Classic Gradients */}
             {(Object.keys(gradientColors) as GradientKey[]).map((key, idx) => (
               <button
                 key={`classic-${key}`}
@@ -390,10 +376,10 @@ export function BackgroundSection() {
                   setBackgroundValue(key);
                 }}
                 className={cn(
-                  'block h-8 w-8 shrink-0 cursor-pointer transition-all duration-200 border border-border/20 hover:scale-105',
+                  'block h-8 w-8 shrink-0 cursor-pointer transition-all duration-200 border border-foreground/10 hover:scale-105',
                   backgroundConfig.value === key
-                    ? 'rounded-full scale-110'
-                    : 'rounded-lg'
+                    ? 'rounded-full scale-110 ring-1 ring-foreground/40'
+                    : 'rounded-md'
                 )}
                 style={{
                   background: gradientColors[key],
@@ -401,7 +387,6 @@ export function BackgroundSection() {
                 }}
               />
             ))}
-            {/* Mesh Gradients */}
             {(Object.keys(meshGradients) as MeshGradientKey[]).map((key, idx) => {
               const classicCount = Object.keys(gradientColors).length;
               const colOffset = Math.ceil(classicCount / 2);
@@ -413,10 +398,10 @@ export function BackgroundSection() {
                     setBackgroundValue(`mesh:${key}`);
                   }}
                   className={cn(
-                    'block h-8 w-8 shrink-0 cursor-pointer transition-all duration-200 border border-border/20 hover:scale-105',
+                    'block h-8 w-8 shrink-0 cursor-pointer transition-all duration-200 border border-foreground/10 hover:scale-105',
                     backgroundConfig.value === `mesh:${key}`
-                      ? 'rounded-full scale-110'
-                      : 'rounded-lg'
+                      ? 'rounded-full scale-110 ring-1 ring-foreground/40'
+                      : 'rounded-md'
                   )}
                   style={{
                     background: meshGradients[key],

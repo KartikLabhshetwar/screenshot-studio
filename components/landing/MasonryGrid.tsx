@@ -1,60 +1,119 @@
 "use client";
 
-import { motion } from "motion/react";
+import { useRef } from "react";
+import {
+  motion,
+  useScroll,
+  useTransform,
+  useReducedMotion,
+  type MotionValue,
+} from "motion/react";
 import { OptimizedImage } from "@/components/ui/optimized-image";
 import { demoImagePaths } from "@/lib/r2-demo-images";
+import "./MasonryGrid.css";
 
-interface MasonryItem {
-  id: number;
-  image: string;
-  aspectRatio: string;
+const ZOOM_IMAGES = demoImagePaths.slice(0, 7);
+
+function ZoomFrame({
+  src,
+  alt,
+  scale,
+  priority,
+}: {
+  src: string;
+  alt: string;
+  scale: MotionValue<number> | number;
+  priority?: boolean;
+}): React.JSX.Element {
+  return (
+    <motion.div style={{ scale }} className="zoom-parallax__el">
+      <div className="zoom-parallax__frame">
+        <OptimizedImage
+          src={src}
+          alt={alt}
+          fill
+          className="object-cover"
+          sizes="(max-width: 768px) 50vw, 35vw"
+          quality="auto"
+          crop="fill"
+          gravity="auto"
+          priority={priority}
+        />
+      </div>
+    </motion.div>
+  );
 }
 
-// Aspect ratios based on actual image dimensions
-const getAspectRatio = (index: number): string => {
-  // Square images at position 7 (demo-11) and position 10 (demo-10)
-  if (index === 6 || index === 9) return "aspect-square";
-
-  // All others are 16:9 landscape (3600x2025)
-  return "aspect-video";
-};
-
-const sampleItems: MasonryItem[] = demoImagePaths.map((imagePath, index) => ({
-  id: index + 1,
-  image: imagePath,
-  aspectRatio: getAspectRatio(index),
-}));
-
-export function MasonryGrid() {
+function StaticFallback(): React.JSX.Element {
   return (
-    <section className="py-16 sm:py-20 md:py-24 px-4 sm:px-6 bg-background">
-      <div className="container mx-auto max-w-[1400px]">
-        <div
-          className="columns-1 md:columns-2 gap-6 md:gap-10"
-          style={{ columnFill: "balance" as const }}
-        >
-          {sampleItems.map((item, index) => (
-            <motion.article
-              key={item.id}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-50px" }}
-              transition={{ delay: (index % 6) * 0.05, duration: 0.4 }}
-              className="relative rounded-2xl overflow-hidden mb-6 md:mb-10 break-inside-avoid group"
-            >
-              <div className={`relative w-full ${item.aspectRatio} overflow-hidden bg-muted/30`}>
-                <OptimizedImage
-                  src={item.image}
-                  alt={`Example design ${item.id}`}
-                  fill
-                  className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.02]"
-                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                  quality="auto"
-                  crop="fill"
-                  gravity="auto"
-                />
-              </div>
-            </motion.article>
+    <section className="hidden bg-background px-4 pt-14 pb-16 sm:px-6 sm:pt-20 sm:pb-20 md:block md:pt-24 md:pb-24">
+      <div className="container mx-auto grid max-w-[1400px] grid-cols-2 gap-4 md:grid-cols-3 md:gap-6">
+        {ZOOM_IMAGES.map((image, index) => (
+          <article
+            key={image}
+            className="relative aspect-video overflow-hidden rounded-2xl bg-muted/30 shadow-[var(--card-edge-shadow)] ring-1 ring-border"
+          >
+            <OptimizedImage
+              src={image}
+              alt={`Example design ${index + 1}`}
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 50vw, 33vw"
+              quality="auto"
+              crop="fill"
+              gravity="auto"
+            />
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+export function MasonryGrid(): React.JSX.Element {
+  const container = useRef<HTMLDivElement>(null);
+  const reduceMotion = useReducedMotion();
+
+  const { scrollYProgress } = useScroll({
+    target: container,
+    offset: ["start start", "end end"],
+  });
+
+  const scale4 = useTransform(scrollYProgress, [0, 1], [1, 4]);
+  const scale5 = useTransform(scrollYProgress, [0, 1], [1, 5]);
+  const scale6 = useTransform(scrollYProgress, [0, 1], [1, 6]);
+  const scale8 = useTransform(scrollYProgress, [0, 1], [1, 8]);
+  const scale9 = useTransform(scrollYProgress, [0, 1], [1, 9]);
+
+  const scales: MotionValue<number>[] = [
+    scale4,
+    scale5,
+    scale6,
+    scale5,
+    scale6,
+    scale8,
+    scale9,
+  ];
+
+  if (reduceMotion) {
+    return <StaticFallback />;
+  }
+
+  return (
+    <section
+      className="hidden bg-background md:block md:pt-24"
+      aria-label="Example designs"
+    >
+      <div ref={container} className="zoom-parallax">
+        <div className="zoom-parallax__sticky">
+          {ZOOM_IMAGES.map((src, index) => (
+            <ZoomFrame
+              key={src}
+              src={src}
+              alt={`Example design ${index + 1}`}
+              scale={scales[index] ?? scale4}
+              priority={index === 0}
+            />
           ))}
         </div>
       </div>

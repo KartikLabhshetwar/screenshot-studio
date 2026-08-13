@@ -36,17 +36,17 @@ const howItWorks = [
   {
     step: 1,
     title: "Drop Your Image",
-    description: "Drag any screenshot or photo",
+    description: "Drag any screenshot or photo into the editor to get started.",
   },
   {
     step: 2,
     title: "Style It",
-    description: "Add backgrounds, shadows, text",
+    description: "Add backgrounds, shadows, frames, and text in a few clicks.",
   },
   {
     step: 3,
     title: "Export",
-    description: "Download in seconds",
+    description: "Download a polished image ready to share in seconds.",
   },
 ];
 
@@ -66,9 +66,9 @@ const videoTestimonials = [
 export default function LandingPageRoute() {
   return (
     <LandingPage
-      heroTitle="Beautiful images."
-      heroSubtitle="Zero effort."
-      heroDescription="The free browser editor that makes your screenshots, tweets, and code snippets look professional. Add Safari and Chrome browser mockups, 3D effects, and more."
+      heroTitle="Beautiful images. Zero effort."
+      heroSubtitle="Screenshots, ready to ship."
+      heroDescription="The free browser editor that makes your screenshots, tweets, and code look professional. Browser mockups, 3D effects, and more."
       ctaLabel="Open Editor"
       ctaHref="/"
       howItWorks={howItWorks}

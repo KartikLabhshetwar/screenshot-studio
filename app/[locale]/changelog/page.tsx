@@ -62,7 +62,7 @@ const changelog: ChangelogEntry[] = [
       },
       {
         type: "improved",
-        text: "Browser frames are shared components — identical rendering in both 2D and 3D perspective views",
+        text: "Browser frames are shared components. Identical rendering in both 2D and 3D perspective views",
       },
       {
         type: "improved",
@@ -79,23 +79,23 @@ const changelog: ChangelogEntry[] = [
     changes: [
       {
         type: "added",
-        text: "Tweet Import — paste any tweet URL to preview and capture it as a high-res screenshot with light/dark theme toggle",
+        text: "Tweet Import. Paste any tweet URL to preview and capture it as a high-res screenshot with light/dark theme toggle",
       },
       {
         type: "added",
-        text: "Code Snippet Generator — syntax-highlighted code screenshots with 20+ themes, 20 languages, 10 mono fonts, and customizable font size, border radius, and line numbers",
+        text: "Code Snippet Generator. Syntax-highlighted code screenshots with 20+ themes, 20 languages, 10 mono fonts, and customizable font size, border radius, and line numbers",
       },
       {
         type: "added",
-        text: "Tweet dark theme uses X's \"Lights out\" pure black instead of the default blue \"Dim\" theme",
+        text: 'Tweet dark theme uses X\'s "Lights out" pure black instead of the default blue "Dim" theme',
       },
       {
         type: "improved",
-        text: "Image overlay resize and rotate handles now work reliably — fixed pointer-events and deselection issues with Moveable controls",
+        text: "Image overlay resize and rotate handles now work reliably. Fixed pointer-events and deselection issues with Moveable controls",
       },
       {
         type: "improved",
-        text: "Depth section simplified — removed shadow overlays for a cleaner asset picker focused on 3D objects",
+        text: "Depth section simplified. Removed shadow overlays for a cleaner asset picker focused on 3D objects",
       },
       {
         type: "improved",
@@ -103,7 +103,7 @@ const changelog: ChangelogEntry[] = [
       },
       {
         type: "fixed",
-        text: "Input and dropdown padding no longer inflated by global font-size rule — scoped to mobile only for iOS zoom prevention",
+        text: "Input and dropdown padding no longer inflated by global font-size rule. Scoped to mobile only for iOS zoom prevention",
       },
       {
         type: "fixed",
@@ -120,7 +120,7 @@ const changelog: ChangelogEntry[] = [
     changes: [
       {
         type: "added",
-        text: "Annotation tools — draw arrows, curved arrows, lines, rectangles, circles, and blur regions on canvas",
+        text: "Annotation tools. Draw arrows, curved arrows, lines, rectangles, circles, and blur regions on canvas",
       },
       {
         type: "added",
@@ -128,7 +128,7 @@ const changelog: ChangelogEntry[] = [
       },
       {
         type: "added",
-        text: "Per-annotation editing — click any shape on canvas to change its color and stroke width",
+        text: "Per-annotation editing. Click any shape on canvas to change its color and stroke width",
       },
       {
         type: "added",
@@ -136,7 +136,7 @@ const changelog: ChangelogEntry[] = [
       },
       {
         type: "added",
-        text: "Blur tool — draw regions on canvas that apply backdrop blur, with per-region intensity control",
+        text: "Blur tool. Draw regions on canvas that apply backdrop blur, with per-region intensity control",
       },
       {
         type: "added",
@@ -144,7 +144,7 @@ const changelog: ChangelogEntry[] = [
       },
       {
         type: "improved",
-        text: "Text overlay controls completely redesigned — compact inline editing, quick color swatches, native font/weight selectors, shadow toggle",
+        text: "Text overlay controls completely redesigned. Compact inline editing, quick color swatches, native font/weight selectors, shadow toggle",
       },
       {
         type: "improved",
@@ -168,7 +168,7 @@ const changelog: ChangelogEntry[] = [
       },
       {
         type: "fixed",
-        text: "Annotation stroke width slider max increased from 8 to 24 — previously too thin on large canvases",
+        text: "Annotation stroke width slider max increased from 8 to 24. Previously too thin on large canvases",
       },
     ],
   },
@@ -181,11 +181,11 @@ const changelog: ChangelogEntry[] = [
     changes: [
       {
         type: "added",
-        text: "Templates overlay — presets gallery moved from the tab bar to a dedicated slide-in panel accessible via the \"Templates\" button above tabs",
+        text: 'Templates overlay. Presets gallery moved from the tab bar to a dedicated slide-in panel accessible via the "Templates" button above tabs',
       },
       {
         type: "added",
-        text: "Smooth tab content transitions — switching between Settings, Edit, BG, 3D, and Animate tabs now fades with a subtle slide animation",
+        text: "Smooth tab content transitions. Switching between Settings, Edit, BG, 3D, and Animate tabs now fades with a subtle slide animation",
       },
       {
         type: "improved",
@@ -197,7 +197,7 @@ const changelog: ChangelogEntry[] = [
       },
       {
         type: "fixed",
-        text: "Animation video export now captures exact frame values — previously, a CSS transition on the 3D overlay caused exported frames to show smoothed/lagged intermediate values instead of the intended animation",
+        text: "Animation video export now captures exact frame values. Previously, a CSS transition on the 3D overlay caused exported frames to show smoothed/lagged intermediate values instead of the intended animation",
       },
       {
         type: "fixed",
@@ -214,11 +214,11 @@ const changelog: ChangelogEntry[] = [
     changes: [
       {
         type: "added",
-        text: "On-canvas resize handles for arrow and sticker overlays — drag any corner to resize (20–800px)",
+        text: "On-canvas resize handles for arrow and sticker overlays. Drag any corner to resize (20–800px)",
       },
       {
         type: "added",
-        text: "Custom presets — save your current canvas configuration and reuse it later, persisted in local storage",
+        text: "Custom presets. Save your current canvas configuration and reuse it later, persisted in local storage",
       },
       {
         type: "added",
@@ -371,16 +371,22 @@ const changelog: ChangelogEntry[] = [
 ];
 
 const typeBadge = {
-  added: "text-emerald-500",
-  improved: "text-blue-500",
-  fixed: "text-amber-500",
+  added: "text-foreground",
+  improved: "text-muted-foreground",
+  fixed: "text-muted-foreground/70",
 } as const;
 
 const typeDot = {
-  added: "bg-emerald-500",
-  improved: "bg-blue-500",
-  fixed: "bg-amber-500",
+  added: "bg-primary",
+  improved: "bg-muted-foreground",
+  fixed: "bg-muted-foreground/70",
 } as const;
+
+const ctaClassName =
+  "relative inline-flex items-center justify-center rounded-md border-0 bg-[var(--nav-cta-bg)] px-6 py-2.5 text-sm font-medium text-[var(--nav-cta-fg)] shadow-none transition-[transform,box-shadow] duration-150 ease-out [text-shadow:var(--nav-cta-text-shadow)] hover:shadow-[var(--nav-cta-hover-shadow)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 active:scale-[0.97]";
+
+const INTER =
+  "Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif";
 
 export default function ChangelogPage() {
   const structuredData = {
@@ -424,61 +430,75 @@ export default function ChangelogPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-background text-foreground">
+    <div className="flex min-h-screen flex-col bg-background text-foreground">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
-      <Navigation ctaLabel="Open Editor" ctaHref="/" />
+      <Navigation />
 
-      <main className="flex-1 pt-28 pb-20 px-4">
-        <div className="max-w-2xl mx-auto">
-
-          {/* Header */}
+      <main className="flex-1 px-6 pb-20 pt-28">
+        <div className="mx-auto max-w-2xl">
           <header className="mb-16">
-            <h1 className="text-3xl font-semibold tracking-tight mb-2">Changelog</h1>
-            <p className="text-muted-foreground text-sm">
+            <h1
+              className="mb-2 text-3xl font-semibold tracking-[-0.03em] text-foreground"
+              style={{ fontFamily: INTER }}
+            >
+              Changelog
+            </h1>
+            <p className="text-sm text-muted-foreground">
               New features, improvements, and fixes.
             </p>
           </header>
 
-          {/* Entries */}
           <div className="space-y-0">
             {changelog.map((entry, entryIndex) => (
               <article
                 key={entry.version}
-                className={entryIndex !== changelog.length - 1 ? "pb-12 mb-12 border-b border-border/50" : "pb-12"}
+                className={
+                  entryIndex !== changelog.length - 1
+                    ? "mb-12 border-b border-border pb-12"
+                    : "pb-12"
+                }
               >
-                {/* Date + version */}
-                <div className="flex items-baseline gap-3 mb-4">
-                  <time className="text-xs text-muted-foreground font-mono">
+                <div className="mb-4 flex items-baseline gap-3">
+                  <time className="font-mono text-xs text-muted-foreground">
                     {entry.date}
                   </time>
-                  <span className="text-xs text-muted-foreground font-mono">
+                  <span className="font-mono text-xs text-muted-foreground">
                     v{entry.version}
                   </span>
                 </div>
 
-                <h2 className="text-lg font-semibold tracking-tight mb-1.5">
+                <h2
+                  className="mb-1.5 text-lg font-semibold tracking-[-0.02em] text-foreground"
+                  style={{ fontFamily: INTER }}
+                >
                   {entry.title}
                 </h2>
-                <p className="text-sm text-muted-foreground mb-6 leading-relaxed">
+                <p className="mb-6 text-sm leading-relaxed text-muted-foreground">
                   {entry.description}
                 </p>
 
-                {/* Group changes by type */}
                 {(["added", "improved", "fixed"] as const).map((type) => {
                   const items = entry.changes.filter((c) => c.type === type);
                   if (items.length === 0) return null;
                   return (
                     <div key={type} className="mb-4 last:mb-0">
-                      <h3 className={`text-xs font-medium uppercase tracking-wider mb-2 ${typeBadge[type]}`}>
+                      <h3
+                        className={`mb-2 text-xs font-medium uppercase tracking-wider ${typeBadge[type]}`}
+                      >
                         {type}
                       </h3>
                       <ul className="space-y-1.5">
                         {items.map((change, i) => (
-                          <li key={i} className="flex items-start gap-2.5 text-sm text-foreground/80 leading-relaxed">
-                            <span className={`shrink-0 w-1.5 h-1.5 rounded-full mt-[7px] ${typeDot[type]}`} />
+                          <li
+                            key={i}
+                            className="flex items-start gap-2.5 text-sm leading-relaxed text-foreground/80"
+                          >
+                            <span
+                              className={`mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full ${typeDot[type]}`}
+                            />
                             {change.text}
                           </li>
                         ))}
@@ -490,15 +510,11 @@ export default function ChangelogPage() {
             ))}
           </div>
 
-          {/* CTA */}
-          <div className="pt-8 border-t border-border/50 text-center">
-            <p className="text-sm text-muted-foreground mb-4">
+          <div className="border-t border-border pt-8 text-center">
+            <p className="mb-4 text-sm text-muted-foreground">
               All features are free. No signup required.
             </p>
-            <Link
-              href="/"
-              className="inline-flex items-center gap-2 bg-primary text-primary-foreground text-sm font-medium px-5 py-2.5 rounded-full hover:bg-primary/90 transition-colors"
-            >
+            <Link href="/" className={ctaClassName}>
               Open Editor
             </Link>
           </div>

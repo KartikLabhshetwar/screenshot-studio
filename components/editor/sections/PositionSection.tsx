@@ -41,7 +41,6 @@ export function PositionSection() {
 
   return (
     <SectionWrapper title="Position" defaultOpen={false}>
-      {/* Position Grid (3x3) */}
       <div className="flex flex-col items-center">
         <span className="text-xs text-muted-foreground mb-2">Quick Position</span>
         <div className="grid grid-cols-3 gap-1.5 w-24">
@@ -51,16 +50,16 @@ export function PositionSection() {
               onClick={() => handlePositionPreset(preset)}
               title={preset.name}
               className={cn(
-                'w-7 h-7 rounded border transition-all',
+                'w-7 h-7 rounded-md border transition-all',
                 activePosition === index
-                  ? 'bg-primary border-primary'
-                  : 'bg-muted/50 border-border/50 hover:border-border hover:bg-muted'
+                  ? 'bg-foreground/[0.1] border-foreground/30'
+                  : 'bg-foreground/[0.04] border-foreground/10 hover:border-foreground/20 hover:bg-foreground/[0.06]'
               )}
             >
               <div
                 className={cn(
                   'w-1.5 h-1.5 rounded-full mx-auto',
-                  activePosition === index ? 'bg-primary-foreground' : 'bg-muted-foreground/50'
+                  activePosition === index ? 'bg-foreground' : 'bg-muted-foreground/50'
                 )}
               />
             </button>

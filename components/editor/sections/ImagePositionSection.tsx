@@ -6,10 +6,9 @@ import { useEditorStore } from '@/lib/store';
 import { SectionWrapper } from './SectionWrapper';
 import { cn } from '@/lib/utils';
 
-type PositionKey = 'auto' | 'tl' | 'tc' | 'tr' | 'ml' | 'mc' | 'mr' | 'bl' | 'bc' | 'br';
+type PositionKey = 'tl' | 'tc' | 'tr' | 'ml' | 'mc' | 'mr' | 'bl' | 'bc' | 'br';
 
 const positions: { key: PositionKey; label: string; x: number; y: number }[] = [
-  { key: 'auto', label: 'AUTO', x: 0, y: 0 },
   { key: 'tl', label: 'Top Left', x: -1, y: -1 },
   { key: 'tc', label: 'Top', x: 0, y: -1 },
   { key: 'tr', label: 'Top Right', x: 1, y: -1 },
@@ -22,7 +21,6 @@ const positions: { key: PositionKey; label: string; x: number; y: number }[] = [
 ];
 
 function PositionIcon({ x, y }: { x: number; y: number }) {
-  // Show a small rectangle positioned within a container to visualize placement
   const rectW = 10;
   const rectH = 7;
   const pad = 1.5;
@@ -31,7 +29,17 @@ function PositionIcon({ x, y }: { x: number; y: number }) {
 
   return (
     <svg width="18" height="18" viewBox="0 0 18 18" className="block">
-      <rect x="0.5" y="0.5" width="17" height="17" rx="2" fill="none" stroke="currentColor" strokeWidth="0.8" opacity={0.3} />
+      <rect
+        x="0.5"
+        y="0.5"
+        width="17"
+        height="17"
+        rx="2"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="0.8"
+        opacity={0.3}
+      />
       <rect
         x={cx - rectW / 2}
         y={cy - rectH / 2}
@@ -49,79 +57,76 @@ export function ImagePositionSection() {
   const { canvasDimensions } = useImageStore();
   const { screenshot, setScreenshot } = useEditorStore();
 
-  const [activePosition, setActivePosition] = React.useState<PositionKey>('auto');
+  const [activePosition, setActivePosition] =
+    React.useState<PositionKey | null>('mc');
 
-  const handlePosition = (pos: typeof positions[number]) => {
+  const handlePosition = (pos: (typeof positions)[number]) => {
     if (!canvasDimensions) return;
 
     const { canvasW, canvasH, framedW, framedH } = canvasDimensions;
-
-    // Maximum offset from center before the frame goes off-canvas edge
     const maxX = Math.max(0, (canvasW - framedW) / 2);
     const maxY = Math.max(0, (canvasH - framedH) / 2);
 
-    const offsetX = Math.round(pos.x * maxX);
-    const offsetY = Math.round(pos.y * maxY);
-
-    setScreenshot({ offsetX, offsetY });
+    setScreenshot({
+      offsetX: Math.round(pos.x * maxX),
+      offsetY: Math.round(pos.y * maxY),
+    });
     setActivePosition(pos.key);
   };
 
-  // Detect if user manually dragged (offset doesn't match any preset)
+  const handleAuto = (): void => {
+    handlePosition(positions.find((p) => p.key === 'mc')!);
+  };
+
   React.useEffect(() => {
     if (!canvasDimensions) return;
     const { canvasW, canvasH, framedW, framedH } = canvasDimensions;
     const maxX = Math.max(0, (canvasW - framedW) / 2);
     const maxY = Math.max(0, (canvasH - framedH) / 2);
 
-    // Check if current offset matches any preset
     const match = positions.find((p) => {
       const px = Math.round(p.x * maxX);
       const py = Math.round(p.y * maxY);
-      return Math.abs(screenshot.offsetX - px) < 2 && Math.abs(screenshot.offsetY - py) < 2;
+      return (
+        Math.abs(screenshot.offsetX - px) < 2 &&
+        Math.abs(screenshot.offsetY - py) < 2
+      );
     });
 
-    if (match) {
-      setActivePosition(match.key);
-    } else {
-      setActivePosition('auto'); // fallback
-    }
+    setActivePosition(match?.key ?? null);
   }, [screenshot.offsetX, screenshot.offsetY, canvasDimensions]);
 
   return (
     <SectionWrapper title="Position" defaultOpen={true}>
-      <div className="grid grid-cols-5 gap-1 p-1">
-        {/* AUTO button - spans first column */}
+      <div className="space-y-2">
         <button
           type="button"
-          onClick={() => handlePosition(positions[0])}
-          className={cn(
-            'col-span-2 flex items-center justify-center rounded-md h-8 text-[10px] font-semibold tracking-wide transition-all',
-            activePosition === 'auto'
-              ? 'bg-primary/15 text-primary ring-1 ring-primary/30'
-              : 'bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground',
-          )}
+          onClick={handleAuto}
+          className="flex h-9 w-full items-center justify-center rounded-md bg-foreground/[0.04] text-[11px] font-semibold tracking-wide text-muted-foreground transition-colors hover:bg-foreground/[0.06] hover:text-foreground"
         >
-          AUTO
+          Auto
         </button>
 
-        {/* 3x3 position grid */}
-        {positions.slice(1).map((pos) => (
-          <button
-            key={pos.key}
-            type="button"
-            title={pos.label}
-            onClick={() => handlePosition(pos)}
-            className={cn(
-              'flex items-center justify-center rounded-md h-8 transition-all',
-              activePosition === pos.key
-                ? 'bg-primary/15 text-primary ring-1 ring-primary/30'
-                : 'bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground',
-            )}
-          >
-            <PositionIcon x={pos.x} y={pos.y} />
-          </button>
-        ))}
+        <div className="mx-auto grid w-full max-w-[220px] grid-cols-3 gap-1.5">
+          {positions.map((pos) => (
+            <button
+              key={pos.key}
+              type="button"
+              title={pos.label}
+              aria-label={pos.label}
+              aria-pressed={activePosition === pos.key}
+              onClick={() => handlePosition(pos)}
+              className={cn(
+                'flex aspect-square items-center justify-center rounded-md transition-all',
+                activePosition === pos.key
+                  ? 'bg-foreground/[0.1] text-foreground ring-1 ring-foreground/20'
+                  : 'bg-foreground/[0.04] text-muted-foreground hover:bg-foreground/[0.06] hover:text-foreground',
+              )}
+            >
+              <PositionIcon x={pos.x} y={pos.y} />
+            </button>
+          ))}
+        </div>
       </div>
     </SectionWrapper>
   );

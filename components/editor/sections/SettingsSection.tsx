@@ -4,8 +4,8 @@ import * as React from 'react';
 import { useImageStore, type ImageFilters } from '@/lib/store';
 import { Slider } from '@/components/ui/slider';
 import { Button } from '@/components/ui/button';
+import { SegmentedControl } from '@/components/ui/segmented-control';
 import { SectionWrapper } from './SectionWrapper';
-import { cn } from '@/lib/utils';
 import { RotateClockwiseIcon } from 'hugeicons-react';
 
 type FilterTarget = 'foreground' | 'background';
@@ -50,42 +50,17 @@ export function SettingsSection() {
 
   return (
     <>
-      {/* Filters Section */}
       <SectionWrapper title="Color Filters" defaultOpen={false}>
         <div className="space-y-3">
-          {/* Foreground/Background Toggle - Segmented Control */}
-          <div className="relative flex p-0.5 bg-muted dark:bg-muted/80 rounded-lg border border-border/30">
-            <div
-              className={cn(
-                'absolute top-0.5 bottom-0.5 w-[calc(50%-4px)] bg-background dark:bg-accent rounded-md transition-all duration-200 ease-out',
-                filterTarget === 'foreground' ? 'left-0.5' : 'left-[calc(50%+2px)]'
-              )}
-            />
-            <button
-              onClick={() => setFilterTarget('foreground')}
-              className={cn(
-                'relative z-10 flex-1 py-2 text-xs font-medium rounded-md transition-colors duration-150',
-                filterTarget === 'foreground'
-                  ? 'text-foreground'
-                  : 'text-muted-foreground hover:text-muted-foreground'
-              )}
-            >
-              Image
-            </button>
-            <button
-              onClick={() => setFilterTarget('background')}
-              className={cn(
-                'relative z-10 flex-1 py-2 text-xs font-medium rounded-md transition-colors duration-150',
-                filterTarget === 'background'
-                  ? 'text-foreground'
-                  : 'text-muted-foreground hover:text-muted-foreground'
-              )}
-            >
-              Background
-            </button>
-          </div>
+          <SegmentedControl
+            value={filterTarget}
+            onChange={(id) => setFilterTarget(id as FilterTarget)}
+            options={[
+              { id: 'foreground', label: 'Image' },
+              { id: 'background', label: 'Background' },
+            ]}
+          />
 
-          {/* Foreground Filters */}
           {filterTarget === 'foreground' && (
             <div className="space-y-2">
               {foregroundFilters.map((filter) => (
@@ -101,7 +76,6 @@ export function SettingsSection() {
                 />
               ))}
 
-              {/* Reset Filters Button */}
               {isFiltersModified && (
                 <Button
                   variant="outline"
@@ -116,7 +90,6 @@ export function SettingsSection() {
             </div>
           )}
 
-          {/* Background Filters */}
           {filterTarget === 'background' && (
             <div className="space-y-2">
               <Slider
@@ -138,7 +111,6 @@ export function SettingsSection() {
                 valueDisplay={`${backgroundNoise}%`}
               />
 
-              {/* Reset Background Filters Button */}
               {isBackgroundFiltersModified && (
                 <Button
                   variant="outline"
@@ -155,7 +127,6 @@ export function SettingsSection() {
         </div>
       </SectionWrapper>
 
-      {/* Canvas Section */}
       <SectionWrapper title="Canvas" defaultOpen={false}>
         <Slider
           value={[backgroundBorderRadius]}

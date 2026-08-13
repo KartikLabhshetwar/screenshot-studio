@@ -1,8 +1,14 @@
 import { Metadata } from "next";
 import Link from "next/link";
+import {
+  ArrowRight01Icon,
+  BrowserIcon,
+  ComputerIcon,
+  Settings01Icon,
+  Sun01Icon,
+} from "hugeicons-react";
 import { Navigation } from "@/components/landing/Navigation";
 import { Footer } from "@/components/landing/Footer";
-import { ArrowRight, Globe, Monitor, Sun, Moon } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Free Browser Mockup Generator - Safari & Chrome Frames",
@@ -36,32 +42,44 @@ export const metadata: Metadata = {
   },
 };
 
+const INTER =
+  'Inter, "Inter Fallback", Arial, Helvetica, sans-serif';
+
+const ctaClassName =
+  "relative inline-flex items-center justify-center rounded-md border-0 bg-[var(--nav-cta-bg)] px-6 py-2.5 text-base font-medium text-[var(--nav-cta-fg)] shadow-none transition-[transform,box-shadow] duration-150 ease-out [text-shadow:var(--nav-cta-text-shadow)] hover:shadow-[var(--nav-cta-hover-shadow)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 active:scale-[0.97]";
+
+const cardSurface =
+  "rounded-2xl bg-card ring-1 ring-border shadow-[var(--card-edge-shadow)]";
+
+const chipLinkClassName =
+  "group flex items-center justify-between rounded-md bg-foreground/[0.04] px-4 py-3 text-sm font-medium text-foreground/90 ring-1 ring-border transition-colors hover:bg-foreground/[0.08] hover:text-foreground";
+
 const features = [
   {
-    icon: Globe,
+    icon: BrowserIcon,
     title: "Safari Browser Frame",
     description:
       "Realistic macOS Safari toolbar with traffic lights, sidebar, back/forward navigation, and centered address bar with lock icon.",
   },
   {
-    icon: Monitor,
+    icon: ComputerIcon,
     title: "Chrome Browser Frame",
     description:
       "Authentic Chrome toolbar with tab bar, active tab, colored traffic lights, and omnibox address bar.",
   },
   {
-    icon: Sun,
+    icon: Sun01Icon,
     title: "Light & Dark Modes",
     description:
       "Every browser frame comes in both light and dark variants to match your screenshot content or brand style.",
   },
   {
-    icon: Moon,
+    icon: Settings01Icon,
     title: "Custom URL & Header Size",
     description:
       "Set a custom URL displayed in the address bar and adjust the toolbar height from 50% to 200% of the default size.",
   },
-];
+] as const;
 
 const useCases = [
   {
@@ -86,14 +104,56 @@ const useCases = [
   },
 ];
 
+const howToSteps = [
+  {
+    step: "1",
+    title: "Upload Your Screenshot",
+    description:
+      "Drag and drop any image or paste from clipboard. Supports PNG, JPG, and WebP.",
+  },
+  {
+    step: "2",
+    title: "Choose a Browser Frame",
+    description:
+      "Select Safari or Chrome in light or dark mode. Set a custom URL and adjust the header size to your liking.",
+  },
+  {
+    step: "3",
+    title: "Export",
+    description:
+      "Download as PNG or JPG at up to 5x resolution. Add 3D perspective for even more depth.",
+  },
+];
+
+const relatedLinks = [
+  { href: "/features/screenshot-beautifier", label: "Screenshot Beautifier" },
+  { href: "/features/3d-effects", label: "3D Effects" },
+  { href: "/features/social-media-graphics", label: "Social Media Graphics" },
+] as const;
+
 export default function BrowserMockupsPage() {
   const breadcrumb = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     itemListElement: [
-      { "@type": "ListItem", position: 1, name: "Home", item: "https://screenshot-studio.com" },
-      { "@type": "ListItem", position: 2, name: "Features", item: "https://screenshot-studio.com/features" },
-      { "@type": "ListItem", position: 3, name: "Browser Mockups", item: "https://screenshot-studio.com/features/browser-mockups" },
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: "https://screenshot-studio.com",
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Features",
+        item: "https://screenshot-studio.com/features",
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: "Browser Mockups",
+        item: "https://screenshot-studio.com/features/browser-mockups",
+      },
     ],
   };
 
@@ -131,26 +191,12 @@ export default function BrowserMockupsPage() {
           "@type": "HowToTool",
           name: "Screenshot Studio",
         },
-        step: [
-          {
-            "@type": "HowToStep",
-            name: "Upload Your Screenshot",
-            text: "Drag and drop any image or paste from clipboard. Supports PNG, JPG, and WebP.",
-            position: 1,
-          },
-          {
-            "@type": "HowToStep",
-            name: "Choose a Browser Frame",
-            text: "Select Safari or Chrome in light or dark mode. Set your custom URL and adjust the header size.",
-            position: 2,
-          },
-          {
-            "@type": "HowToStep",
-            name: "Export",
-            text: "Download as PNG or JPG at up to 5x resolution, or apply 3D perspective and export as video.",
-            position: 3,
-          },
-        ],
+        step: howToSteps.map((item, index) => ({
+          "@type": "HowToStep",
+          name: item.title,
+          text: item.description,
+          position: index + 1,
+        })),
       },
     ],
   };
@@ -166,54 +212,57 @@ export default function BrowserMockupsPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
 
-      <Navigation ctaLabel="Try Free" ctaHref="/" />
+      <Navigation brandName="Screenshot Studio" />
 
       <main className="flex-1">
-        {/* Hero */}
-        <section className="py-20 px-4">
-          <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-4xl md:text-6xl font-bold mb-6">
+        <section className="px-6 pb-20 pt-32">
+          <div className="mx-auto max-w-4xl text-center">
+            <h1
+              className="mb-6 text-4xl font-semibold tracking-[-0.03em] text-foreground md:text-6xl"
+              style={{ fontFamily: INTER }}
+            >
               Free Browser Mockup Generator
             </h1>
-            <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
+            <p className="mx-auto mb-8 max-w-2xl text-lg text-muted-foreground md:text-xl">
               Add realistic Safari and Chrome browser frames to your screenshots.
               Light and dark modes, custom URL, adjustable header size.
             </p>
-            <Link
-              href="/"
-              className="inline-flex items-center gap-2 bg-primary text-primary-foreground font-semibold px-8 py-4 rounded-full hover:opacity-90 transition-opacity"
-            >
-              Add Browser Frame
-              <ArrowRight className="w-5 h-5" />
-            </Link>
-            <p className="text-sm text-muted-foreground mt-4">
-              100% free. No signup required.
-            </p>
+            <div className="flex flex-col items-center">
+              <Link href="/" className={ctaClassName}>
+                Add Browser Frame
+              </Link>
+              <p className="mt-4 inline-flex items-center gap-2 text-sm font-medium text-muted-foreground/70">
+                <span>100% Free</span>
+                <span className="h-3 w-px bg-border" aria-hidden />
+                <span>No Signup Required</span>
+              </p>
+            </div>
           </div>
         </section>
 
-        {/* Features */}
-        <section className="py-16 px-4 bg-muted/30">
-          <div className="max-w-6xl mx-auto">
-            <h2 className="text-3xl font-bold text-center mb-12">
+        <section className="border-y border-border px-6 py-16">
+          <div className="mx-auto max-w-6xl">
+            <h2
+              className="mb-12 text-center text-3xl font-semibold tracking-[-0.03em] text-foreground"
+              style={{ fontFamily: INTER }}
+            >
               Realistic Browser Frames for Any Screenshot
             </h2>
-            <div className="grid md:grid-cols-2 gap-8">
+            <div className="grid gap-4 md:grid-cols-2">
               {features.map((feature) => (
                 <div
                   key={feature.title}
-                  className="flex gap-4 p-6 bg-background rounded-xl border"
+                  className={`flex gap-4 p-6 ${cardSurface}`}
                 >
-                  <div className="flex-shrink-0">
-                    <feature.icon className="w-8 h-8 text-primary" />
-                  </div>
+                  <feature.icon
+                    className="size-6 shrink-0 text-foreground"
+                    aria-hidden
+                  />
                   <div>
-                    <h3 className="font-semibold text-lg mb-2">
+                    <h3 className="mb-2 text-lg font-semibold text-foreground">
                       {feature.title}
                     </h3>
-                    <p className="text-muted-foreground">
-                      {feature.description}
-                    </p>
+                    <p className="text-muted-foreground">{feature.description}</p>
                   </div>
                 </div>
               ))}
@@ -221,22 +270,23 @@ export default function BrowserMockupsPage() {
           </div>
         </section>
 
-        {/* Use Cases */}
-        <section className="py-16 px-4">
-          <div className="max-w-6xl mx-auto">
-            <h2 className="text-3xl font-bold text-center mb-4">
+        <section className="px-6 py-16">
+          <div className="mx-auto max-w-6xl">
+            <h2
+              className="mb-4 text-center text-3xl font-semibold tracking-[-0.03em] text-foreground"
+              style={{ fontFamily: INTER }}
+            >
               Perfect For Every Use Case
             </h2>
-            <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
+            <p className="mx-auto mb-12 max-w-2xl text-center text-muted-foreground">
               Browser mockups add context and professionalism to any screenshot.
             </p>
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
               {useCases.map((useCase) => (
-                <div
-                  key={useCase.title}
-                  className="p-6 border rounded-xl hover:border-primary transition-colors"
-                >
-                  <h3 className="font-semibold mb-2">{useCase.title}</h3>
+                <div key={useCase.title} className={`p-6 ${cardSurface}`}>
+                  <h3 className="mb-2 font-semibold text-foreground">
+                    {useCase.title}
+                  </h3>
                   <p className="text-sm text-muted-foreground">
                     {useCase.description}
                   </p>
@@ -246,97 +296,72 @@ export default function BrowserMockupsPage() {
           </div>
         </section>
 
-        {/* How It Works */}
-        <section className="py-16 px-4 bg-muted/30">
-          <div className="max-w-4xl mx-auto">
-            <h2 className="text-3xl font-bold text-center mb-12">
+        <section className="border-y border-border px-6 py-16">
+          <div className="mx-auto max-w-4xl">
+            <h2
+              className="mb-12 text-center text-3xl font-semibold tracking-[-0.03em] text-foreground"
+              style={{ fontFamily: INTER }}
+            >
               How to Add a Browser Frame
             </h2>
             <div className="space-y-8">
-              <div className="flex gap-6 items-start">
-                <div className="flex-shrink-0 w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold">
-                  1
+              {howToSteps.map((item) => (
+                <div key={item.step} className="flex items-start gap-6">
+                  <div className="flex size-10 shrink-0 items-center justify-center rounded-md bg-primary text-sm font-semibold text-primary-foreground">
+                    {item.step}
+                  </div>
+                  <div>
+                    <h3 className="mb-1 text-lg font-semibold text-foreground">
+                      {item.title}
+                    </h3>
+                    <p className="text-muted-foreground">{item.description}</p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-semibold text-lg mb-1">Upload Your Screenshot</h3>
-                  <p className="text-muted-foreground">
-                    Drag and drop any image or paste from clipboard. Supports PNG, JPG, and WebP.
-                  </p>
-                </div>
-              </div>
-              <div className="flex gap-6 items-start">
-                <div className="flex-shrink-0 w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold">
-                  2
-                </div>
-                <div>
-                  <h3 className="font-semibold text-lg mb-1">Choose a Browser Frame</h3>
-                  <p className="text-muted-foreground">
-                    Select Safari or Chrome in light or dark mode. Set a custom URL and adjust the header size to your liking.
-                  </p>
-                </div>
-              </div>
-              <div className="flex gap-6 items-start">
-                <div className="flex-shrink-0 w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold">
-                  3
-                </div>
-                <div>
-                  <h3 className="font-semibold text-lg mb-1">Export</h3>
-                  <p className="text-muted-foreground">
-                    Download as PNG or JPG at up to 5x resolution. Add 3D perspective for even more depth.
-                  </p>
-                </div>
-              </div>
+              ))}
             </div>
           </div>
         </section>
 
-        {/* Related Features */}
-        <section className="py-16 px-4 bg-muted/30">
-          <div className="max-w-4xl mx-auto">
-            <h2 className="text-2xl font-bold mb-8 text-center">
+        <section className="px-6 py-16">
+          <div className="mx-auto max-w-4xl">
+            <h2
+              className="mb-8 text-center text-2xl font-semibold tracking-[-0.03em] text-foreground"
+              style={{ fontFamily: INTER }}
+            >
               Explore More Features
             </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <Link
-                href="/features/screenshot-beautifier"
-                className="flex items-center justify-between p-4 bg-background border rounded-xl hover:border-primary transition-colors group"
-              >
-                <span className="font-medium text-sm">Screenshot Beautifier</span>
-                <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
-              </Link>
-              <Link
-                href="/features/3d-effects"
-                className="flex items-center justify-between p-4 bg-background border rounded-xl hover:border-primary transition-colors group"
-              >
-                <span className="font-medium text-sm">3D Effects</span>
-                <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
-              </Link>
-              <Link
-                href="/features/social-media-graphics"
-                className="flex items-center justify-between p-4 bg-background border rounded-xl hover:border-primary transition-colors group"
-              >
-                <span className="font-medium text-sm">Social Media Graphics</span>
-                <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
-              </Link>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+              {relatedLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={chipLinkClassName}
+                >
+                  <span>{link.label}</span>
+                  <ArrowRight01Icon
+                    className="size-3.5 text-muted-foreground/70 transition-colors group-hover:text-foreground"
+                    aria-hidden
+                  />
+                </Link>
+              ))}
             </div>
           </div>
         </section>
 
-        {/* CTA */}
-        <section className="py-20 px-4">
-          <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-3xl font-bold mb-4">
+        <section className="border-t border-border px-6 py-20">
+          <div className="mx-auto max-w-4xl text-center">
+            <h2
+              className="mb-4 text-3xl font-semibold tracking-[-0.03em] text-foreground"
+              style={{ fontFamily: INTER }}
+            >
               Ready to Add Browser Frames?
             </h2>
-            <p className="text-muted-foreground mb-8">
-              Make your screenshots look professional with realistic browser mockups.
+            <p className="mb-8 text-muted-foreground">
+              Make your screenshots look professional with realistic browser
+              mockups.
             </p>
-            <Link
-              href="/"
-              className="inline-flex items-center gap-2 bg-primary text-primary-foreground font-semibold px-8 py-4 rounded-full hover:opacity-90 transition-opacity"
-            >
+            <Link href="/" className={ctaClassName}>
               Start Free
-              <ArrowRight className="w-5 h-5" />
             </Link>
           </div>
         </section>

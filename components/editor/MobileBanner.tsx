@@ -1,26 +1,26 @@
-'use client';
+"use client";
 
-import * as React from 'react';
-import { useIsMobile } from '@/hooks/use-mobile';
-import { Button } from '@/components/ui/button';
-import { Cancel01Icon, ComputerIcon } from 'hugeicons-react';
+import * as React from "react";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { Button } from "@/components/ui/button";
+import { Cancel01Icon, ComputerIcon } from "hugeicons-react";
 
-const DISMISSED_KEY = 'screenshotstudio-mobile-banner-dismissed';
+const DISMISSED_KEY = "screenshotstudio-mobile-banner-dismissed";
 
 export function MobileBanner() {
   const isMobile = useIsMobile();
   const [isDismissed, setIsDismissed] = React.useState(true);
 
   React.useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const dismissed = localStorage.getItem(DISMISSED_KEY) === 'true';
+    if (typeof window !== "undefined") {
+      const dismissed = localStorage.getItem(DISMISSED_KEY) === "true";
       setIsDismissed(dismissed);
     }
   }, []);
 
   const handleDismiss = () => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem(DISMISSED_KEY, 'true');
+    if (typeof window !== "undefined") {
+      localStorage.setItem(DISMISSED_KEY, "true");
       setIsDismissed(true);
     }
   };
@@ -30,19 +30,20 @@ export function MobileBanner() {
   }
 
   return (
-    <div className="w-full bg-gradient-to-r from-primary/90 to-chart-4/90 backdrop-blur-sm border-b border-primary/20 px-4 py-3 z-50 relative">
+    <div className="w-full bg-card border-b border-foreground/10 px-4 py-3 z-50 relative">
       <div className="flex items-center justify-between gap-3 max-w-7xl mx-auto">
         <div className="flex items-center gap-3 flex-1 min-w-0">
-          <ComputerIcon className="h-5 w-5 text-primary-foreground shrink-0" />
-          <p className="text-sm text-primary-foreground font-medium">
-            For the best experience, please use Screenshot Studio on a desktop device.
+          <ComputerIcon className="h-5 w-5 text-foreground shrink-0" />
+          <p className="text-sm text-foreground font-medium">
+            For the best experience, please use Screenshot Studio on a desktop
+            device.
           </p>
         </div>
         <Button
           variant="ghost"
           size="icon"
           onClick={handleDismiss}
-          className="h-8 w-8 text-primary-foreground hover:bg-primary-foreground/20 shrink-0"
+          className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-muted shrink-0"
           aria-label="Dismiss banner"
         >
           <Cancel01Icon className="h-4 w-4" />
@@ -51,4 +52,3 @@ export function MobileBanner() {
     </div>
   );
 }
-

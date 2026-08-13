@@ -30,26 +30,30 @@ function Slider({
     [value, defaultValue, min, max]
   )
 
-  const displayValue = valueDisplay ?? (Array.isArray(value) ? value[0] : value ?? (Array.isArray(defaultValue) ? defaultValue[0] : defaultValue ?? min))
+  // Only show the value readout when a label is set, or valueDisplay is passed explicitly.
+  // Compact uses (e.g. timeline duration) pass neither, so the track stays clean.
+  const showMeta = Boolean(label) || valueDisplay !== undefined
+  const displayValue =
+    valueDisplay ??
+    (Array.isArray(value)
+      ? value[0]
+      : (value ?? (Array.isArray(defaultValue) ? defaultValue[0] : (defaultValue ?? min))))
 
   return (
-    <div className={cn(
-      "relative w-full rounded-lg bg-secondary dark:bg-background",
-      className
-    )}>
-      {/* Label and value overlaid inside the slider */}
-      {(label || displayValue !== undefined) && (
-        <div className="absolute inset-0 z-10 flex items-center justify-between px-3 pointer-events-none select-none">
-          {label && (
-            <span className="text-xs text-muted-foreground">
-              {label}
-            </span>
+    <div className={cn("relative w-full", showMeta ? "space-y-2" : null, className)}>
+      {showMeta ? (
+        <div className="flex items-center justify-between gap-3 select-none">
+          {label ? (
+            <span className="text-xs text-muted-foreground">{label}</span>
+          ) : (
+            <span />
           )}
-          <span className="text-xs text-muted-foreground tabular-nums ml-auto">
+          <span className="text-xs text-muted-foreground tabular-nums shrink-0">
             {displayValue}
           </span>
         </div>
-      )}
+      ) : null}
+
       <SliderPrimitive.Root
         data-slot="slider"
         defaultValue={defaultValue}
@@ -57,25 +61,33 @@ function Slider({
         min={min}
         max={max}
         className={cn(
-          "relative flex touch-none select-none items-center cursor-grab w-full h-8",
+          "relative flex touch-none select-none items-center cursor-grab active:cursor-grabbing w-full h-4",
           "data-disabled:opacity-50 data-[orientation=vertical]:h-full data-[orientation=vertical]:min-h-44 data-[orientation=vertical]:w-auto data-[orientation=vertical]:flex-col"
         )}
         {...props}
       >
         <SliderPrimitive.Track
           data-slot="slider-track"
-          className="relative h-full w-full grow overflow-hidden rounded-lg"
+          className="relative h-1.5 w-full grow overflow-hidden rounded-full bg-foreground/[0.08]"
         >
           <SliderPrimitive.Range
             data-slot="slider-range"
-            className="absolute h-full bg-border/30 dark:bg-secondary/50 data-[orientation=vertical]:w-full"
+            className="absolute h-full bg-foreground/40 data-[orientation=vertical]:w-full"
           />
         </SliderPrimitive.Track>
         {Array.from({ length: _values.length }, (_, index) => (
           <SliderPrimitive.Thumb
             data-slot="slider-thumb"
             key={index}
-            className="block h-5 w-1 rounded-full bg-muted-foreground/50 dark:bg-muted-foreground/40 focus:outline-none transition-colors hover:bg-muted-foreground disabled:pointer-events-none disabled:opacity-50"
+            className={cn(
+              "block size-3.5 shrink-0 rounded-full bg-primary",
+              "border border-foreground/20 shadow-sm",
+              "transition-[box-shadow,transform] duration-150",
+              "hover:scale-110",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/30 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+              "active:scale-95",
+              "disabled:pointer-events-none disabled:opacity-50"
+            )}
           />
         ))}
       </SliderPrimitive.Root>

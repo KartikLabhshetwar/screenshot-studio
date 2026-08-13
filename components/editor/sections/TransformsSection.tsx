@@ -65,14 +65,15 @@ export function TransformsSection() {
               key={preset.name}
               onClick={() => applyPreset(preset, index)}
               className={cn(
-                'flex-shrink-0 flex items-center justify-center bg-card/60 w-16 h-16 rounded-xl overflow-hidden transition-all cursor-pointer',
-                'hover:bg-accent/60',
-                isSelected && 'ring-2 ring-border'
+                'flex-shrink-0 flex items-center justify-center bg-foreground/[0.04] w-16 h-16 rounded-md overflow-hidden transition-all cursor-pointer border',
+                isSelected
+                  ? 'border-primary ring-1 ring-foreground/20'
+                  : 'border-foreground/10 hover:border-foreground/20 hover:bg-foreground/[0.06]'
               )}
               title={preset.name}
             >
               <div
-                className="w-9 h-9 bg-primary rounded-lg"
+                className="w-9 h-9 bg-foreground/20 rounded-md"
                 style={getTransformStyle(preset)}
               />
             </button>

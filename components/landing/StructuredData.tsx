@@ -42,9 +42,9 @@ export function StructuredData() {
         url: "https://screenshot-studio.com",
         logo: {
           "@type": "ImageObject",
-          url: "https://screenshot-studio.com/icon",
-          width: 32,
-          height: 32,
+          url: "https://screenshot-studio.com/icon-512.png",
+          width: 512,
+          height: 512,
         },
         sameAs: [
           "https://github.com/KartikLabhshetwar/screenshot-studio",

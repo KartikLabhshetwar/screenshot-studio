@@ -1,311 +1,211 @@
 import { Metadata } from "next";
-import Link from "next/link";
 import { Navigation } from "@/components/landing/Navigation";
 import { Footer } from "@/components/landing/Footer";
+import Link from "next/link";
 import {
-  ArrowRight,
-  Palette,
-  Layers,
-  Smartphone,
-  PenTool,
-  Eye,
-  Sparkles,
-} from "lucide-react";
+  PaintBoardIcon,
+  ColorsIcon,
+  PenTool01Icon,
+  SmartPhone01Icon,
+  Layers01Icon,
+  EyeIcon,
+  SparklesIcon,
+} from "hugeicons-react";
 
 export const metadata: Metadata = {
-  title: "Screenshot Editor for Designers - Free Tool",
+  title: "Screenshot Studio for Designers - Professional Design Tools",
   description:
-    "Present your designs with polished mockups and professional styling. Add 3D perspective, device frames, animations, and export in high resolution. Free, browser-based.",
+    "Create stunning screenshots and mockups for your design portfolio. Perfect for UI/UX designers, graphic designers, and creative professionals.",
   keywords: [
-    "screenshot editor for designers",
-    "design mockup tool",
-    "UI screenshot beautifier",
-    "design portfolio images",
-    "mockup generator free",
-    "dribbble shot maker",
-    "behance project images",
-    "design presentation tool",
-    "ui design showcase tool",
-    "design case study images",
-    "figma export beautifier",
-    "device frame mockup free",
-    "portfolio screenshot presenter",
-    "design handoff screenshot tool",
+    "screenshot tool for designers",
+    "UI mockup creator",
+    "design portfolio screenshots",
+    "designer screenshot editor",
   ],
-  openGraph: {
-    title: "Screenshot Editor for Designers",
-    description:
-      "Present your designs with professional mockups, 3D effects, and animations. Free, no signup.",
-    url: "/for/designers",
-  },
-  alternates: {
-    canonical: "/for/designers",
-  },
 };
+
+const ctaClassName =
+  "relative inline-flex items-center justify-center rounded-md border-0 bg-[var(--nav-cta-bg)] px-6 py-2.5 text-base font-medium text-[var(--nav-cta-fg)] shadow-none transition-[transform,box-shadow] duration-150 ease-out [text-shadow:var(--nav-cta-text-shadow)] hover:shadow-[var(--nav-cta-hover-shadow)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 active:scale-[0.97]";
+
+const secondaryCtaClassName =
+  "inline-flex items-center justify-center rounded-md px-6 py-2.5 text-base font-medium text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground active:scale-[0.99]";
+
+const cardSurface =
+  "rounded-2xl bg-card p-6 ring-1 ring-inset ring-border shadow-[var(--card-highlight-shadow)]";
+
+const INTER =
+  "Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif";
 
 const useCases = [
   {
-    icon: PenTool,
-    title: "Dribbble & Behance Shots",
+    icon: PaintBoardIcon,
+    title: "Portfolio Presentations",
     description:
-      "Present your UI designs with polished mockups that stand out in portfolio feeds. Add depth with 3D perspective, gradient backgrounds, and realistic shadows.",
+      "Showcase your UI designs with professional mockups and beautiful presentations",
   },
   {
-    icon: Smartphone,
-    title: "Device Mockups",
-    description:
-      "Wrap your designs in macOS, Windows, or mobile device frames. Show how your work looks in context without separate mockup tools.",
-  },
-  {
-    icon: Layers,
-    title: "Design System Showcases",
-    description:
-      "Document and present your component libraries and design systems with consistent, professional screenshots.",
-  },
-  {
-    icon: Eye,
+    icon: ColorsIcon,
     title: "Client Presentations",
     description:
-      "Impress clients by presenting your work with polished mockups instead of flat screenshots. 3D perspective adds depth and professionalism.",
+      "Create polished mockups for client reviews and design presentations",
   },
   {
-    icon: Sparkles,
-    title: "Social Media Portfolio",
+    icon: PenTool01Icon,
+    title: "Design Systems",
     description:
-      "Share your latest work on Twitter and LinkedIn with perfectly styled screenshots. Platform-optimized dimensions built in.",
+      "Document your design systems with clear, consistent visual examples",
   },
   {
-    icon: Palette,
-    title: "Case Study Visuals",
+    icon: SmartPhone01Icon,
+    title: "App Store Assets",
     description:
-      "Create beautiful before/after comparisons and process documentation. Animated transitions show your design thinking in action.",
+      "Generate stunning screenshots for App Store and Play Store listings",
   },
 ];
 
 const features = [
   {
-    title: "100+ Gradient Backgrounds",
-    description:
-      "Curated gradient collection designed to complement any UI. Dark, light, vibrant, and subtle options.",
+    icon: Layers01Icon,
+    title: "Advanced Layering",
+    description: "Full control over layers, shadows, and visual hierarchy",
   },
   {
-    title: "3D Perspective & Rotation",
-    description:
-      "Tilt and rotate on all axes. Create the exact angle that shows off your design best.",
+    icon: EyeIcon,
+    title: "Precise Controls",
+    description: "Pixel-perfect adjustments for professional results",
   },
   {
-    title: "Device Frames",
-    description:
-      "macOS, Windows, Arc, and Polaroid frames. Context matters when presenting UI work.",
+    icon: ColorsIcon,
+    title: "Color Palettes",
+    description: "Beautiful gradients and solid colors for any brand",
   },
   {
-    title: "Animation & Video Export",
-    description:
-      "Create animated walkthroughs of your designs. Zoom into details, pan across layouts, export as MP4 or GIF.",
-  },
-  {
-    title: "High-Res Export (up to 5x)",
-    description:
-      "Export at retina resolution and beyond. Your portfolio deserves pixel-perfect images.",
-  },
-  {
-    title: "Text & Annotation Overlays",
-    description:
-      "Add labels, callouts, and annotations with 25+ fonts. Explain your design decisions visually.",
+    icon: SparklesIcon,
+    title: "Export Options",
+    description: "High-resolution exports in multiple formats",
   },
 ];
 
 export default function ForDesignersPage() {
-  const structuredData = {
-    "@context": "https://schema.org",
-    "@graph": [
-      {
-        "@type": "BreadcrumbList",
-        itemListElement: [
-          {
-            "@type": "ListItem",
-            position: 1,
-            name: "Home",
-            item: "https://screenshot-studio.com",
-          },
-          {
-            "@type": "ListItem",
-            position: 2,
-            name: "For Designers",
-            item: "https://screenshot-studio.com/for/designers",
-          },
-        ],
-      },
-      {
-        "@type": "SoftwareApplication",
-        name: "Screenshot Studio for Designers",
-        applicationCategory: "DesignApplication",
-        operatingSystem: "Web Browser",
-        description:
-          "Free screenshot editor for designers. Create professional mockups, portfolio shots, and client presentations with 3D effects and animations.",
-        offers: {
-          "@type": "Offer",
-          price: "0",
-          priceCurrency: "USD",
-        },
-        featureList: [
-          "Design mockup creation",
-          "Portfolio shot styling",
-          "Device frame overlays",
-          "3D perspective transforms",
-          "Animation and video export",
-          "No signup required",
-        ],
-      },
-    ],
-  };
-
   return (
-    <div className="min-h-screen flex flex-col bg-background">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
-      />
-      <Navigation ctaLabel="Open Editor" ctaHref="/" />
+    <div className="min-h-screen bg-background text-foreground">
+      <Navigation />
 
-      <main className="flex-1">
-        {/* Hero */}
-        <section className="pt-32 pb-20 px-4">
-          <div className="max-w-4xl mx-auto text-center">
-            <span className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6">
+      <section className="relative overflow-hidden pt-32 pb-20">
+        <div className="container mx-auto px-6">
+          <div className="mx-auto max-w-4xl text-center">
+            <p
+              className="mb-6 text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground"
+              style={{ fontFamily: INTER }}
+            >
               Built for Designers
-            </span>
-            <h1 className="text-4xl md:text-6xl font-bold mb-6 tracking-tight">
-              Screenshot Editor for Designers
-            </h1>
-            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
-              Present your designs the way they deserve to be seen. Professional
-              mockups, 3D perspective, device frames, and animated showcases.
-              Free in your browser.
             </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link
-                href="/"
-                className="inline-flex items-center gap-2 bg-primary text-primary-foreground font-semibold px-8 py-4 rounded-full hover:opacity-90 transition-opacity"
-              >
-                Create Mockup
-                <ArrowRight className="w-5 h-5" />
+            <h1
+              className="mb-6 text-5xl font-semibold tracking-[-0.04em] text-foreground md:text-6xl"
+              style={{ fontFamily: INTER }}
+            >
+              Design Tools That Match Your Standards
+            </h1>
+            <p className="mx-auto mb-8 max-w-2xl text-xl leading-relaxed text-muted-foreground">
+              Create portfolio-worthy screenshots and mockups with the precision
+              and control that designers demand. No compromises on quality.
+            </p>
+            <div className="mb-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
+              <Link href="/" className={ctaClassName}>
+                Start Designing Free
               </Link>
-              <Link
-                href="/features"
-                className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground font-medium px-6 py-4 transition-colors"
-              >
+              <Link href="/features" className={secondaryCtaClassName}>
                 See All Features
               </Link>
             </div>
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* Use Cases */}
-        <section className="py-20 px-4 bg-muted/30">
-          <div className="max-w-6xl mx-auto">
-            <div className="text-center mb-16">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">
-                How Designers Use Screenshot Studio
-              </h2>
-              <p className="text-muted-foreground max-w-2xl mx-auto">
-                From portfolio shots to client presentations, present your work
-                beautifully.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {useCases.map((uc) => (
-                <div
-                  key={uc.title}
-                  className="flex gap-4 p-6 bg-background rounded-xl border"
-                >
-                  <div className="flex-shrink-0">
-                    <uc.icon className="w-8 h-8 text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-lg mb-2">{uc.title}</h3>
-                    <p className="text-sm text-muted-foreground">
-                      {uc.description}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Features */}
-        <section className="py-20 px-4">
-          <div className="max-w-4xl mx-auto">
-            <div className="text-center mb-16">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">
-                Tools Designers Actually Need
-              </h2>
-              <p className="text-muted-foreground">
-                Not a generic editor. Built specifically for presenting visual
-                work.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {features.map((f) => (
-                <div key={f.title} className="p-6 border rounded-xl">
-                  <h3 className="font-semibold text-lg mb-2">{f.title}</h3>
-                  <p className="text-sm text-muted-foreground">
-                    {f.description}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Feature Links */}
-        <section className="py-16 px-4 bg-muted/30">
-          <div className="max-w-4xl mx-auto">
-            <h2 className="text-2xl font-bold mb-8 text-center">
-              Explore Features
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {[
-                { href: "/features/screenshot-beautifier", label: "Screenshot Beautifier" },
-                { href: "/features/3d-effects", label: "3D Effects" },
-                { href: "/features/animation-maker", label: "Animation Maker" },
-                { href: "/features/social-media-graphics", label: "Social Media Graphics" },
-              ].map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className="flex items-center justify-between p-4 bg-background border rounded-xl hover:border-primary transition-colors group"
-                >
-                  <span className="font-medium text-sm">{link.label}</span>
-                  <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
-                </Link>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* CTA */}
-        <section className="py-20 px-4">
-          <div className="max-w-3xl mx-auto text-center">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Present Your Designs Beautifully
-            </h2>
-            <p className="text-lg text-muted-foreground mb-8">
-              Free forever. No signup. No watermarks.
-            </p>
-            <Link
-              href="/"
-              className="inline-flex items-center gap-2 bg-primary text-primary-foreground font-semibold px-8 py-4 rounded-full hover:opacity-90 transition-opacity"
+      <section className="border-t border-border py-20">
+        <div className="container mx-auto px-6">
+          <div className="mb-16 text-center">
+            <h2
+              className="mb-4 text-3xl font-semibold tracking-[-0.03em] text-foreground md:text-4xl"
+              style={{ fontFamily: INTER }}
             >
-              Open Editor
-              <ArrowRight className="w-5 h-5" />
+              Perfect for Every Design Workflow
+            </h2>
+            <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
+              From client presentations to portfolio pieces, we&apos;ve got you
+              covered
+            </p>
+          </div>
+
+          <div className="mx-auto grid max-w-6xl gap-8 md:grid-cols-2">
+            {useCases.map((useCase) => (
+              <div key={useCase.title} className={cardSurface}>
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-foreground/[0.06] text-foreground ring-1 ring-inset ring-border">
+                  <useCase.icon size={24} strokeWidth={1.75} />
+                </div>
+                <h3
+                  className="mb-2 text-xl font-semibold tracking-[-0.02em] text-foreground"
+                  style={{ fontFamily: INTER }}
+                >
+                  {useCase.title}
+                </h3>
+                <p className="text-muted-foreground">{useCase.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="border-t border-border py-20">
+        <div className="container mx-auto px-6">
+          <div className="mb-16 text-center">
+            <h2
+              className="mb-4 text-3xl font-semibold tracking-[-0.03em] text-foreground md:text-4xl"
+              style={{ fontFamily: INTER }}
+            >
+              Features Designers Love
+            </h2>
+          </div>
+
+          <div className="mx-auto grid max-w-6xl gap-8 md:grid-cols-2 lg:grid-cols-4">
+            {features.map((feature) => (
+              <div key={feature.title} className={`${cardSurface} text-center`}>
+                <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-foreground/[0.06] text-foreground ring-1 ring-inset ring-border">
+                  <feature.icon size={24} strokeWidth={1.75} />
+                </div>
+                <h3
+                  className="mb-2 text-lg font-semibold tracking-[-0.02em] text-foreground"
+                  style={{ fontFamily: INTER }}
+                >
+                  {feature.title}
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  {feature.description}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="border-t border-border py-20">
+        <div className="container mx-auto px-6">
+          <div className="mx-auto max-w-3xl text-center">
+            <h2
+              className="mb-6 text-3xl font-semibold tracking-[-0.03em] text-foreground md:text-4xl"
+              style={{ fontFamily: INTER }}
+            >
+              Ready to Elevate Your Design Presentations?
+            </h2>
+            <p className="mb-8 text-xl text-muted-foreground">
+              Join thousands of designers creating stunning visual content
+            </p>
+            <Link href="/" className={ctaClassName}>
+              Start Creating Free
             </Link>
           </div>
-        </section>
-      </main>
+        </div>
+      </section>
 
       <Footer brandName="Screenshot Studio" />
     </div>

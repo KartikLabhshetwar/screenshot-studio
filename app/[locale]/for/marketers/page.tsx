@@ -3,14 +3,14 @@ import Link from "next/link";
 import { Navigation } from "@/components/landing/Navigation";
 import { Footer } from "@/components/landing/Footer";
 import {
-  ArrowRight,
-  TrendingUp,
-  BarChart3,
-  Share2,
-  Megaphone,
-  Presentation,
-  Image,
-} from "lucide-react";
+  Megaphone01Icon,
+  Share01Icon,
+  ChartIncreaseIcon,
+  Presentation01Icon,
+  ChartHistogramIcon,
+  Image01Icon,
+  ArrowRight01Icon,
+} from "hugeicons-react";
 
 export const metadata: Metadata = {
   title: "Screenshot Editor for Marketers - Free Tool",
@@ -43,39 +43,54 @@ export const metadata: Metadata = {
   },
 };
 
+const ctaClassName =
+  "relative inline-flex items-center justify-center rounded-md border-0 bg-[var(--nav-cta-bg)] px-6 py-2.5 text-base font-medium text-[var(--nav-cta-fg)] shadow-none transition-[transform,box-shadow] duration-150 ease-out [text-shadow:var(--nav-cta-text-shadow)] hover:shadow-[var(--nav-cta-hover-shadow)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 active:scale-[0.97]";
+
+const secondaryCtaClassName =
+  "inline-flex items-center justify-center rounded-md px-6 py-2.5 text-base font-medium text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground active:scale-[0.99]";
+
+const cardSurface =
+  "rounded-2xl bg-card p-6 ring-1 ring-inset ring-border shadow-[var(--card-highlight-shadow)]";
+
+const chipLinkClassName =
+  "group flex items-center justify-between rounded-md bg-foreground/[0.04] px-4 py-3 text-sm font-medium text-foreground/90 ring-1 ring-border transition-colors hover:bg-foreground/[0.08] hover:text-foreground";
+
+const INTER =
+  "Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif";
+
 const useCases = [
   {
-    icon: Megaphone,
+    icon: Megaphone01Icon,
     title: "Landing Page Hero Images",
     description:
       "Turn raw product screenshots into polished hero images that convert. Add gradient backgrounds, shadows, and 3D perspective to showcase your product at its best.",
   },
   {
-    icon: Share2,
+    icon: Share01Icon,
     title: "Social Media Campaigns",
     description:
       "Create consistent, branded graphics for Twitter, LinkedIn, and Instagram. Perfect dimensions for every platform, optimized for engagement.",
   },
   {
-    icon: TrendingUp,
+    icon: ChartIncreaseIcon,
     title: "Ad Creatives",
     description:
       "Build ad images that stop the scroll. Beautified product screenshots with eye-catching backgrounds and angles outperform generic stock photos.",
   },
   {
-    icon: Presentation,
+    icon: Presentation01Icon,
     title: "Pitch Decks & Proposals",
     description:
       "Impress investors and clients with professional product mockups. 3D perspective and device frames add credibility to any presentation.",
   },
   {
-    icon: BarChart3,
+    icon: ChartHistogramIcon,
     title: "Product Announcements",
     description:
       "Launch new features with stunning visuals. Animated screenshots grab attention and clearly demonstrate what your product does.",
   },
   {
-    icon: Image,
+    icon: Image01Icon,
     title: "Email Marketing",
     description:
       "Create clean product images for newsletters and drip campaigns. High-res exports that look sharp on any device.",
@@ -103,6 +118,13 @@ const benefits = [
     description:
       "Create animated product demos with zoom and pan effects. Export as video or GIF for social media posts that outperform static images.",
   },
+];
+
+const featureLinks = [
+  { href: "/features/screenshot-beautifier", label: "Screenshot Beautifier" },
+  { href: "/features/social-media-graphics", label: "Social Media Graphics" },
+  { href: "/features/animation-maker", label: "Animation Maker" },
+  { href: "/features/3d-effects", label: "3D Effects" },
 ];
 
 export default function ForMarketersPage() {
@@ -151,70 +173,72 @@ export default function ForMarketersPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="flex min-h-screen flex-col bg-background text-foreground">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
-      <Navigation ctaLabel="Open Editor" ctaHref="/" />
+      <Navigation />
 
       <main className="flex-1">
-        {/* Hero */}
-        <section className="pt-32 pb-20 px-4">
-          <div className="max-w-4xl mx-auto text-center">
-            <span className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6">
+        <section className="px-6 pb-20 pt-32">
+          <div className="mx-auto max-w-4xl text-center">
+            <p
+              className="mb-6 text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground"
+              style={{ fontFamily: INTER }}
+            >
               Built for Marketers
-            </span>
-            <h1 className="text-4xl md:text-6xl font-bold mb-6 tracking-tight">
+            </p>
+            <h1
+              className="mb-6 text-4xl font-semibold tracking-[-0.04em] text-foreground md:text-6xl"
+              style={{ fontFamily: INTER }}
+            >
               Screenshot Editor for Marketers
             </h1>
-            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
+            <p className="mx-auto mb-8 max-w-2xl text-lg text-muted-foreground md:text-xl">
               Create scroll-stopping product visuals for landing pages, social
               media, and ad creatives. No design skills needed, no Figma
               required.
             </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link
-                href="/"
-                className="inline-flex items-center gap-2 bg-primary text-primary-foreground font-semibold px-8 py-4 rounded-full hover:opacity-90 transition-opacity"
-              >
+            <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
+              <Link href="/" className={ctaClassName}>
                 Create Marketing Images
-                <ArrowRight className="w-5 h-5" />
               </Link>
-              <Link
-                href="/features"
-                className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground font-medium px-6 py-4 transition-colors"
-              >
+              <Link href="/features" className={secondaryCtaClassName}>
                 See All Features
               </Link>
             </div>
           </div>
         </section>
 
-        {/* Use Cases */}
-        <section className="py-20 px-4 bg-muted/30">
-          <div className="max-w-6xl mx-auto">
-            <div className="text-center mb-16">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">
+        <section className="border-t border-border px-6 py-20">
+          <div className="mx-auto max-w-6xl">
+            <div className="mb-16 text-center">
+              <h2
+                className="mb-4 text-3xl font-semibold tracking-[-0.03em] text-foreground md:text-4xl"
+                style={{ fontFamily: INTER }}
+              >
                 How Marketers Use Screenshot Studio
               </h2>
-              <p className="text-muted-foreground max-w-2xl mx-auto">
+              <p className="mx-auto max-w-2xl text-muted-foreground">
                 From landing page heroes to social campaigns, create visuals
                 that convert.
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
               {useCases.map((uc) => (
-                <div
-                  key={uc.title}
-                  className="flex gap-4 p-6 bg-background rounded-xl border"
-                >
-                  <div className="flex-shrink-0">
-                    <uc.icon className="w-8 h-8 text-primary" />
+                <div key={uc.title} className={`${cardSurface} flex gap-4`}>
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-foreground/[0.06] text-foreground ring-1 ring-inset ring-border">
+                    <uc.icon size={20} strokeWidth={1.75} />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-lg mb-2">{uc.title}</h3>
+                    <h3
+                      className="mb-2 text-lg font-semibold tracking-[-0.02em] text-foreground"
+                      style={{ fontFamily: INTER }}
+                    >
+                      {uc.title}
+                    </h3>
                     <p className="text-sm text-muted-foreground">
                       {uc.description}
                     </p>
@@ -225,19 +249,26 @@ export default function ForMarketersPage() {
           </div>
         </section>
 
-        {/* Benefits */}
-        <section className="py-20 px-4">
-          <div className="max-w-4xl mx-auto">
-            <div className="text-center mb-16">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">
+        <section className="border-t border-border px-6 py-20">
+          <div className="mx-auto max-w-4xl">
+            <div className="mb-16 text-center">
+              <h2
+                className="mb-4 text-3xl font-semibold tracking-[-0.03em] text-foreground md:text-4xl"
+                style={{ fontFamily: INTER }}
+              >
                 Why Marketing Teams Choose Screenshot Studio
               </h2>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
               {benefits.map((b) => (
-                <div key={b.title} className="p-6 border rounded-xl">
-                  <h3 className="font-semibold text-lg mb-2">{b.title}</h3>
+                <div key={b.title} className={cardSurface}>
+                  <h3
+                    className="mb-2 text-lg font-semibold tracking-[-0.02em] text-foreground"
+                    style={{ fontFamily: INTER }}
+                  >
+                    {b.title}
+                  </h3>
                   <p className="text-muted-foreground">{b.description}</p>
                 </div>
               ))}
@@ -245,47 +276,48 @@ export default function ForMarketersPage() {
           </div>
         </section>
 
-        {/* Feature Links */}
-        <section className="py-16 px-4 bg-muted/30">
-          <div className="max-w-4xl mx-auto">
-            <h2 className="text-2xl font-bold mb-8 text-center">
+        <section className="border-t border-border px-6 py-16">
+          <div className="mx-auto max-w-4xl">
+            <h2
+              className="mb-8 text-center text-2xl font-semibold tracking-[-0.03em] text-foreground"
+              style={{ fontFamily: INTER }}
+            >
               Explore Features
             </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {[
-                { href: "/features/screenshot-beautifier", label: "Screenshot Beautifier" },
-                { href: "/features/social-media-graphics", label: "Social Media Graphics" },
-                { href: "/features/animation-maker", label: "Animation Maker" },
-                { href: "/features/3d-effects", label: "3D Effects" },
-              ].map((link) => (
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {featureLinks.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="flex items-center justify-between p-4 bg-background border rounded-xl hover:border-primary transition-colors group"
+                  className={chipLinkClassName}
                 >
-                  <span className="font-medium text-sm">{link.label}</span>
-                  <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                  <span>
+                    {link.label}
+                  </span>
+                  <ArrowRight01Icon
+                    size={14}
+                    strokeWidth={1.75}
+                    className="size-3.5 shrink-0 text-muted-foreground/70 transition-colors group-hover:text-foreground"
+                  />
                 </Link>
               ))}
             </div>
           </div>
         </section>
 
-        {/* CTA */}
-        <section className="py-20 px-4">
-          <div className="max-w-3xl mx-auto text-center">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+        <section className="border-t border-border px-6 py-20">
+          <div className="mx-auto max-w-3xl text-center">
+            <h2
+              className="mb-4 text-3xl font-semibold tracking-[-0.03em] text-foreground md:text-4xl"
+              style={{ fontFamily: INTER }}
+            >
               Create Marketing Visuals in Seconds
             </h2>
-            <p className="text-lg text-muted-foreground mb-8">
+            <p className="mb-8 text-lg text-muted-foreground">
               Free forever. No signup. No watermarks.
             </p>
-            <Link
-              href="/"
-              className="inline-flex items-center gap-2 bg-primary text-primary-foreground font-semibold px-8 py-4 rounded-full hover:opacity-90 transition-opacity"
-            >
+            <Link href="/" className={ctaClassName}>
               Open Editor
-              <ArrowRight className="w-5 h-5" />
             </Link>
           </div>
         </section>

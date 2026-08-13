@@ -30,8 +30,8 @@ function VideoTestimonialCard({
   const videoTitle = title || "Screenshot Studio testimonial";
 
   return (
-    <article className="space-y-3">
-      <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-muted/30 border border-border/30">
+    <article className="flex flex-col gap-3">
+      <div className="relative aspect-video w-full overflow-hidden rounded-2xl bg-card shadow-[var(--card-edge-shadow)] ring-1 ring-border">
         <iframe
           width="100%"
           height="100%"
@@ -45,12 +45,12 @@ function VideoTestimonialCard({
       </div>
       {(title || author) && (
         <div className="px-0.5">
-          {title && (
-            <h3 className="font-medium text-sm text-foreground">{title}</h3>
-          )}
-          {author && (
-            <p className="text-xs text-muted-foreground">{author}</p>
-          )}
+          {title ? (
+            <h3 className="text-sm font-semibold text-foreground">{title}</h3>
+          ) : null}
+          {author ? (
+            <p className="mt-1 text-sm text-muted-foreground">{author}</p>
+          ) : null}
         </div>
       )}
     </article>
@@ -66,25 +66,34 @@ export function VideoTestimonials({
   const count = testimonials.length;
 
   return (
-    <section className="py-16 sm:py-24 px-6 bg-background">
-      <div className="max-w-6xl mx-auto">
-        {title && (
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-semibold text-center mb-12 tracking-tight">
+    <section
+      aria-label={title || "Creator testimonials"}
+      className="bg-background px-6 py-16 sm:py-20 md:py-24"
+    >
+      <div className="mx-auto w-full max-w-6xl">
+        {title ? (
+          <h2
+            className="landing-heading mb-12 text-center text-[28px] leading-[34px] font-semibold tracking-[-0.03em] sm:text-[36px] sm:leading-[42px] md:mb-14 md:text-[44px] md:leading-[50px]"
+            style={{
+              fontFamily:
+                'Inter, "Inter Fallback", Arial, Helvetica, sans-serif',
+            }}
+          >
             {title}
           </h2>
-        )}
+        ) : null}
 
         <div
           className={cn(
-            "grid gap-6",
-            count === 1 && "grid-cols-1 max-w-3xl mx-auto",
+            "grid gap-4",
+            count === 1 && "mx-auto max-w-3xl grid-cols-1",
             count === 2 && "grid-cols-1 md:grid-cols-2",
             count === 3 && "grid-cols-1 md:grid-cols-2 lg:grid-cols-3",
             count >= 4 && "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3",
           )}
         >
-          {testimonials.map((testimonial, index) => (
-            <VideoTestimonialCard key={index} {...testimonial} />
+          {testimonials.map((testimonial) => (
+            <VideoTestimonialCard key={testimonial.videoId} {...testimonial} />
           ))}
         </div>
       </div>

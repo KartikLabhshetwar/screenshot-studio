@@ -12,7 +12,8 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90 active:bg-primary/80 shadow-sm hover:shadow-md",
+        default:
+          "bg-[var(--nav-cta-bg)] text-[var(--nav-cta-fg)] shadow-none hover:bg-[var(--nav-cta-bg)] hover:shadow-[var(--nav-cta-hover-shadow)] active:scale-[0.98] active:bg-[var(--nav-cta-bg)] active:shadow-none [text-shadow:var(--nav-cta-text-shadow)]",
         destructive:
           "bg-muted text-destructive hover:bg-destructive/10 active:bg-destructive/5 border border-destructive/20 hover:border-destructive/40 rounded-lg shadow-sm hover:shadow-md",
         outline:
@@ -23,7 +24,7 @@ const buttonVariants = cva(
           "hover:bg-accent hover:text-accent-foreground active:bg-accent/80 dark:hover:bg-accent/50 active:scale-[0.98]",
         link: "text-primary underline-offset-4 hover:underline",
         integration:
-          "bg-primary text-primary-foreground uppercase font-bold rounded-full tracking-wide shadow-[0_4px_12px_rgba(0,0,0,0.15),0_1px_3px_rgba(0,0,0,0.2)] hover:shadow-[0_6px_16px_rgba(0,0,0,0.2),0_2px_4px_rgba(0,0,0,0.25)] hover:bg-primary/90 active:bg-primary/80 active:shadow-[0_2px_8px_rgba(0,0,0,0.15),0_1px_2px_rgba(0,0,0,0.2)] active:translate-y-[1px] relative overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-b before:from-white/10 before:to-transparent before:pointer-events-none",
+          "bg-primary text-primary-foreground uppercase font-bold rounded-full tracking-wide shadow-md hover:shadow-lg hover:bg-primary/90 active:bg-primary/80 active:shadow-sm active:translate-y-[1px] relative overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-b before:from-foreground/10 before:to-transparent before:pointer-events-none",
       },
       size: {
         default: "h-9 px-4 py-2 has-[>svg]:px-3",

@@ -1,22 +1,16 @@
 "use client";
 
-import dynamic from "next/dynamic";
 import { useEditorStore } from "@/lib/store";
 import { useImageStore } from "@/lib/store";
 import { CleanUploadState } from "@/components/controls/CleanUploadState";
-import { useState } from "react";
+import { useLayoutEffect, useState } from "react";
 import React from "react";
 import { ExportSlideshowDialog } from "@/lib/export-slideshow-dialog";
-import { aspectRatios } from "@/lib/constants/aspect-ratios";
-
-const ClientCanvas = dynamic(() => import("@/components/canvas/ClientCanvas"), {
-  ssr: false,
-  loading: () => (
-    <div className="flex-1 flex items-center justify-center min-h-[400px]">
-      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-    </div>
-  ),
-});
+import { CanvasStageShell } from "@/components/canvas/CanvasStageShell";
+import { CanvasStageLoadingOverlay } from "@/components/canvas/CanvasStageLoadingOverlay";
+import ClientCanvas from "@/components/canvas/ClientCanvas";
+import { cn } from "@/lib/utils";
+import { Cancel01Icon } from "hugeicons-react";
 
 export function EditorCanvas() {
   const { screenshot } = useEditorStore();
@@ -30,27 +24,59 @@ export function EditorCanvas() {
     stopPreview,
     uploadedImageUrl,
     showTimeline,
-    selectedAspectRatio,
   } = useImageStore();
 
   // Check both stores - imageStore is the source of truth (tracked by undo/redo)
   const hasImage = !!uploadedImageUrl && !!screenshot.src;
   const [exportOpen, setExportOpen] = useState(false);
+  const [canvasReady, setCanvasReady] = useState(false);
+  const loadStartedAtRef = React.useRef<number | null>(null);
+  const readyTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleCanvasReady = React.useCallback(() => {
+    const started = loadStartedAtRef.current ?? Date.now();
+    const remaining = Math.max(0, 240 - (Date.now() - started));
+    if (readyTimeoutRef.current) clearTimeout(readyTimeoutRef.current);
+    readyTimeoutRef.current = setTimeout(() => {
+      setCanvasReady(true);
+      readyTimeoutRef.current = null;
+    }, remaining);
+  }, []);
+
+  useLayoutEffect(() => {
+    if (readyTimeoutRef.current) {
+      clearTimeout(readyTimeoutRef.current);
+      readyTimeoutRef.current = null;
+    }
+
+    if (!hasImage) {
+      setCanvasReady(false);
+      loadStartedAtRef.current = null;
+      return;
+    }
+
+    setCanvasReady(false);
+    loadStartedAtRef.current = Date.now();
+  }, [hasImage, screenshot.src, uploadedImageUrl]);
+
+  React.useEffect(() => {
+    return () => {
+      if (readyTimeoutRef.current) clearTimeout(readyTimeoutRef.current);
+    };
+  }, []);
+
+  const previewSlide = slides[previewIndex];
+  const previewSlideId = previewSlide?.id;
+  const previewSlideDuration = previewSlide?.duration;
 
   React.useEffect(() => {
     if (!isPreviewing) return;
-    if (slides.length === 0) {
+    if (!previewSlideId || previewSlideDuration === undefined) {
       stopPreview();
       return;
     }
 
-    if (previewIndex >= slides.length) {
-      stopPreview();
-      return;
-    }
-
-    const slide = slides[previewIndex];
-    setActiveSlide(slide.id);
+    setActiveSlide(previewSlideId);
 
     const timer = setTimeout(() => {
       useImageStore.setState((state) => {
@@ -65,32 +91,18 @@ export function EditorCanvas() {
           previewIndex: state.previewIndex + 1,
         };
       });
-    }, slide.duration * 1000);
+    }, previewSlideDuration * 1000);
 
     return () => clearTimeout(timer);
-  }, [isPreviewing, previewIndex, slides.length]);
+  }, [
+    isPreviewing,
+    previewSlideId,
+    previewSlideDuration,
+    setActiveSlide,
+    stopPreview,
+  ]);
 
-  // Show upload state if no image in either store
-  if (!hasImage) {
-    const currentRatio = aspectRatios.find((ar) => ar.id === selectedAspectRatio);
-    const ratioValue = currentRatio ? currentRatio.width / currentRatio.height : 16 / 9;
-
-    return (
-      <div className="flex-1 flex flex-col h-full w-full">
-        <div className="flex-1 flex items-center justify-center p-4 md:p-8">
-          <div
-            className="relative rounded-lg overflow-hidden transition-all duration-300"
-            style={{
-              aspectRatio: `${ratioValue}`,
-              width: `min(100%, min(48rem, calc(70vh * ${ratioValue})))`,
-            }}
-          >
-            <CleanUploadState />
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const showLoading = hasImage && !canvasReady;
 
   return (
     <>
@@ -104,42 +116,69 @@ export function EditorCanvas() {
           data-canvas-viewport
           className="relative flex-1 flex items-center justify-center overflow-y-auto overflow-x-hidden p-3 sm:p-4 md:p-6"
         >
-          <ClientCanvas />
+          <CanvasStageShell
+            id="image-render-card"
+            breathe={!canvasReady}
+            showBackground={!canvasReady}
+            className="overflow-hidden"
+          >
+            {!hasImage ? (
+              <CleanUploadState />
+            ) : (
+              <>
+                <div
+                  className={cn(
+                    "absolute inset-0 transition-opacity duration-300 ease-out",
+                    canvasReady ? "opacity-100" : "opacity-0"
+                  )}
+                >
+                  <ClientCanvas
+                    embedded
+                    onReady={handleCanvasReady}
+                  />
+                </div>
+                {showLoading ? <CanvasStageLoadingOverlay /> : null}
+              </>
+            )}
+          </CanvasStageShell>
         </div>
 
-        {/* Bottom filmstrip — only shown when timeline is NOT visible */}
         {slides.length > 1 && !showTimeline && (
-          <div className="border-t border-border/30 bg-card p-2 shrink-0 overflow-x-auto">
-            <div className="flex gap-2 overflow-x-auto">
+          <div className="shrink-0 overflow-x-auto border-t border-foreground/10 bg-background p-2">
+            <div className="flex gap-2">
               {slides.map((slide) => (
                 <div
                   key={slide.id}
-                  className={`relative w-28 shrink-0 h-16 rounded-lg overflow-hidden border cursor-pointer transition-all duration-200 ${
+                  className={cn(
+                    'relative h-16 w-28 shrink-0 overflow-hidden rounded-md border transition-all duration-150',
                     slide.id === activeSlideId
-                      ? "ring-2 ring-foreground/50 border-foreground/30"
-                      : "border-border/30 hover:border-border"
-                  }`}
+                      ? 'border-foreground/30 ring-1 ring-foreground/40'
+                      : 'border-foreground/10 hover:border-foreground/20'
+                  )}
                 >
                   <button
+                    type="button"
                     onClick={() => setActiveSlide(slide.id)}
-                    className="h-full w-full"
+                    className="h-full w-full cursor-pointer"
                   >
                     <img
                       src={slide.src}
+                      alt=""
                       className="h-full w-full object-cover"
                       draggable={false}
                     />
                   </button>
 
                   <button
+                    type="button"
                     onClick={(e) => {
                       e.stopPropagation();
                       removeSlide(slide.id);
                     }}
-                    className="absolute top-1 right-1 z-10 rounded bg-background/70 text-foreground hover:text-destructive-foreground cursor-pointer hover:bg-destructive transition h-5 w-5 flex items-center justify-center text-xs"
+                    className="absolute top-1 right-1 z-10 flex h-5 w-5 cursor-pointer items-center justify-center rounded-md border border-foreground/10 bg-card/90 text-muted-foreground transition-colors hover:bg-destructive hover:text-foreground hover:border-destructive"
                     title="Delete slide"
                   >
-                    ✕
+                    <Cancel01Icon size={10} />
                   </button>
                 </div>
               ))}

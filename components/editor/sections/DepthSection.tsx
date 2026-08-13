@@ -248,7 +248,6 @@ export function DepthSection() {
 
   return (
     <div className="space-y-2">
-      {/* ── Layer list (at the top) ── */}
       <SectionWrapper
         title="Layers"
         defaultOpen={true}
@@ -269,7 +268,6 @@ export function DepthSection() {
           </div>
         ) : (
           <div className="space-y-0.5">
-            {/* Render in reverse so top of list = top of canvas */}
             {[...layers].reverse().map((layer) => {
               const isSelected = selectedLayerId === layer.id;
               const isImageOverlay = layer.type === 'image-overlay';
@@ -278,26 +276,24 @@ export function DepthSection() {
                 <div
                   key={layer.id}
                   className={cn(
-                    'rounded-lg transition-all duration-150',
-                    isSelected && 'bg-accent/50'
+                    'rounded-md transition-all duration-150',
+                    isSelected && 'bg-foreground/[0.04]'
                   )}
                 >
-                  {/* Main row */}
                   <div
                     onClick={() => setSelectedLayerId(isSelected ? null : layer.id)}
                     className={cn(
-                      'flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer transition-all duration-150 group',
+                      'flex items-center gap-2.5 px-2.5 py-2 rounded-md cursor-pointer transition-all duration-150 group',
                       isSelected
-                        ? 'bg-primary/8'
-                        : 'hover:bg-accent/60'
+                        ? 'bg-foreground/[0.06]'
+                        : 'hover:bg-foreground/[0.04]'
                     )}
                   >
-                    {/* Thumbnail / Icon */}
                     <div className={cn(
-                      "w-9 h-9 rounded-lg flex items-center justify-center shrink-0 overflow-hidden",
+                      "w-9 h-9 rounded-md flex items-center justify-center shrink-0 overflow-hidden",
                       isSelected
-                        ? "bg-primary/10 border border-primary/20"
-                        : "bg-muted/60 border border-border/30"
+                        ? "bg-foreground/[0.1] border border-foreground/20"
+                        : "bg-foreground/[0.06] border border-foreground/10"
                     )}>
                       {layer.thumbnailSrc ? (
                         <img
@@ -308,14 +304,13 @@ export function DepthSection() {
                         />
                       ) : (
                         <span className={cn(
-                          isSelected ? "text-primary" : "text-muted-foreground/60"
+                          isSelected ? "text-foreground" : "text-muted-foreground/60"
                         )}>
                           {getLayerIcon(layer.type)}
                         </span>
                       )}
                     </div>
 
-                    {/* Label */}
                     <div className="flex-1 min-w-0">
                       <p className={cn(
                         "text-xs font-medium truncate",
@@ -328,16 +323,14 @@ export function DepthSection() {
                           {layer.type === 'image-overlay' ? 'Image' : layer.type === 'text-overlay' ? 'Text' : layer.type === 'annotation' ? 'Drawing' : layer.type.replace('-', ' ')}
                         </p>
                         {isImageOverlay && layer.layerPosition === 'back' && (
-                          <span className="text-[9px] px-1 py-px rounded bg-muted text-muted-foreground leading-none border border-border/30">
+                          <span className="text-[9px] px-1 py-px rounded bg-foreground/[0.06] text-muted-foreground leading-none border border-foreground/10">
                             behind
                           </span>
                         )}
                       </div>
                     </div>
 
-                    {/* Quick controls — always visible for key actions */}
                     <div className="flex items-center gap-0.5 shrink-0">
-                      {/* Visibility — always visible */}
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
@@ -346,15 +339,14 @@ export function DepthSection() {
                         className={cn(
                           'p-1.5 rounded-md transition-colors',
                           layer.isVisible
-                            ? 'text-muted-foreground hover:text-foreground hover:bg-accent'
-                            : 'text-muted-foreground/30 hover:text-foreground hover:bg-accent'
+                            ? 'text-muted-foreground hover:text-foreground hover:bg-foreground/[0.06]'
+                            : 'text-muted-foreground/30 hover:text-foreground hover:bg-foreground/[0.06]'
                         )}
                         title={layer.isVisible ? 'Hide layer' : 'Show layer'}
                       >
                         {layer.isVisible ? <ViewIcon size={14} /> : <ViewOffSlashIcon size={14} />}
                       </button>
 
-                      {/* Delete — show on hover */}
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
@@ -368,7 +360,6 @@ export function DepthSection() {
                     </div>
                   </div>
 
-                  {/* Expanded controls when selected (image overlays) */}
                   {isSelected && isImageOverlay && (
                     <div className="flex items-center gap-1 px-2.5 pb-2 pt-0.5">
                       <button
@@ -376,7 +367,7 @@ export function DepthSection() {
                           e.stopPropagation();
                           reorderImageOverlay(layer.id, 'up');
                         }}
-                        className="flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-medium text-muted-foreground hover:text-foreground hover:bg-accent transition-colors border border-border/30"
+                        className="flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-medium text-muted-foreground hover:text-foreground hover:bg-foreground/[0.06] transition-colors border border-foreground/10"
                         title="Move forward"
                       >
                         <ArrowUp01Icon size={12} />
@@ -386,7 +377,7 @@ export function DepthSection() {
                           e.stopPropagation();
                           reorderImageOverlay(layer.id, 'down');
                         }}
-                        className="flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-medium text-muted-foreground hover:text-foreground hover:bg-accent transition-colors border border-border/30"
+                        className="flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-medium text-muted-foreground hover:text-foreground hover:bg-foreground/[0.06] transition-colors border border-foreground/10"
                         title="Move backward"
                       >
                         <ArrowDown01Icon size={12} />
@@ -400,8 +391,8 @@ export function DepthSection() {
                         className={cn(
                           'flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-medium transition-colors border',
                           layer.layerPosition === 'back'
-                            ? 'text-primary border-primary/20 bg-primary/5 hover:bg-primary/10'
-                            : 'text-muted-foreground border-border/30 hover:text-foreground hover:bg-accent'
+                            ? 'text-foreground border-foreground/20 bg-foreground/[0.08] hover:bg-foreground/[0.1]'
+                            : 'text-muted-foreground border-foreground/10 hover:text-foreground hover:bg-foreground/[0.06]'
                         )}
                         title={layer.layerPosition === 'back' ? 'Move to front' : 'Move behind image'}
                       >
@@ -418,7 +409,6 @@ export function DepthSection() {
         )}
       </SectionWrapper>
 
-      {/* ── Selected overlay controls ── */}
       {selectedOverlay && (
         <SectionWrapper title="Properties" defaultOpen={true}>
           <OverlayProperties
@@ -432,13 +422,11 @@ export function DepthSection() {
         </SectionWrapper>
       )}
 
-      {/* ── Asset picker ── */}
       <SectionWrapper title="3D Objects" defaultOpen={layers.length === 0}>
         <div className="space-y-3">
-          {/* Upload button */}
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border-2 border-dashed border-border/60 hover:border-primary/40 hover:bg-primary/5 text-muted-foreground hover:text-primary transition-all duration-150"
+            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-md border border-dashed border-foreground/15 hover:border-foreground/30 hover:bg-foreground/[0.04] text-muted-foreground hover:text-foreground transition-all duration-150"
           >
             <Upload04Icon size={16} />
             <span className="text-xs font-medium">Upload Image</span>
@@ -451,7 +439,6 @@ export function DepthSection() {
             className="hidden"
           />
 
-          {/* Asset grid */}
           <div className="grid grid-cols-3 gap-2 p-1">
             {activeAssets.map((assetPath) => {
               const isLocal = assetPath.startsWith('/');
@@ -461,7 +448,7 @@ export function DepthSection() {
                 <button
                   key={assetPath}
                   onClick={() => handleAddAsset(assetPath)}
-                  className="aspect-square rounded-xl border border-border/30 bg-muted/30 hover:bg-accent hover:border-border/60 transition-all duration-150 overflow-hidden p-2.5 group"
+                  className="aspect-square rounded-md border border-foreground/10 bg-foreground/[0.04] hover:bg-foreground/[0.06] hover:border-foreground/20 transition-all duration-150 overflow-hidden p-2.5 group"
                   title="Click to add"
                 >
                   <img
@@ -503,7 +490,6 @@ function OverlayProperties({
 
   return (
     <div className="space-y-3">
-      {/* Sliders */}
       <div className="space-y-2">
         <Slider
           value={[overlay.size]}
@@ -526,19 +512,19 @@ function OverlayProperties({
         <div className="flex gap-1.5">
           <button
             onClick={() => onUpdate({ rotation: normalizeRotation(overlay.rotation - 90) })}
-            className="flex-1 flex items-center justify-center gap-1 py-1.5 rounded-lg bg-muted/50 border border-border/30 text-xs text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+            className="flex-1 flex items-center justify-center gap-1 py-1.5 rounded-md bg-foreground/[0.04] border border-foreground/10 text-xs text-muted-foreground hover:text-foreground hover:bg-foreground/[0.06] transition-colors"
           >
             <RotateLeft01Icon size={13} /> -90
           </button>
           <button
             onClick={() => onUpdate({ rotation: 0 })}
-            className="flex-1 flex items-center justify-center gap-1 py-1.5 rounded-lg bg-muted/50 border border-border/30 text-xs text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+            className="flex-1 flex items-center justify-center gap-1 py-1.5 rounded-md bg-foreground/[0.04] border border-foreground/10 text-xs text-muted-foreground hover:text-foreground hover:bg-foreground/[0.06] transition-colors"
           >
             <RefreshIcon size={13} /> Reset
           </button>
           <button
             onClick={() => onUpdate({ rotation: normalizeRotation(overlay.rotation + 90) })}
-            className="flex-1 flex items-center justify-center gap-1 py-1.5 rounded-lg bg-muted/50 border border-border/30 text-xs text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+            className="flex-1 flex items-center justify-center gap-1 py-1.5 rounded-md bg-foreground/[0.04] border border-foreground/10 text-xs text-muted-foreground hover:text-foreground hover:bg-foreground/[0.06] transition-colors"
           >
             <RotateRight01Icon size={13} /> +90
           </button>
@@ -563,15 +549,14 @@ function OverlayProperties({
         />
       </div>
 
-      {/* Flip */}
       <div className="flex gap-1.5">
         <button
           onClick={() => onUpdate({ flipX: !overlay.flipX })}
           className={cn(
-            'flex-1 py-2 rounded-lg text-xs font-medium border transition-colors',
+            'flex-1 py-2 rounded-md text-xs font-medium border transition-colors',
             overlay.flipX
-              ? 'bg-primary/10 text-primary border-primary/25'
-              : 'bg-muted/50 text-muted-foreground border-border/30 hover:text-foreground hover:bg-accent'
+              ? 'bg-foreground/[0.1] text-foreground border-foreground/20'
+              : 'bg-foreground/[0.04] text-muted-foreground border-foreground/10 hover:text-foreground hover:bg-foreground/[0.06]'
           )}
         >
           Flip X
@@ -579,27 +564,26 @@ function OverlayProperties({
         <button
           onClick={() => onUpdate({ flipY: !overlay.flipY })}
           className={cn(
-            'flex-1 py-2 rounded-lg text-xs font-medium border transition-colors',
+            'flex-1 py-2 rounded-md text-xs font-medium border transition-colors',
             overlay.flipY
-              ? 'bg-primary/10 text-primary border-primary/25'
-              : 'bg-muted/50 text-muted-foreground border-border/30 hover:text-foreground hover:bg-accent'
+              ? 'bg-foreground/[0.1] text-foreground border-foreground/20'
+              : 'bg-foreground/[0.04] text-muted-foreground border-foreground/10 hover:text-foreground hover:bg-foreground/[0.06]'
           )}
         >
           Flip Y
         </button>
       </div>
 
-      {/* Layer position: front / back */}
       <div className="space-y-1.5">
         <span className="text-xs font-medium text-muted-foreground">Position</span>
         <div className="flex gap-1.5">
           <button
             onClick={() => onUpdate({ layer: 'front' })}
             className={cn(
-              'flex-1 py-2 rounded-lg text-xs font-medium border transition-colors',
+              'flex-1 py-2 rounded-md text-xs font-medium border transition-colors',
               (overlay.layer || 'front') === 'front'
-                ? 'bg-primary/10 text-primary border-primary/25'
-                : 'bg-muted/50 text-muted-foreground border-border/30 hover:text-foreground hover:bg-accent'
+                ? 'bg-foreground/[0.1] text-foreground border-foreground/20'
+                : 'bg-foreground/[0.04] text-muted-foreground border-foreground/10 hover:text-foreground hover:bg-foreground/[0.06]'
             )}
           >
             In Front
@@ -607,10 +591,10 @@ function OverlayProperties({
           <button
             onClick={() => onUpdate({ layer: 'back' })}
             className={cn(
-              'flex-1 py-2 rounded-lg text-xs font-medium border transition-colors',
+              'flex-1 py-2 rounded-md text-xs font-medium border transition-colors',
               overlay.layer === 'back'
-                ? 'bg-primary/10 text-primary border-primary/25'
-                : 'bg-muted/50 text-muted-foreground border-border/30 hover:text-foreground hover:bg-accent'
+                ? 'bg-foreground/[0.1] text-foreground border-foreground/20'
+                : 'bg-foreground/[0.04] text-muted-foreground border-foreground/10 hover:text-foreground hover:bg-foreground/[0.06]'
             )}
           >
             Behind Image
@@ -618,10 +602,9 @@ function OverlayProperties({
         </div>
       </div>
 
-      {/* Remove */}
       <button
         onClick={onRemove}
-        className="w-full flex items-center justify-center gap-1.5 py-2 rounded-lg bg-destructive/10 text-destructive hover:bg-destructive/20 text-xs font-medium transition-colors"
+        className="w-full flex items-center justify-center gap-1.5 py-2 rounded-md bg-destructive/10 text-destructive hover:bg-destructive/20 text-xs font-medium transition-colors"
       >
         <Delete02Icon size={14} />
         Remove

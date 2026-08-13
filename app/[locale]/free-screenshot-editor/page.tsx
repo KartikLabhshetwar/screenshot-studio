@@ -1,17 +1,17 @@
 import { Metadata } from "next";
 import Link from "next/link";
+import {
+  ArrowRight01Icon,
+  ColorsIcon,
+  CubeIcon,
+  Download04Icon,
+  Layers01Icon,
+  MagicWand01Icon,
+  TextFontIcon,
+  Video01Icon,
+} from "hugeicons-react";
 import { Navigation } from "@/components/landing/Navigation";
 import { Footer } from "@/components/landing/Footer";
-import {
-  ArrowRight,
-  Sparkles,
-  Palette,
-  Download,
-  Layers,
-  Video,
-  Box,
-  Type,
-} from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Free Screenshot Editor Online - Beautify Screenshots",
@@ -47,48 +47,78 @@ export const metadata: Metadata = {
   },
 };
 
+const INTER =
+  'Inter, "Inter Fallback", Arial, Helvetica, sans-serif';
+
+const ctaClassName =
+  "relative inline-flex items-center justify-center rounded-md border-0 bg-[var(--nav-cta-bg)] px-6 py-2.5 text-base font-medium text-[var(--nav-cta-fg)] shadow-none transition-[transform,box-shadow] duration-150 ease-out [text-shadow:var(--nav-cta-text-shadow)] hover:shadow-[var(--nav-cta-hover-shadow)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 active:scale-[0.97]";
+
+const secondaryCtaClassName =
+  "inline-flex items-center justify-center rounded-md px-6 py-2.5 text-base font-medium text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground active:scale-[0.99]";
+
+const cardSurface =
+  "rounded-2xl bg-card ring-1 ring-border shadow-[var(--card-edge-shadow)]";
+
 const capabilities = [
   {
-    icon: Palette,
+    icon: ColorsIcon,
     title: "100+ Backgrounds",
     description:
       "Gradients, solid colors, mesh backgrounds, and custom uploads. Make any screenshot pop with a professional backdrop.",
   },
   {
-    icon: Sparkles,
+    icon: MagicWand01Icon,
     title: "Shadows & Effects",
     description:
       "Realistic drop shadows with customizable blur, spread, offset, and color. Add depth in one click.",
   },
   {
-    icon: Layers,
+    icon: Layers01Icon,
     title: "Device Frames",
     description:
       "Wrap screenshots in macOS, Windows, Arc, or Polaroid frames. Perfect for product marketing.",
   },
   {
-    icon: Box,
+    icon: CubeIcon,
     title: "3D Perspective",
     description:
       "Tilt, rotate, and scale with real-time 3D transforms. Create eye-catching angles for presentations.",
   },
   {
-    icon: Video,
+    icon: Video01Icon,
     title: "Animation & Video Export",
     description:
       "Add keyframe animations with 20+ presets and export as MP4, WebM, or GIF. Bring static screenshots to life.",
   },
   {
-    icon: Type,
+    icon: TextFontIcon,
     title: "Text & Overlays",
     description:
       "Add captions, labels, and annotations with 25+ fonts. Layer stickers and arrows for tutorials.",
   },
   {
-    icon: Download,
+    icon: Download04Icon,
     title: "High-Res Export",
     description:
       "Export PNG or JPG at up to 5x resolution. Retina-ready images for any platform.",
+  },
+] as const;
+
+const howItWorks = [
+  {
+    step: "1",
+    title: "Upload Your Screenshot",
+    desc: "Drag and drop any image or paste from clipboard. Supports PNG, JPG, WebP, and more.",
+  },
+  {
+    step: "2",
+    title: "Style It",
+    desc: "Choose a background, add shadows, apply 3D transforms, or pick a one-click preset.",
+  },
+  {
+    step: "3",
+    title: "Export & Share",
+    desc: "Download as high-res PNG/JPG or export animations as MP4, WebM, or GIF.",
   },
 ];
 
@@ -128,15 +158,15 @@ const useCases = [
 const faqs = [
   {
     q: "Is this screenshot editor really free?",
-    a: "Yes, Screenshot Studio is 100% free with no hidden costs, premium tiers, or watermarks. Every feature is available to everyone — unlimited exports, full resolution, no restrictions.",
+    a: "Yes, Screenshot Studio is 100% free with no hidden costs, premium tiers, or watermarks. Every feature is available to everyone. Unlimited exports, full resolution, no restrictions.",
   },
   {
     q: "Do I need to install anything?",
-    a: "No. Screenshot Studio runs entirely in your browser. There is nothing to download or install — just open the editor and start editing your screenshots immediately.",
+    a: "No. Screenshot Studio runs entirely in your browser. There is nothing to download or install. Just open the editor and start editing your screenshots immediately.",
   },
   {
     q: "Do I need to create an account?",
-    a: "No signup required. Your privacy matters — we don't collect personal data or require registration. Just open the editor and start creating.",
+    a: "No signup required. Your privacy matters. We don't collect personal data or require registration. Just open the editor and start creating.",
   },
   {
     q: "What image formats are supported?",
@@ -148,12 +178,30 @@ const faqs = [
   },
   {
     q: "How does it compare to Canva or Figma?",
-    a: "Screenshot Studio is purpose-built for screenshot beautification. Unlike general-purpose editors, it offers one-click presets, 3D perspective transforms, animation timelines, and video export — all optimized for the screenshot-to-social-media workflow.",
+    a: "Screenshot Studio is purpose-built for screenshot beautification. Unlike general-purpose editors, it offers one-click presets, 3D perspective transforms, animation timelines, and video export, all optimized for the screenshot-to-social-media workflow.",
   },
 ];
 
+const featureLinks = [
+  {
+    href: "/features/screenshot-beautifier",
+    label: "Screenshot Beautifier",
+  },
+  {
+    href: "/features/animation-maker",
+    label: "Animation Maker",
+  },
+  {
+    href: "/features/3d-effects",
+    label: "3D Effects",
+  },
+  {
+    href: "/features/social-media-graphics",
+    label: "Social Media Graphics",
+  },
+] as const;
+
 export default function FreeScreenshotEditorPage() {
-  // Structured data for this page
   const structuredData = {
     "@context": "https://schema.org",
     "@graph": [
@@ -178,7 +226,7 @@ export default function FreeScreenshotEditorPage() {
         "@type": "SoftwareApplication",
         name: "Screenshot Studio - Free Screenshot Editor Online",
         description:
-          "Free screenshot editor online — beautify screenshots with backgrounds, shadows, 3D effects, animations, and video export. No signup required.",
+          "Free screenshot editor online. Beautify screenshots with backgrounds, shadows, 3D effects, animations, and video export. No signup required.",
         url: "https://screenshot-studio.com/free-screenshot-editor",
         applicationCategory: "DesignApplication",
         applicationSubCategory: "Screenshot Editor",
@@ -217,26 +265,12 @@ export default function FreeScreenshotEditorPage() {
           "@type": "HowToTool",
           name: "Screenshot Studio",
         },
-        step: [
-          {
-            "@type": "HowToStep",
-            name: "Upload Your Screenshot",
-            text: "Drag and drop any image or paste from clipboard. Supports PNG, JPG, WebP, and more.",
-            position: 1,
-          },
-          {
-            "@type": "HowToStep",
-            name: "Style It",
-            text: "Choose a background, add shadows, apply 3D transforms, or pick a one-click preset.",
-            position: 2,
-          },
-          {
-            "@type": "HowToStep",
-            name: "Export & Share",
-            text: "Download as high-res PNG/JPG or export animations as MP4, WebM, or GIF.",
-            position: 3,
-          },
-        ],
+        step: howItWorks.map((item, index) => ({
+          "@type": "HowToStep",
+          name: item.title,
+          text: item.desc,
+          position: index + 1,
+        })),
       },
       {
         "@type": "FAQPage",
@@ -258,69 +292,75 @@ export default function FreeScreenshotEditorPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
-      <Navigation ctaLabel="Open Editor" ctaHref="/" />
+      <Navigation brandName="Screenshot Studio" />
 
       <main className="flex-1">
-        {/* Hero Section */}
-        <section className="pt-32 pb-20 px-4">
-          <div className="max-w-4xl mx-auto text-center">
-            <span className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6">
-              100% Free &middot; No Signup &middot; No Watermarks
+        <section className="px-6 pb-20 pt-32">
+          <div className="mx-auto max-w-4xl text-center">
+            <span className="mb-6 inline-flex items-center gap-2 text-xs font-medium text-muted-foreground">
+              <span>100% Free</span>
+              <span className="h-3 w-px bg-border" aria-hidden />
+              <span>No Signup</span>
+              <span className="h-3 w-px bg-border" aria-hidden />
+              <span>No Watermarks</span>
             </span>
-            <h1 className="text-4xl md:text-6xl font-bold mb-6 tracking-tight">
+            <h1
+              className="mb-6 text-4xl font-semibold tracking-[-0.03em] text-foreground md:text-6xl"
+              style={{ fontFamily: INTER }}
+            >
               Free Screenshot Editor Online
             </h1>
-            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
+            <p className="mx-auto mb-8 max-w-2xl text-lg text-muted-foreground md:text-xl">
               Beautify any screenshot in seconds. Add backgrounds, shadows, 3D
-              effects, and animations — then export as image or video. No
-              signup, no downloads.
+              effects, and animations, then export as image or video. No signup,
+              no downloads.
             </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link
-                href="/"
-                className="inline-flex items-center gap-2 bg-primary text-primary-foreground font-semibold px-8 py-4 rounded-full hover:opacity-90 transition-opacity"
-              >
+            <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
+              <Link href="/" className={ctaClassName}>
                 Open Free Editor
-                <ArrowRight className="w-5 h-5" />
               </Link>
-              <Link
-                href="/features"
-                className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground font-medium px-6 py-4 transition-colors"
-              >
+              <Link href="/features" className={secondaryCtaClassName}>
                 See All Features
               </Link>
             </div>
           </div>
         </section>
 
-        {/* What You Can Do Section */}
-        <section className="py-20 px-4 bg-muted/30">
-          <div className="max-w-6xl mx-auto">
-            <div className="text-center mb-16">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">
+        <section className="border-y border-border px-6 py-20">
+          <div className="mx-auto max-w-6xl">
+            <div className="mb-16 text-center">
+              <h2
+                className="mb-4 text-3xl font-semibold tracking-[-0.03em] text-foreground md:text-4xl"
+                style={{ fontFamily: INTER }}
+              >
                 Everything You Need to Edit Screenshots
               </h2>
-              <p className="text-muted-foreground max-w-2xl mx-auto">
+              <p className="mx-auto max-w-2xl text-muted-foreground">
                 A complete screenshot editor that runs in your browser. No
-                bloated software, no learning curve — just powerful tools that
+                bloated software, no learning curve. Just powerful tools that
                 work.
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {capabilities.map((cap) => (
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {capabilities.map((cap, index) => (
                 <div
                   key={cap.title}
-                  className="flex gap-4 p-6 bg-background rounded-xl border"
+                  className={`flex gap-4 p-6 ${cardSurface} ${
+                    index === capabilities.length - 1
+                      ? "md:col-span-2 md:max-w-md md:justify-self-center lg:col-span-1 lg:col-start-2 lg:max-w-none lg:justify-self-stretch"
+                      : ""
+                  }`}
                 >
-                  <div className="flex-shrink-0">
-                    <cap.icon className="w-8 h-8 text-primary" />
-                  </div>
+                  <cap.icon
+                    className="size-6 shrink-0 text-foreground"
+                    aria-hidden
+                  />
                   <div>
-                    <h3 className="font-semibold text-lg mb-2">{cap.title}</h3>
-                    <p className="text-sm text-muted-foreground">
-                      {cap.description}
-                    </p>
+                    <h3 className="mb-2 text-base font-semibold text-foreground">
+                      {cap.title}
+                    </h3>
+                    <p className="text-sm text-muted-foreground">{cap.description}</p>
                   </div>
                 </div>
               ))}
@@ -328,11 +368,13 @@ export default function FreeScreenshotEditorPage() {
           </div>
         </section>
 
-        {/* How It Works */}
-        <section className="py-20 px-4">
-          <div className="max-w-4xl mx-auto">
-            <div className="text-center mb-16">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">
+        <section className="px-6 py-20">
+          <div className="mx-auto max-w-4xl">
+            <div className="mb-16 text-center">
+              <h2
+                className="mb-4 text-3xl font-semibold tracking-[-0.03em] text-foreground md:text-4xl"
+                style={{ fontFamily: INTER }}
+              >
                 3 Steps to Professional Screenshots
               </h2>
               <p className="text-muted-foreground">
@@ -340,29 +382,15 @@ export default function FreeScreenshotEditorPage() {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {[
-                {
-                  step: "1",
-                  title: "Upload Your Screenshot",
-                  desc: "Drag and drop any image or paste from clipboard. Supports PNG, JPG, WebP, and more.",
-                },
-                {
-                  step: "2",
-                  title: "Style It",
-                  desc: "Choose a background, add shadows, apply 3D transforms, or pick a one-click preset.",
-                },
-                {
-                  step: "3",
-                  title: "Export & Share",
-                  desc: "Download as high-res PNG/JPG or export animations as MP4, WebM, or GIF.",
-                },
-              ].map((item) => (
+            <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
+              {howItWorks.map((item) => (
                 <div key={item.step} className="text-center">
-                  <div className="flex-shrink-0 w-12 h-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-xl mx-auto mb-4">
+                  <div className="mx-auto mb-4 flex size-12 items-center justify-center rounded-md bg-primary text-base font-semibold text-primary-foreground">
                     {item.step}
                   </div>
-                  <h3 className="font-semibold text-lg mb-2">{item.title}</h3>
+                  <h3 className="mb-2 text-base font-semibold text-foreground">
+                    {item.title}
+                  </h3>
                   <p className="text-sm text-muted-foreground">{item.desc}</p>
                 </div>
               ))}
@@ -370,40 +398,39 @@ export default function FreeScreenshotEditorPage() {
           </div>
         </section>
 
-        {/* Use Cases */}
-        <section className="py-20 px-4 bg-muted/30">
-          <div className="max-w-6xl mx-auto">
-            <div className="text-center mb-16">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">
+        <section className="border-y border-border px-6 py-20">
+          <div className="mx-auto max-w-6xl">
+            <div className="mb-16 text-center">
+              <h2
+                className="mb-4 text-3xl font-semibold tracking-[-0.03em] text-foreground md:text-4xl"
+                style={{ fontFamily: INTER }}
+              >
                 Built for Every Use Case
               </h2>
-              <p className="text-muted-foreground max-w-2xl mx-auto">
+              <p className="mx-auto max-w-2xl text-muted-foreground">
                 Whether you are a developer, marketer, designer, or content
-                creator — Screenshot Studio has you covered.
+                creator, Screenshot Studio has you covered.
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
               {useCases.map((uc) => (
-                <div
-                  key={uc.title}
-                  className="p-6 bg-background border rounded-xl hover:border-primary transition-colors"
-                >
-                  <h3 className="font-semibold mb-2">{uc.title}</h3>
-                  <p className="text-sm text-muted-foreground">
-                    {uc.description}
-                  </p>
+                <div key={uc.title} className={`p-6 ${cardSurface}`}>
+                  <h3 className="mb-2 font-semibold text-foreground">{uc.title}</h3>
+                  <p className="text-sm text-muted-foreground">{uc.description}</p>
                 </div>
               ))}
             </div>
           </div>
         </section>
 
-        {/* FAQ Section */}
-        <section className="py-20 px-4">
-          <div className="max-w-3xl mx-auto">
-            <div className="text-center mb-16">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">
+        <section className="px-6 py-20">
+          <div className="mx-auto max-w-3xl">
+            <div className="mb-16 text-center">
+              <h2
+                className="mb-4 text-3xl font-semibold tracking-[-0.03em] text-foreground md:text-4xl"
+                style={{ fontFamily: INTER }}
+              >
                 Frequently Asked Questions
               </h2>
               <p className="text-muted-foreground">
@@ -413,8 +440,13 @@ export default function FreeScreenshotEditorPage() {
 
             <div className="space-y-6">
               {faqs.map((faq) => (
-                <div key={faq.q} className="border-b border-border pb-6">
-                  <h3 className="font-semibold text-lg mb-2">{faq.q}</h3>
+                <div
+                  key={faq.q}
+                  className="border-b border-border pb-6 last:border-b-0"
+                >
+                  <h3 className="mb-2 text-lg font-semibold text-foreground">
+                    {faq.q}
+                  </h3>
                   <p className="text-muted-foreground">{faq.a}</p>
                 </div>
               ))}
@@ -422,60 +454,46 @@ export default function FreeScreenshotEditorPage() {
           </div>
         </section>
 
-        {/* Internal Links Section */}
-        <section className="py-16 px-4 bg-muted/30">
-          <div className="max-w-4xl mx-auto">
-            <h2 className="text-2xl font-bold mb-8 text-center">
+        <section className="border-y border-border px-6 py-16">
+          <div className="mx-auto max-w-4xl">
+            <h2
+              className="mb-8 text-center text-2xl font-semibold tracking-[-0.03em] text-foreground"
+              style={{ fontFamily: INTER }}
+            >
               Explore More Features
             </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {[
-                {
-                  href: "/features/screenshot-beautifier",
-                  label: "Screenshot Beautifier",
-                },
-                {
-                  href: "/features/animation-maker",
-                  label: "Animation Maker",
-                },
-                {
-                  href: "/features/3d-effects",
-                  label: "3D Effects",
-                },
-                {
-                  href: "/features/social-media-graphics",
-                  label: "Social Media Graphics",
-                },
-              ].map((link) => (
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              {featureLinks.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="flex items-center justify-between p-4 bg-background border rounded-xl hover:border-primary transition-colors group"
+                  className="group flex items-center justify-between rounded-md bg-foreground/[0.04] px-4 py-3 text-sm font-medium text-foreground/90 ring-1 ring-border transition-colors hover:bg-foreground/[0.08] hover:text-foreground"
                 >
-                  <span className="font-medium text-sm">{link.label}</span>
-                  <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                  <span>{link.label}</span>
+                  <ArrowRight01Icon
+                    className="size-3.5 text-muted-foreground/70 transition-colors group-hover:text-foreground"
+                    aria-hidden
+                  />
                 </Link>
               ))}
             </div>
           </div>
         </section>
 
-        {/* CTA */}
-        <section className="py-20 px-4">
-          <div className="max-w-3xl mx-auto text-center">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+        <section className="px-6 py-20">
+          <div className="mx-auto max-w-3xl text-center">
+            <h2
+              className="mb-4 text-3xl font-semibold tracking-[-0.03em] text-foreground md:text-4xl"
+              style={{ fontFamily: INTER }}
+            >
               Start Editing Screenshots for Free
             </h2>
-            <p className="text-lg text-muted-foreground mb-8">
+            <p className="mb-8 text-lg text-muted-foreground">
               No signup. No downloads. No watermarks. Just open the editor and
               create.
             </p>
-            <Link
-              href="/"
-              className="inline-flex items-center gap-2 bg-primary text-primary-foreground font-semibold px-8 py-4 rounded-full hover:opacity-90 transition-opacity"
-            >
+            <Link href="/" className={ctaClassName}>
               Open Free Screenshot Editor
-              <ArrowRight className="w-5 h-5" />
             </Link>
           </div>
         </section>

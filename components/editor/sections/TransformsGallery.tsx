@@ -5,6 +5,7 @@ import { useImageStore, useEditorStore } from '@/lib/store';
 import { cn } from '@/lib/utils';
 import { getBackgroundCSS } from '@/lib/constants/backgrounds';
 import { aspectRatios } from '@/lib/constants/aspect-ratios';
+import { SectionWrapper } from './SectionWrapper';
 
 interface TransformPreset {
   name: string;
@@ -121,9 +122,6 @@ export function TransformsGallery() {
   const cssAspectRatio = ar ? `${ar.width} / ${ar.height}` : '4 / 3';
 
   const [selectedIndex, setSelectedIndex] = React.useState<number | null>(null);
-  const [expandedCategories, setExpandedCategories] = React.useState<Set<string>>(
-    new Set(['Popular'])
-  );
 
   React.useEffect(() => {
     const idx = ALL_PRESETS.findIndex((preset) => {
@@ -150,18 +148,6 @@ export function TransformsGallery() {
     setSelectedIndex(index);
   };
 
-  const toggleCategory = (name: string) => {
-    setExpandedCategories((prev) => {
-      const next = new Set(prev);
-      if (next.has(name)) {
-        next.delete(name);
-      } else {
-        next.add(name);
-      }
-      return next;
-    });
-  };
-
   const previewImageUrl = uploadedImageUrl || screenshot?.src || null;
 
   // Use the same background CSS as the main canvas
@@ -170,124 +156,97 @@ export function TransformsGallery() {
   const previewImageRadius = Math.round(Math.min(borderRadius, 20) * 0.3);
 
   return (
-    <div className="space-y-3">
-      {PRESET_CATEGORIES.map((category, categoryIndex) => {
-        const isExpanded = expandedCategories.has(category.name);
-        return (
-          <div key={category.name}>
-            <button
-              onClick={() => toggleCategory(category.name)}
-              className="w-full flex items-center gap-2 py-1.5 group"
-            >
-              <span className={cn(
-                'text-[10px] font-semibold uppercase tracking-widest transition-colors',
-                isExpanded ? 'text-muted-foreground' : 'text-muted-foreground/60'
-              )}>
-                {category.name}
-              </span>
-              <div className="flex-1 h-px bg-border/30" />
-              <svg
-                width="10"
-                height="10"
-                viewBox="0 0 10 10"
-                className={cn(
-                  'text-muted-foreground/50 transition-transform duration-200',
-                  !isExpanded && '-rotate-90'
-                )}
-              >
-                <path d="M3 2L7 5L3 8" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </button>
+    <div className="space-y-1">
+      {PRESET_CATEGORIES.map((category, categoryIndex) => (
+        <SectionWrapper
+          key={category.name}
+          title={category.name}
+          defaultOpen={category.name === 'Popular'}
+        >
+          <div className="space-y-2">
+            {category.presets.map((preset, presetIndex) => {
+              const globalIndex = getGlobalIndex(categoryIndex, presetIndex);
+              const isSelected = selectedIndex === globalIndex;
+              const { perspective, rotateX, rotateY, rotateZ, translateX, translateY, scale } = preset.values;
+              return (
+                <button
+                  key={preset.name}
+                  type="button"
+                  onClick={() => applyPreset(preset, globalIndex)}
+                  className={cn(
+                    'relative w-full rounded-md overflow-hidden transition-all duration-200 group/card cursor-pointer',
+                    'border',
+                    isSelected
+                      ? 'border-primary ring-1 ring-foreground/20'
+                      : 'border-foreground/10 hover:border-foreground/20'
+                  )}
+                  style={{ aspectRatio: cssAspectRatio }}
+                >
+                  <div
+                    className="absolute inset-0"
+                    style={{
+                      ...backgroundStyle,
+                      borderRadius: `${previewBorderRadius}px`,
+                    }}
+                  />
 
-            {isExpanded && (
-              <div className="space-y-2 pt-1 pb-2">
-                {category.presets.map((preset, presetIndex) => {
-                  const globalIndex = getGlobalIndex(categoryIndex, presetIndex);
-                  const isSelected = selectedIndex === globalIndex;
-                  const { perspective, rotateX, rotateY, rotateZ, translateX, translateY, scale } = preset.values;
-                  return (
-                    <button
-                      key={preset.name}
-                      onClick={() => applyPreset(preset, globalIndex)}
-                      className={cn(
-                        'relative w-full rounded-xl overflow-hidden transition-all duration-200 group/card',
-                        'border-2',
-                        isSelected
-                          ? 'border-primary ring-1 ring-primary/20'
-                          : 'border-border/30 hover:border-border/60'
-                      )}
-                      style={{ aspectRatio: cssAspectRatio }}
-                    >
-                      {/* Background - same as canvas */}
+                  <div
+                    className="absolute inset-0 flex items-center justify-center"
+                    style={{ perspective: `${perspective}px` }}
+                  >
+                    {previewImageUrl ? (
                       <div
-                        className="absolute inset-0"
+                        className="w-[85%] h-[85%] transition-transform duration-150"
                         style={{
-                          ...backgroundStyle,
-                          borderRadius: `${previewBorderRadius}px`,
+                          transform: `translate(${translateX}%, ${translateY}%) rotateX(${rotateX}deg) rotateY(${rotateY}deg) rotateZ(${rotateZ}deg) scale(${scale})`,
+                          transformOrigin: 'center center',
+                        }}
+                      >
+                        <img
+                          src={previewImageUrl}
+                          alt={preset.name}
+                          className="w-full h-full object-contain"
+                          style={{
+                            borderRadius: `${previewImageRadius}px`,
+                            filter: imageShadow.enabled
+                              ? `drop-shadow(${imageShadow.offsetX * 0.15}px ${imageShadow.offsetY * 0.15}px ${(imageShadow.blur + imageShadow.spread) * 0.15}px ${imageShadow.color})`
+                              : undefined,
+                          }}
+                        />
+                      </div>
+                    ) : (
+                      <div
+                        className="w-[85%] h-[85%] bg-foreground/[0.08] rounded-md border border-foreground/10"
+                        style={{
+                          transform: `translate(${translateX}%, ${translateY}%) rotateX(${rotateX}deg) rotateY(${rotateY}deg) rotateZ(${rotateZ}deg) scale(${scale})`,
+                          transformOrigin: 'center center',
                         }}
                       />
+                    )}
+                  </div>
 
-                      {/* 3D transform preview - perspective on parent, transform on child */}
-                      <div
-                        className="absolute inset-0 flex items-center justify-center"
-                        style={{ perspective: `${perspective}px` }}
-                      >
-                        {previewImageUrl ? (
-                          <div
-                            className="w-[85%] h-[85%] transition-transform duration-150"
-                            style={{
-                              transform: `translate(${translateX}%, ${translateY}%) rotateX(${rotateX}deg) rotateY(${rotateY}deg) rotateZ(${rotateZ}deg) scale(${scale})`,
-                              transformOrigin: 'center center',
-                            }}
-                          >
-                            <img
-                              src={previewImageUrl}
-                              alt={preset.name}
-                              className="w-full h-full object-contain"
-                              style={{
-                                borderRadius: `${previewImageRadius}px`,
-                                filter: imageShadow.enabled
-                                  ? `drop-shadow(${imageShadow.offsetX * 0.15}px ${imageShadow.offsetY * 0.15}px ${(imageShadow.blur + imageShadow.spread) * 0.15}px ${imageShadow.color})`
-                                  : undefined,
-                              }}
-                            />
-                          </div>
-                        ) : (
-                          <div
-                            className="w-[85%] h-[85%] bg-muted-foreground/20 rounded-md border border-border/20"
-                            style={{
-                              transform: `translate(${translateX}%, ${translateY}%) rotateX(${rotateX}deg) rotateY(${rotateY}deg) rotateZ(${rotateZ}deg) scale(${scale})`,
-                              transformOrigin: 'center center',
-                            }}
-                          />
-                        )}
-                      </div>
-
-                      {/* Name badge */}
-                      <div className={cn(
-                        'absolute bottom-0 inset-x-0 flex justify-center pb-1.5 transition-opacity duration-150',
-                        isSelected ? 'opacity-100' : 'opacity-0 group-hover/card:opacity-100'
-                      )}>
-                        <span className={cn(
-                          'px-2 py-0.5 rounded-full text-[10px] font-medium backdrop-blur-md',
-                          isSelected
-                            ? 'bg-primary/90 text-primary-foreground'
-                            : 'bg-foreground/60 text-background'
-                        )}>
-                          {preset.name}
-                        </span>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            )}
+                  <div className={cn(
+                    'absolute bottom-0 inset-x-0 flex justify-center pb-1.5 transition-opacity duration-150',
+                    isSelected ? 'opacity-100' : 'opacity-0 group-hover/card:opacity-100'
+                  )}>
+                    <span className={cn(
+                      'px-2 py-0.5 rounded-md text-[10px] font-medium border',
+                      isSelected
+                        ? 'bg-card text-foreground border-foreground/20'
+                        : 'bg-background/90 text-muted-foreground border-foreground/10'
+                    )}>
+                      {preset.name}
+                    </span>
+                  </div>
+                </button>
+              );
+            })}
           </div>
-        );
-      })}
+        </SectionWrapper>
+      ))}
 
       {!previewImageUrl && (
-        <div className="p-3 rounded-lg bg-muted/50 border border-border text-center">
+        <div className="p-3 rounded-md bg-foreground/[0.04] border border-foreground/10 text-center">
           <p className="text-xs text-muted-foreground">
             Upload an image to see transform previews
           </p>

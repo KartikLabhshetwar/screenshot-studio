@@ -1,16 +1,8 @@
-/**
- * Hook for getting aspect ratio dimensions
- * Provides reactive dimensions based on selected aspect ratio
- */
-
 import { useMemo, useState, useEffect } from 'react';
 import { useImageStore } from '@/lib/store';
 import { getAspectRatioPreset, calculateFitDimensions, getAspectRatioCSS } from '@/lib/aspect-ratio-utils';
+import { MOBILE_BREAKPOINT } from '@/hooks/use-mobile';
 
-/**
- * Hook to get canvas dimensions based on selected aspect ratio
- * Returns dimensions that fit within viewport constraints
- */
 export function useAspectRatioDimensions(options?: {
   maxWidth?: number;
   maxHeight?: number;
@@ -25,7 +17,6 @@ export function useAspectRatioDimensions(options?: {
     
     const { maxWidth, maxHeight } = options || {};
     
-    // If constraints provided, calculate fit dimensions
     if (maxWidth || maxHeight) {
       const fitDimensions = calculateFitDimensions(
         preset.width,
@@ -41,7 +32,6 @@ export function useAspectRatioDimensions(options?: {
       };
     }
     
-    // Return original dimensions
     return {
       width: preset.width,
       height: preset.height,
@@ -54,16 +44,14 @@ export function useAspectRatioDimensions(options?: {
   return dimensions;
 }
 
-/**
- * Hook to get responsive canvas dimensions that fit within viewport
- * Automatically calculates max dimensions based on viewport size
- * Reactively updates when window is resized
- */
 export function useResponsiveCanvasDimensions() {
-  const { selectedAspectRatio } = useImageStore();
+  const selectedAspectRatio = useImageStore((s) => s.selectedAspectRatio);
+  const showTimeline = useImageStore((s) => s.showTimeline);
+  const hasContent = useImageStore(
+    (s) => !!s.uploadedImageUrl || s.slides.length > 0
+  );
   const [viewportSize, setViewportSize] = useState({ width: 1920, height: 1080 });
   
-  // Track viewport size changes
   useEffect(() => {
     const updateViewportSize = () => {
       setViewportSize({
@@ -72,10 +60,8 @@ export function useResponsiveCanvasDimensions() {
       });
     };
     
-    // Set initial size
     updateViewportSize();
-    
-    // Listen for resize events
+
     window.addEventListener('resize', updateViewportSize);
     return () => window.removeEventListener('resize', updateViewportSize);
   }, []);
@@ -86,29 +72,34 @@ export function useResponsiveCanvasDimensions() {
       return { width: 1920, height: 1080, aspectRatio: '16/9' };
     }
     
-    // Determine layout constraints based on viewport size.
     // On mobile the side panels are hidden inside sheets, so we should not
     // subtract their desktop width (otherwise calculations go negative and
     // the canvas collapses). This keeps the preview and export canvases in sync.
-    const MOBILE_BREAKPOINT = 768;
+    // Must match useIsMobile / EditorLayout (1024), not Tailwind md (768).
     const isMobileViewport = viewportSize.width < MOBILE_BREAKPOINT;
-    const sidePanelsWidth = isMobileViewport ? 0 : 640; // left + right panels on desktop
-    const horizontalPadding = isMobileViewport ? 32 : 48; // reduce padding on small screens
-    const verticalPadding = isMobileViewport ? 140 : 200; // header + footer allowance
+    // Panels are w-[260px] each (LeftEditPanel / RightSettingsPanel)
+    const sidePanelsWidth = isMobileViewport ? 0 : 520;
+    // Match stage chrome: p-3 (24) / md:p-6 (48). Keep a tiny gutter so the shell
+    // never clips against the panels.
+    const horizontalPadding = isMobileViewport ? 32 : 56;
+    // header (h-16 = 64) + stage vertical pad
+    let verticalPadding = isMobileViewport ? 120 : 112;
+    // Desktop Animate chip docks under the stage (h-9 + bottom-4 + gap).
+    // Portrait ratios are height-bound, so without this the chip overlaps.
+    const reserveAnimateChip =
+      !isMobileViewport && hasContent && !showTimeline;
+    if (reserveAnimateChip) {
+      verticalPadding += 56;
+    }
 
     const rawAvailableWidth = viewportSize.width - sidePanelsWidth - horizontalPadding;
     const rawAvailableHeight = viewportSize.height - verticalPadding;
 
-    // Prevent negative/too-small values so fit calculations remain stable.
+    // Fit exactly to the stage viewport — no overscale then CSS max-width clamp
+    // (that combo was shrinking the empty upload frame).
     const MIN_AVAILABLE = 320;
-    const availableWidth = Math.max(rawAvailableWidth, MIN_AVAILABLE);
-    const availableHeight = Math.max(rawAvailableHeight, MIN_AVAILABLE);
-
-    // Allow a little breathing room on larger screens without over-scaling mobile.
-    const widthScale = isMobileViewport ? 1 : 1.1;
-    const heightScale = isMobileViewport ? 1 : 1.1;
-    const maxWidth = Math.min(availableWidth * widthScale, 3000);
-    const maxHeight = Math.min(availableHeight * heightScale, 1500);
+    const maxWidth = Math.max(rawAvailableWidth, MIN_AVAILABLE);
+    const maxHeight = Math.max(rawAvailableHeight, MIN_AVAILABLE);
     
     const fitDimensions = calculateFitDimensions(
       preset.width,
@@ -123,8 +114,13 @@ export function useResponsiveCanvasDimensions() {
       originalWidth: preset.width,
       originalHeight: preset.height,
     };
-  }, [selectedAspectRatio, viewportSize.width, viewportSize.height]);
+  }, [
+    selectedAspectRatio,
+    viewportSize.width,
+    viewportSize.height,
+    hasContent,
+    showTimeline,
+  ]);
   
   return dimensions;
 }
-

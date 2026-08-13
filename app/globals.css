@@ -3,72 +3,72 @@
 
 /* SF Pro Display - Local Font */
 @font-face {
-  font-family: 'SF Pro Display';
-  src: url('/fonts/SFPRODISPLAYREGULAR.OTF') format('opentype');
+  font-family: "SF Pro Display";
+  src: url("/fonts/SFPRODISPLAYREGULAR.OTF") format("opentype");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'SF Pro Display';
-  src: url('/fonts/SFPRODISPLAYMEDIUM.OTF') format('opentype');
+  font-family: "SF Pro Display";
+  src: url("/fonts/SFPRODISPLAYMEDIUM.OTF") format("opentype");
   font-weight: 500;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'SF Pro Display';
-  src: url('/fonts/SFPRODISPLAYBOLD.OTF') format('opentype');
+  font-family: "SF Pro Display";
+  src: url("/fonts/SFPRODISPLAYBOLD.OTF") format("opentype");
   font-weight: 700;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'SF Pro Display';
-  src: url('/fonts/SFPRODISPLAYLIGHTITALIC.OTF') format('opentype');
+  font-family: "SF Pro Display";
+  src: url("/fonts/SFPRODISPLAYLIGHTITALIC.OTF") format("opentype");
   font-weight: 300;
   font-style: italic;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'SF Pro Display';
-  src: url('/fonts/SFPRODISPLAYTHINITALIC.OTF') format('opentype');
+  font-family: "SF Pro Display";
+  src: url("/fonts/SFPRODISPLAYTHINITALIC.OTF") format("opentype");
   font-weight: 100;
   font-style: italic;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'SF Pro Display';
-  src: url('/fonts/SFPRODISPLAYULTRALIGHTITALIC.OTF') format('opentype');
+  font-family: "SF Pro Display";
+  src: url("/fonts/SFPRODISPLAYULTRALIGHTITALIC.OTF") format("opentype");
   font-weight: 200;
   font-style: italic;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'SF Pro Display';
-  src: url('/fonts/SFPRODISPLAYSEMIBOLDITALIC.OTF') format('opentype');
+  font-family: "SF Pro Display";
+  src: url("/fonts/SFPRODISPLAYSEMIBOLDITALIC.OTF") format("opentype");
   font-weight: 600;
   font-style: italic;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'SF Pro Display';
-  src: url('/fonts/SFPRODISPLAYHEAVYITALIC.OTF') format('opentype');
+  font-family: "SF Pro Display";
+  src: url("/fonts/SFPRODISPLAYHEAVYITALIC.OTF") format("opentype");
   font-weight: 800;
   font-style: italic;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'SF Pro Display';
-  src: url('/fonts/SFPRODISPLAYBLACKITALIC.OTF') format('opentype');
+  font-family: "SF Pro Display";
+  src: url("/fonts/SFPRODISPLAYBLACKITALIC.OTF") format("opentype");
   font-weight: 900;
   font-style: italic;
   font-display: swap;
@@ -79,11 +79,11 @@
 :root {
   --background: #ffffff;
   --foreground: #1e1e1e;
-  --card: #f9f9f9;
+  --card: #f5f5f5;
   --card-foreground: #1e1e1e;
   --popover: #ffffff;
   --popover-foreground: #1e1e1e;
-  --primary: #059669;
+  --primary: #0a0a0a;
   --primary-foreground: #ffffff;
   --secondary: #f0f0f0;
   --secondary-foreground: #1e1e1e;
@@ -95,23 +95,24 @@
   --destructive-foreground: #ffffff;
   --border: #e5e5e5;
   --input: #e5e5e5;
-  --ring: #059669;
-  --chart-1: #059669;
-  --chart-2: #34c759;
+  --ring: #737373;
+  --chart-1: #0a0a0a;
+  --chart-2: #737373;
   --chart-3: #ff9500;
   --chart-4: #af52de;
   --chart-5: #ff3b30;
   --sidebar: #ffffff;
   --sidebar-foreground: #1e1e1e;
-  --sidebar-primary: #059669;
+  --sidebar-primary: #0a0a0a;
   --sidebar-primary-foreground: #ffffff;
   --sidebar-accent: #f0f0f0;
   --sidebar-accent-foreground: #1e1e1e;
   --sidebar-border: #e5e5e5;
-  --sidebar-ring: #059669;
-  --font-sans: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --sidebar-ring: #737373;
+  --font-sans:
+    Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-serif: Georgia, serif;
-  --font-mono: 'Fira Code', monospace;
+  --font-mono: "Fira Code", monospace;
   --radius: 0.5rem;
   --shadow-x: 0px;
   --shadow-y: 2px;
@@ -121,52 +122,73 @@
   --shadow-color: #000000;
   --shadow-2xs: 0px 2px 10px 0px hsl(0 0% 0% / 0.03);
   --shadow-xs: 0px 2px 10px 0px hsl(0 0% 0% / 0.03);
-  --shadow-sm: 0px 2px 10px 0px hsl(0 0% 0% / 0.05), 0px 1px 2px -1px hsl(0 0% 0% / 0.05);
-  --shadow: 0px 2px 10px 0px hsl(0 0% 0% / 0.05), 0px 1px 2px -1px hsl(0 0% 0% / 0.05);
-  --shadow-md: 0px 2px 10px 0px hsl(0 0% 0% / 0.05), 0px 2px 4px -1px hsl(0 0% 0% / 0.05);
-  --shadow-lg: 0px 2px 10px 0px hsl(0 0% 0% / 0.05), 0px 4px 6px -1px hsl(0 0% 0% / 0.05);
-  --shadow-xl: 0px 2px 10px 0px hsl(0 0% 0% / 0.05), 0px 8px 10px -1px hsl(0 0% 0% / 0.05);
+  --shadow-sm:
+    0px 2px 10px 0px hsl(0 0% 0% / 0.05), 0px 1px 2px -1px hsl(0 0% 0% / 0.05);
+  --shadow:
+    0px 2px 10px 0px hsl(0 0% 0% / 0.05), 0px 1px 2px -1px hsl(0 0% 0% / 0.05);
+  --shadow-md:
+    0px 2px 10px 0px hsl(0 0% 0% / 0.05), 0px 2px 4px -1px hsl(0 0% 0% / 0.05);
+  --shadow-lg:
+    0px 2px 10px 0px hsl(0 0% 0% / 0.05), 0px 4px 6px -1px hsl(0 0% 0% / 0.05);
+  --shadow-xl:
+    0px 2px 10px 0px hsl(0 0% 0% / 0.05), 0px 8px 10px -1px hsl(0 0% 0% / 0.05);
   --shadow-2xl: 0px 2px 10px 0px hsl(0 0% 0% / 0.13);
   --tracking-normal: -0.01em;
   --spacing: 0.25rem;
+  --nav-cta-bg: #ffffff;
+  --nav-cta-fg: #0a0a0a;
+  --nav-cta-glow: rgba(255, 255, 255, 0.5);
+  --bento-glow-rgb: 255, 255, 255;
+  --nav-cta-text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  --nav-cta-hover-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.1),
+    0 3px 5px var(--nav-cta-glow),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  --card-highlight-shadow: inset 0 1px 0 rgba(0, 0, 0, 0.06);
+  --card-edge-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --preview-ambient-glow: rgba(0, 0, 0, 0.04);
+  --preview-shell-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.04),
+    0 24px 64px rgba(0, 0, 0, 0.2);
 }
 
 .dark {
-  --background: #1e1e1e;
+  --background: #0a0a0a;
   --foreground: #e0e0e0;
-  --card: #2c2c2c;
+  --card: #171717;
   --card-foreground: #e0e0e0;
-  --popover: #2c2c2c;
+  --popover: #171717;
   --popover-foreground: #e0e0e0;
-  --primary: #34d399;
-  --primary-foreground: #052e16;
-  --secondary: #333333;
+  --primary: #ffffff;
+  --primary-foreground: #0a0a0a;
+  --secondary: #1f1f1f;
   --secondary-foreground: #e0e0e0;
-  --muted: #333333;
-  --muted-foreground: #a0a0a0;
-  --accent: #444444;
+  --muted: #1f1f1f;
+  --muted-foreground: #a3a3a3;
+  --accent: #242424;
   --accent-foreground: #ffffff;
   --destructive: #ff453a;
   --destructive-foreground: #ffffff;
-  --border: #3c3c3c;
-  --input: #3c3c3c;
-  --ring: #34d399;
-  --chart-1: #34d399;
-  --chart-2: #32d74b;
+  --border: #2a2a2a;
+  --input: #2a2a2a;
+  --ring: #a3a3a3;
+  --chart-1: #ffffff;
+  --chart-2: #a3a3a3;
   --chart-3: #ff9f0a;
   --chart-4: #bf5af2;
   --chart-5: #ff453a;
-  --sidebar: #1e1e1e;
+  --sidebar: #171717;
   --sidebar-foreground: #e0e0e0;
-  --sidebar-primary: #34d399;
-  --sidebar-primary-foreground: #052e16;
-  --sidebar-accent: #2c2c2c;
+  --sidebar-primary: #ffffff;
+  --sidebar-primary-foreground: #0a0a0a;
+  --sidebar-accent: #242424;
   --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: #3c3c3c;
-  --sidebar-ring: #34d399;
-  --font-sans: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --sidebar-border: #2a2a2a;
+  --sidebar-ring: #a3a3a3;
+  --font-sans:
+    Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-serif: Georgia, serif;
-  --font-mono: 'Fira Code', monospace;
+  --font-mono: "Fira Code", monospace;
   --radius: 0.5rem;
   --shadow-x: 0px;
   --shadow-y: 4px;
@@ -176,12 +198,31 @@
   --shadow-color: #000000;
   --shadow-2xs: 0px 4px 12px 0px hsl(0 0% 0% / 0.15);
   --shadow-xs: 0px 4px 12px 0px hsl(0 0% 0% / 0.15);
-  --shadow-sm: 0px 4px 12px 0px hsl(0 0% 0% / 0.30), 0px 1px 2px -1px hsl(0 0% 0% / 0.30);
-  --shadow: 0px 4px 12px 0px hsl(0 0% 0% / 0.30), 0px 1px 2px -1px hsl(0 0% 0% / 0.30);
-  --shadow-md: 0px 4px 12px 0px hsl(0 0% 0% / 0.30), 0px 2px 4px -1px hsl(0 0% 0% / 0.30);
-  --shadow-lg: 0px 4px 12px 0px hsl(0 0% 0% / 0.30), 0px 4px 6px -1px hsl(0 0% 0% / 0.30);
-  --shadow-xl: 0px 4px 12px 0px hsl(0 0% 0% / 0.30), 0px 8px 10px -1px hsl(0 0% 0% / 0.30);
+  --shadow-sm:
+    0px 4px 12px 0px hsl(0 0% 0% / 0.3), 0px 1px 2px -1px hsl(0 0% 0% / 0.3);
+  --shadow:
+    0px 4px 12px 0px hsl(0 0% 0% / 0.3), 0px 1px 2px -1px hsl(0 0% 0% / 0.3);
+  --shadow-md:
+    0px 4px 12px 0px hsl(0 0% 0% / 0.3), 0px 2px 4px -1px hsl(0 0% 0% / 0.3);
+  --shadow-lg:
+    0px 4px 12px 0px hsl(0 0% 0% / 0.3), 0px 4px 6px -1px hsl(0 0% 0% / 0.3);
+  --shadow-xl:
+    0px 4px 12px 0px hsl(0 0% 0% / 0.3), 0px 8px 10px -1px hsl(0 0% 0% / 0.3);
   --shadow-2xl: 0px 4px 12px 0px hsl(0 0% 0% / 0.75);
+  --nav-cta-bg: #ffffff;
+  --nav-cta-fg: #0a0a0a;
+  --nav-cta-glow: rgba(255, 255, 255, 0.5);
+  --nav-cta-text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  --nav-cta-hover-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.1),
+    0 3px 5px var(--nav-cta-glow),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  --card-highlight-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  --card-edge-shadow: 0 1px 2px 0 rgba(255, 255, 255, 0.05);
+  --preview-ambient-glow: rgba(255, 255, 255, 0.04);
+  --preview-shell-shadow:
+    0 1px 2px rgba(255, 255, 255, 0.04),
+    0 24px 64px rgba(0, 0, 0, 0.45);
 }
 
 @theme inline {
@@ -260,8 +301,16 @@
     overflow-y: auto;
   }
 
+  /* Marketing nav: viewport scrolling so fixed header participates in overscroll bounce */
+  body.nav-overscroll {
+    overflow-x: clip;
+    overflow-y: visible;
+  }
+
   /* Improve touch targets on mobile */
-  button, a, [role="button"] {
+  button,
+  a,
+  [role="button"] {
     @apply touch-manipulation;
   }
 
@@ -275,7 +324,9 @@
 
   /* Prevent iOS zoom on focus — only enforce 16px on mobile */
   @media (max-width: 768px) {
-    input, textarea, select {
+    input,
+    textarea,
+    select {
       font-size: 16px;
     }
   }
@@ -287,7 +338,9 @@
   }
 
   @media (max-width: 768px) {
-    button, a, [role="button"] {
+    button,
+    a,
+    [role="button"] {
       touch-action: manipulation;
     }
   }
@@ -336,6 +389,58 @@
     animation-play-state: paused;
   }
 
+  /* Editor stage: soft breathe while empty / loading (size stays fixed) */
+  @keyframes canvas-stage-breathe {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.88;
+    }
+  }
+
+  .canvas-stage-breathe {
+    animation: canvas-stage-breathe 2.4s ease-in-out infinite;
+  }
+
+  @keyframes canvas-stage-shimmer {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  .canvas-stage-shimmer {
+    background: linear-gradient(
+      105deg,
+      transparent 40%,
+      rgba(255, 255, 255, 0.14) 50%,
+      transparent 60%
+    );
+    animation: canvas-stage-shimmer 1.35s ease-in-out infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .canvas-stage-breathe,
+    .canvas-stage-shimmer {
+      animation: none;
+    }
+  }
+}
+
+.landing-heading {
+  background-image: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.38) 0%,
+    rgba(255, 255, 255, 0.72) 42%,
+    #ffffff 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 /* Moveable control box — must be outside @layer base so it isn't

@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Navigation } from "@/components/landing/Navigation";
 import { Footer } from "@/components/landing/Footer";
-import { ArrowRight, Check, X } from "lucide-react";
+import { ArrowRight01Icon, Tick02Icon, Cancel01Icon } from "hugeicons-react";
 import {
   comparisons,
   getComparison,
@@ -38,6 +38,48 @@ export async function generateMetadata({
       canonical: `/compare/${data.slug}`,
     },
   };
+}
+
+const ctaClassName =
+  "relative inline-flex items-center justify-center rounded-md border-0 bg-[var(--nav-cta-bg)] px-6 py-2.5 text-base font-medium text-[var(--nav-cta-fg)] shadow-none transition-[transform,box-shadow] duration-150 ease-out [text-shadow:var(--nav-cta-text-shadow)] hover:shadow-[var(--nav-cta-hover-shadow)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 active:scale-[0.97]";
+
+const chipLinkClassName =
+  "group flex items-center justify-between rounded-md bg-foreground/[0.04] px-4 py-3 text-sm font-medium text-foreground/90 ring-1 ring-border transition-colors hover:bg-foreground/[0.08] hover:text-foreground";
+
+const INTER =
+  "Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif";
+
+function FeatureStatus({
+  value,
+  emphasize,
+}: {
+  value: string;
+  emphasize?: boolean;
+}): React.JSX.Element {
+  const unavailable = value.toLowerCase() === "not available";
+
+  return (
+    <span className="flex items-center gap-2">
+      {unavailable ? (
+        <Cancel01Icon
+          size={16}
+          strokeWidth={1.75}
+          className="shrink-0 text-muted-foreground/70"
+        />
+      ) : (
+        <Tick02Icon
+          size={16}
+          strokeWidth={1.75}
+          className={
+            emphasize
+              ? "shrink-0 text-foreground"
+              : "shrink-0 text-muted-foreground"
+          }
+        />
+      )}
+      {value}
+    </span>
+  );
 }
 
 export default async function ComparisonPage({ params }: PageProps) {
@@ -105,53 +147,56 @@ export default async function ComparisonPage({ params }: PageProps) {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="flex min-h-screen flex-col bg-background text-foreground">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
-      <Navigation ctaLabel="Open Editor" ctaHref="/" />
+      <Navigation />
 
       <main className="flex-1">
-        {/* Hero */}
-        <section className="pt-32 pb-20 px-4">
-          <div className="max-w-4xl mx-auto text-center">
-            <span className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6">
+        <section className="px-6 pb-20 pt-32">
+          <div className="mx-auto max-w-4xl text-center">
+            <p
+              className="mb-6 text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground"
+              style={{ fontFamily: INTER }}
+            >
               Comparison
-            </span>
-            <h1 className="text-4xl md:text-5xl font-bold mb-6 tracking-tight">
+            </p>
+            <h1
+              className="mb-6 text-4xl font-semibold tracking-[-0.04em] text-foreground md:text-5xl"
+              style={{ fontFamily: INTER }}
+            >
               Screenshot Studio vs {data.competitorName}
             </h1>
-            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
+            <p className="mx-auto mb-8 max-w-2xl text-lg text-muted-foreground md:text-xl">
               {data.tagline}
             </p>
-            <Link
-              href="/"
-              className="inline-flex items-center gap-2 bg-primary text-primary-foreground font-semibold px-8 py-4 rounded-full hover:opacity-90 transition-opacity"
-            >
+            <Link href="/" className={ctaClassName}>
               Try Screenshot Studio Free
-              <ArrowRight className="w-5 h-5" />
             </Link>
           </div>
         </section>
 
-        {/* Feature Comparison Table */}
-        <section className="py-20 px-4 bg-muted/30">
-          <div className="max-w-4xl mx-auto">
-            <h2 className="text-3xl font-bold text-center mb-12">
+        <section className="border-t border-border px-6 py-20">
+          <div className="mx-auto max-w-4xl">
+            <h2
+              className="mb-12 text-center text-3xl font-semibold tracking-[-0.03em] text-foreground"
+              style={{ fontFamily: INTER }}
+            >
               Feature Comparison
             </h2>
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto rounded-2xl bg-card ring-1 ring-inset ring-border shadow-[var(--card-highlight-shadow)]">
               <table className="w-full border-collapse">
                 <thead>
                   <tr className="border-b border-border">
-                    <th className="text-left py-4 px-4 font-semibold text-muted-foreground">
+                    <th className="px-4 py-4 text-left text-sm font-semibold text-muted-foreground">
                       Feature
                     </th>
-                    <th className="text-left py-4 px-4 font-semibold text-primary">
+                    <th className="px-4 py-4 text-left text-sm font-semibold text-foreground">
                       Screenshot Studio
                     </th>
-                    <th className="text-left py-4 px-4 font-semibold text-muted-foreground">
+                    <th className="px-4 py-4 text-left text-sm font-semibold text-muted-foreground">
                       {data.competitorName}
                     </th>
                   </tr>
@@ -160,31 +205,16 @@ export default async function ComparisonPage({ params }: PageProps) {
                   {data.features.map((feature) => (
                     <tr
                       key={feature.name}
-                      className="border-b border-border/50"
+                      className="border-b border-border/50 last:border-b-0"
                     >
-                      <td className="py-3 px-4 font-medium text-sm">
+                      <td className="px-4 py-3 text-sm font-medium text-foreground">
                         {feature.name}
                       </td>
-                      <td className="py-3 px-4 text-sm">
-                        <span className="flex items-center gap-2">
-                          {feature.studio.toLowerCase() === "not available" ? (
-                            <X className="w-4 h-4 text-destructive flex-shrink-0" />
-                          ) : (
-                            <Check className="w-4 h-4 text-primary flex-shrink-0" />
-                          )}
-                          {feature.studio}
-                        </span>
+                      <td className="px-4 py-3 text-sm text-foreground">
+                        <FeatureStatus value={feature.studio} emphasize />
                       </td>
-                      <td className="py-3 px-4 text-sm text-muted-foreground">
-                        <span className="flex items-center gap-2">
-                          {feature.competitor.toLowerCase() ===
-                          "not available" ? (
-                            <X className="w-4 h-4 text-destructive flex-shrink-0" />
-                          ) : (
-                            <Check className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-                          )}
-                          {feature.competitor}
-                        </span>
+                      <td className="px-4 py-3 text-sm text-muted-foreground">
+                        <FeatureStatus value={feature.competitor} />
                       </td>
                     </tr>
                   ))}
@@ -194,25 +224,34 @@ export default async function ComparisonPage({ params }: PageProps) {
           </div>
         </section>
 
-        {/* Why Switch / Advantages */}
-        <section className="py-20 px-4">
-          <div className="max-w-5xl mx-auto">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+        <section className="border-t border-border px-6 py-20">
+          <div className="mx-auto max-w-5xl">
+            <div className="grid grid-cols-1 gap-12 md:grid-cols-2">
               <div>
-                <h2 className="text-2xl font-bold mb-6 text-primary">
+                <h2
+                  className="mb-6 text-2xl font-semibold tracking-[-0.03em] text-foreground"
+                  style={{ fontFamily: INTER }}
+                >
                   Screenshot Studio Advantages
                 </h2>
                 <ul className="space-y-3">
                   {data.studioAdvantages.map((adv) => (
                     <li key={adv} className="flex items-start gap-3">
-                      <Check className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                      <span>{adv}</span>
+                      <Tick02Icon
+                        size={20}
+                        strokeWidth={1.75}
+                        className="mt-0.5 shrink-0 text-foreground"
+                      />
+                      <span className="text-foreground">{adv}</span>
                     </li>
                   ))}
                 </ul>
               </div>
               <div>
-                <h2 className="text-2xl font-bold mb-6 text-muted-foreground">
+                <h2
+                  className="mb-6 text-2xl font-semibold tracking-[-0.03em] text-muted-foreground"
+                  style={{ fontFamily: INTER }}
+                >
                   {data.competitorName} Limitations
                 </h2>
                 <ul className="space-y-3">
@@ -221,7 +260,11 @@ export default async function ComparisonPage({ params }: PageProps) {
                       key={lim}
                       className="flex items-start gap-3 text-muted-foreground"
                     >
-                      <X className="w-5 h-5 text-destructive mt-0.5 flex-shrink-0" />
+                      <Cancel01Icon
+                        size={20}
+                        strokeWidth={1.75}
+                        className="mt-0.5 shrink-0 text-muted-foreground/70"
+                      />
                       <span>{lim}</span>
                     </li>
                   ))}
@@ -231,24 +274,35 @@ export default async function ComparisonPage({ params }: PageProps) {
           </div>
         </section>
 
-        {/* Verdict */}
-        <section className="py-16 px-4 bg-muted/30">
-          <div className="max-w-3xl mx-auto text-center">
-            <h2 className="text-2xl font-bold mb-4">The Verdict</h2>
+        <section className="border-t border-border px-6 py-16">
+          <div className="mx-auto max-w-3xl text-center">
+            <h2
+              className="mb-4 text-2xl font-semibold tracking-[-0.03em] text-foreground"
+              style={{ fontFamily: INTER }}
+            >
+              The Verdict
+            </h2>
             <p className="text-lg text-muted-foreground">{data.verdict}</p>
           </div>
         </section>
 
-        {/* FAQ */}
-        <section className="py-20 px-4">
-          <div className="max-w-3xl mx-auto">
-            <h2 className="text-3xl font-bold text-center mb-12">
+        <section className="border-t border-border px-6 py-20">
+          <div className="mx-auto max-w-3xl">
+            <h2
+              className="mb-12 text-center text-3xl font-semibold tracking-[-0.03em] text-foreground"
+              style={{ fontFamily: INTER }}
+            >
               Frequently Asked Questions
             </h2>
             <div className="space-y-6">
               {data.faqs.map((faq) => (
                 <div key={faq.q} className="border-b border-border pb-6">
-                  <h3 className="font-semibold text-lg mb-2">{faq.q}</h3>
+                  <h3
+                    className="mb-2 text-lg font-semibold tracking-[-0.02em] text-foreground"
+                    style={{ fontFamily: INTER }}
+                  >
+                    {faq.q}
+                  </h3>
                   <p className="text-muted-foreground">{faq.a}</p>
                 </div>
               ))}
@@ -256,45 +310,49 @@ export default async function ComparisonPage({ params }: PageProps) {
           </div>
         </section>
 
-        {/* Other Comparisons */}
-        <section className="py-16 px-4 bg-muted/30">
-          <div className="max-w-4xl mx-auto">
-            <h2 className="text-2xl font-bold mb-8 text-center">
+        <section className="border-t border-border px-6 py-16">
+          <div className="mx-auto max-w-4xl">
+            <h2
+              className="mb-8 text-center text-2xl font-semibold tracking-[-0.03em] text-foreground"
+              style={{ fontFamily: INTER }}
+            >
               Other Comparisons
             </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {otherComparisons.map((comp) => (
                 <Link
                   key={comp.slug}
                   href={`/compare/${comp.slug}`}
-                  className="flex items-center justify-between p-4 bg-background border rounded-xl hover:border-primary transition-colors group"
+                  className={chipLinkClassName}
                 >
-                  <span className="font-medium text-sm">
+                  <span>
                     vs {comp.competitorName}
                   </span>
-                  <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                  <ArrowRight01Icon
+                    size={14}
+                    strokeWidth={1.75}
+                    className="size-3.5 shrink-0 text-muted-foreground/70 transition-colors group-hover:text-foreground"
+                  />
                 </Link>
               ))}
             </div>
           </div>
         </section>
 
-        {/* CTA */}
-        <section className="py-20 px-4">
-          <div className="max-w-3xl mx-auto text-center">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+        <section className="border-t border-border px-6 py-20">
+          <div className="mx-auto max-w-3xl text-center">
+            <h2
+              className="mb-4 text-3xl font-semibold tracking-[-0.03em] text-foreground md:text-4xl"
+              style={{ fontFamily: INTER }}
+            >
               Try Screenshot Studio Free
             </h2>
-            <p className="text-lg text-muted-foreground mb-8">
+            <p className="mb-8 text-lg text-muted-foreground">
               No signup. No downloads. No watermarks. Open the editor and see
               the difference.
             </p>
-            <Link
-              href="/"
-              className="inline-flex items-center gap-2 bg-primary text-primary-foreground font-semibold px-8 py-4 rounded-full hover:opacity-90 transition-opacity"
-            >
+            <Link href="/" className={ctaClassName}>
               Open Free Editor
-              <ArrowRight className="w-5 h-5" />
             </Link>
           </div>
         </section>

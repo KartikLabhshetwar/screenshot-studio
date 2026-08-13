@@ -12,17 +12,14 @@ const shadowPresets: { value: ShadowPreset; label: string; shadow: string }[] = 
   { value: 'strong', label: 'Strong', shadow: 'rgba(0,0,0,0.45) 0px 24px 80px 0px, rgba(0,0,0,0.3) 0px 8px 24px 0px' },
 ];
 
-function ShadowPreview({ shadow, selected }: { shadow: string; selected: boolean }) {
+function ShadowPreview({ shadow }: { shadow: string }) {
   return (
     <div
-      className={cn(
-        'relative w-full aspect-square rounded-lg overflow-hidden transition-all',
-        selected ? 'ring-[1.5px] ring-primary ring-offset-1 ring-offset-card' : 'ring-1 ring-border/50',
-      )}
+      className="relative w-full aspect-square rounded-md overflow-hidden"
       style={{ backgroundColor: 'rgb(210, 210, 214)' }}
     >
       <div
-        className="absolute bg-white rounded-[10px]"
+        className="absolute bg-primary rounded-[10px]"
         style={{
           top: '26%',
           left: '26%',
@@ -50,7 +47,16 @@ export function ShadowSection() {
               onClick={() => setShadowPreset(value)}
               className="flex flex-col items-center gap-1.5 group"
             >
-              <ShadowPreview shadow={shadow} selected={isSelected} />
+              <div
+                className={cn(
+                  'w-full rounded-[10px] p-1 border transition-all',
+                  isSelected
+                    ? 'bg-foreground/[0.1] border-foreground/25'
+                    : 'border-transparent hover:bg-foreground/[0.04]'
+                )}
+              >
+                <ShadowPreview shadow={shadow} />
+              </div>
               <span
                 className={cn(
                   'text-[10px] leading-tight transition-colors',
