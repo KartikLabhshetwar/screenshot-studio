@@ -7,10 +7,6 @@ const DB_VERSION = 1;
 const STORE_NAME = 'drafts';
 const DRAFT_KEY = 'screenshotstudio-draft';
 
-// Storage limits
-const MAX_STORAGE_MB = 50;
-const MAX_STORAGE_BYTES = MAX_STORAGE_MB * 1024 * 1024;
-
 // Auto cleanup configuration
 const MAX_DRAFT_AGE_DAYS = 7;
 const MAX_DRAFT_AGE_MS = MAX_DRAFT_AGE_DAYS * 24 * 60 * 60 * 1000;
@@ -20,6 +16,23 @@ export interface DraftStorage {
   editorState: OmitFunctions<EditorState>;
   imageState: OmitFunctions<ImageState>;
   timestamp: number;
+}
+
+/**
+ * Outcome of a save attempt. Callers must not treat a failed save as a no-op —
+ * the copy on disk is now older than the in-memory state.
+ */
+export type SaveDraftResult =
+  | { ok: true }
+  | { ok: false; reason: 'quota' | 'error'; error?: unknown };
+
+function isQuotaExceeded(error: unknown): boolean {
+  return (
+    error instanceof DOMException &&
+    (error.name === 'QuotaExceededError' ||
+      // Firefox
+      error.name === 'NS_ERROR_DOM_QUOTA_REACHED')
+  );
 }
 
 // Helper to convert blob URL to base64
@@ -92,27 +105,57 @@ function getDB(): Promise<IDBDatabase> {
 export async function saveDraft(
   editorState: OmitFunctions<EditorState>,
   imageState: OmitFunctions<ImageState>,
-): Promise<void> {
+): Promise<SaveDraftResult> {
+  let db: IDBDatabase;
   try {
-    const db = await getDB();
-    const draft: DraftStorage = {
-      id: DRAFT_KEY,
-      editorState,
-      imageState,
-      timestamp: Date.now(),
+    db = await getDB();
+  } catch (error) {
+    return { ok: false, reason: 'error', error };
+  }
+
+  const draft: DraftStorage = {
+    id: DRAFT_KEY,
+    editorState,
+    imageState,
+    timestamp: Date.now(),
+  };
+
+  return new Promise<SaveDraftResult>((resolve) => {
+    let settled = false;
+    const finish = (result: SaveDraftResult) => {
+      if (settled) return;
+      settled = true;
+      resolve(result);
     };
 
-    return new Promise((resolve, reject) => {
-      const tx = db.transaction([STORE_NAME], 'readwrite');
-      const store = tx.objectStore(STORE_NAME);
-      const request = store.put(draft);
+    let tx: IDBTransaction;
+    try {
+      tx = db.transaction([STORE_NAME], 'readwrite');
+    } catch (error) {
+      finish({ ok: false, reason: 'error', error });
+      return;
+    }
 
-      request.onsuccess = () => resolve();
-      request.onerror = () => reject(request.error);
-    });
-  } catch {
-    // Silently fail — don't crash the app over a draft save
-  }
+    // Resolve on `complete`, not on the request's `success`: only a committed
+    // transaction means the draft actually reached disk. Running out of quota
+    // surfaces here as an abort rather than a thrown error.
+    const fail = () =>
+      finish({
+        ok: false,
+        reason: isQuotaExceeded(tx.error) ? 'quota' : 'error',
+        error: tx.error,
+      });
+
+    tx.oncomplete = () => finish({ ok: true });
+    tx.onabort = fail;
+    tx.onerror = fail;
+
+    try {
+      tx.objectStore(STORE_NAME).put(draft);
+    } catch (error) {
+      finish({ ok: false, reason: 'error', error });
+    }
+  });
 }
 
 export async function getDraft(): Promise<DraftStorage | null> {
@@ -196,19 +239,6 @@ export async function getStorageUsage(): Promise<{ used: number; quota: number; 
   return { used: 0, quota: 0, percentage: 0 };
 }
 
-export async function checkStorageAndCleanup(): Promise<boolean> {
-  try {
-    const draftSize = await getDraftSize();
-    if (draftSize > MAX_STORAGE_BYTES) {
-      await clearAllDrafts();
-      return true;
-    }
-    return false;
-  } catch {
-    return false;
-  }
-}
-
 export async function getDraftSize(): Promise<number> {
   try {
     const draft = await getDraft();
@@ -253,39 +283,35 @@ export async function autoCleanIndexedDB(): Promise<{
   reason?: string;
 }> {
   try {
-    // 1. Check for old drafts
     const draft = await getDraft();
-    if (draft) {
-      const draftAge = Date.now() - draft.timestamp;
-      if (draftAge > MAX_DRAFT_AGE_MS) {
-        await deleteDraft();
-        return { cleaned: true, reason: 'Draft expired' };
-      }
-    }
-
-    // 2. Check storage limits
-    const cleanedForStorage = await checkStorageAndCleanup();
-    if (cleanedForStorage) {
-      return { cleaned: true, reason: 'Storage limit exceeded' };
-    }
-
-    // 3. Validate draft data integrity
-    if (draft) {
-      const isValid = validateDraftIntegrity(draft);
-      if (!isValid) {
-        await deleteDraft();
-        return { cleaned: true, reason: 'Corrupted data' };
-      }
-    }
-
-    return { cleaned: false };
-  } catch {
-    try {
-      await clearAllDrafts();
-      return { cleaned: true, reason: 'Error recovery' };
-    } catch {
+    if (!draft) {
       return { cleaned: false };
     }
+
+    // 1. Drop drafts the user has clearly abandoned.
+    const draftAge = Date.now() - draft.timestamp;
+    if (draftAge > MAX_DRAFT_AGE_MS) {
+      await deleteDraft();
+      return { cleaned: true, reason: 'Draft expired' };
+    }
+
+    // 2. Drop drafts that could not be restored anyway.
+    if (!validateDraftIntegrity(draft)) {
+      await deleteDraft();
+      return { cleaned: true, reason: 'Corrupted data' };
+    }
+
+    // Deliberately no size-based cleanup here. This runs on the load path,
+    // before the draft is restored, so discarding a *valid* draft for being
+    // large destroys exactly the work of the users who load big images.
+    // Being over quota is handled where it actually happens — the write in
+    // saveDraft(), which reports a 'quota' failure instead of pre-guessing.
+    return { cleaned: false };
+  } catch (error) {
+    // Never destroy the draft to recover from a transient read failure:
+    // a read that fails now may well succeed on the next reload.
+    console.warn('[draft] auto-clean skipped after error:', error);
+    return { cleaned: false };
   }
 }
 

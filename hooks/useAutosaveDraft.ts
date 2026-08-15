@@ -8,13 +8,13 @@ import {
   EditorState,
   ImageState,
 } from "@/lib/store";
+import { toast } from "sonner";
 import {
   saveDraft,
   getDraft,
   blobUrlToBase64,
   deleteDraft,
   migrateFromLocalStorage,
-  checkStorageAndCleanup,
   autoCleanIndexedDB,
 } from "@/lib/draft-storage";
 
@@ -26,6 +26,8 @@ export function useAutosaveDraft() {
   const saveTimeoutRef = useRef<NodeJS.Timeout>(null);
   const hasLoadedRef = useRef(false);
   const lastSnapshotRef = useRef<string>('');
+  // Warn about a full quota once per session, not once per autosave tick.
+  const hasWarnedQuotaRef = useRef(false);
   const [isSaving, setIsSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
 
@@ -209,9 +211,6 @@ export function useAutosaveDraft() {
 
           setIsSaving(true);
 
-          // Check storage limits periodically
-          await checkStorageAndCleanup();
-
           // Convert screenshot blob URL to base64
           let processedScreenshotSrc = screenshot.src;
           if (screenshot.src && screenshot.src.startsWith("blob:")) {
@@ -327,11 +326,27 @@ export function useAutosaveDraft() {
             rulerInterval: imageStore.rulerInterval,
           };
 
-          await saveDraft(editorState, imageState);
+          const result = await saveDraft(editorState, imageState);
+
+          if (!result.ok) {
+            // Leave lastSnapshotRef untouched so the next change retries this
+            // save instead of treating the failed write as already persisted.
+            console.warn("[draft] autosave failed:", result.reason, result.error);
+            if (result.reason === "quota" && !hasWarnedQuotaRef.current) {
+              hasWarnedQuotaRef.current = true;
+              toast.error("Couldn't save your draft", {
+                description:
+                  "Browser storage is full. Export your work — recent changes may not survive a reload.",
+                duration: 10000,
+              });
+            }
+            return;
+          }
+
           lastSnapshotRef.current = snapshot;
           setLastSaved(new Date());
-        } catch {
-          // Failed to auto-save — non-critical
+        } catch (error) {
+          console.warn("[draft] autosave threw:", error);
         } finally {
           setIsSaving(false);
         }
