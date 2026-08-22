@@ -36,6 +36,7 @@ import { GlobalDropZone } from "@/components/GlobalDropZone";
 import { PathTracker } from "@/components/landing/GoBackButton";
 import { getRootJsonLd } from "@/lib/seo/json-ld";
 import { getLocale } from "next-intl/server";
+import { Databuddy } from "@databuddy/sdk/react";
 
 // System UI fonts
 const geistSans = Geist({
@@ -392,6 +393,12 @@ export default async function RootLayout({
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8704843786311642"
           crossOrigin="anonymous"
           strategy="afterInteractive"
+        />
+        <Databuddy
+          clientId={'961c3ecd-da76-4b89-95cb-ee72a5fb72f4'}
+          trackWebVitals
+          trackErrors
+          trackOutgoingLinks
         />
         <QueryProvider>
           <GlobalDropZone>
