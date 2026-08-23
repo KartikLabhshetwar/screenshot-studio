@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { SITE_URL } from "@/lib/seo/metadata";
 import Script from "next/script";
 import {
   Geist,
@@ -291,13 +292,11 @@ export const metadata: Metadata = {
     "image presentation maker",
   ],
   authors: [
-    { name: "Screenshot Studio", url: "https://screenshot-studio.com" },
+    { name: "Screenshot Studio", url: "https://www.screenshot-studio.com" },
   ],
   creator: "Screenshot Studio",
   publisher: "Screenshot Studio",
-  metadataBase: new URL(
-    process.env.BETTER_AUTH_URL || "https://screenshot-studio.com",
-  ),
+  metadataBase: new URL(SITE_URL),
   alternates: {
     canonical: "/",
   },
@@ -311,7 +310,7 @@ export const metadata: Metadata = {
       "Free screenshot editor online — create stunning social media graphics in seconds. 100+ backgrounds, animations, 3D effects, video export. No signup required.",
     images: [
       {
-        url: "https://screenshot-studio.com/og.jpg",
+        url: "https://www.screenshot-studio.com/og.jpg",
         width: 1200,
         height: 630,
         alt: "Screenshot Studio - Transform Screenshots into Professional Graphics",
@@ -323,9 +322,9 @@ export const metadata: Metadata = {
     title: "Screenshot Studio - Free Screenshot Editor Online",
     description:
       "Free screenshot editor online — transform screenshots into stunning graphics. Animations, 3D effects, video export. No signup.",
-    images: ["https://screenshot-studio.com/og.jpg"],
-    creator: "@code_kartik",
-    site: "@code_kartik",
+    images: ["https://www.screenshot-studio.com/og.jpg"],
+    creator: "@screenshotstdio",
+    site: "@screenshotstdio",
   },
   robots: {
     index: true,

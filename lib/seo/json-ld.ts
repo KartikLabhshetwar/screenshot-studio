@@ -3,7 +3,7 @@
  * Added to the root layout so every page inherits Organization and WebSite schema.
  */
 
-const BASE_URL = "https://screenshot-studio.com";
+const BASE_URL = "https://www.screenshot-studio.com";
 
 export function getOrganizationSchema() {
   return {
@@ -19,7 +19,36 @@ export function getOrganizationSchema() {
     },
     sameAs: [
       "https://github.com/KartikLabhshetwar/screenshot-studio",
-      "https://x.com/code_kartik",
+      "https://x.com/screenshotstdio",
+    ],
+    email: "kartik.labhshetwar@gmail.com",
+    address: {
+      "@type": "PostalAddress",
+      addressCountry: "IN",
+    },
+    contactPoint: [
+      {
+        "@type": "ContactPoint",
+        contactType: "customer support",
+        email: "kartik.labhshetwar@gmail.com",
+        url: `${BASE_URL}/contact`,
+        availableLanguage: [
+          "English",
+          "Spanish",
+          "French",
+          "German",
+          "Japanese",
+          "Portuguese",
+          "Korean",
+          "Chinese",
+        ],
+      },
+      {
+        "@type": "ContactPoint",
+        contactType: "technical support",
+        url: "https://github.com/KartikLabhshetwar/screenshot-studio/issues",
+        email: "kartik.labhshetwar@gmail.com",
+      },
     ],
     description:
       "Free, open-source screenshot editor with backgrounds, browser mockups, 3D effects, animations, and video export.",
@@ -55,6 +84,11 @@ export function getSoftwareApplicationSchema() {
     applicationCategory: "DesignApplication",
     applicationSubCategory: "Screenshot Editor",
     operatingSystem: "Any (Web Browser)",
+    softwareHelp: {
+      "@type": "CreativeWork",
+      name: "Screenshot Studio API Documentation",
+      url: `${BASE_URL}/docs`,
+    },
     offers: {
       "@type": "Offer",
       price: "0",

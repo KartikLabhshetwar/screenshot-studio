@@ -1,10 +1,10 @@
 import { MetadataRoute } from "next";
+import { SITE_URL } from "@/lib/seo/metadata";
 import { locales } from "@/i18n/routing";
 import { getAllComparisonSlugs } from "@/lib/seo/comparisons";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl =
-    process.env.BETTER_AUTH_URL || "https://screenshot-studio.com";
+  const baseUrl = SITE_URL;
   const now = new Date();
 
   const comparisonSlugs = getAllComparisonSlugs();
@@ -71,6 +71,15 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
     // Changelog
     { path: "/changelog", changeFrequency: "weekly", priority: 0.6 },
+
+    // Developer pages
+    { path: "/docs", changeFrequency: "monthly", priority: 0.8 },
+    {
+      path: "/docs/authentication",
+      changeFrequency: "monthly",
+      priority: 0.7,
+    },
+    { path: "/developers", changeFrequency: "monthly", priority: 0.8 },
 
     // Company pages
     { path: "/about", changeFrequency: "monthly", priority: 0.5 },

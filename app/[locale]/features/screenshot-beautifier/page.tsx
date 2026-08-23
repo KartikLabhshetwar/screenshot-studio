@@ -144,19 +144,19 @@ export default function ScreenshotBeautifierPage() {
         "@type": "ListItem",
         position: 1,
         name: "Home",
-        item: "https://screenshot-studio.com",
+        item: "https://www.screenshot-studio.com",
       },
       {
         "@type": "ListItem",
         position: 2,
         name: "Features",
-        item: "https://screenshot-studio.com/features",
+        item: "https://www.screenshot-studio.com/features",
       },
       {
         "@type": "ListItem",
         position: 3,
         name: "Screenshot Beautifier",
-        item: "https://screenshot-studio.com/features/screenshot-beautifier",
+        item: "https://www.screenshot-studio.com/features/screenshot-beautifier",
       },
     ],
   };

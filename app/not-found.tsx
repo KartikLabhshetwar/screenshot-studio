@@ -2,6 +2,14 @@ import Link from "next/link";
 import { Metadata } from "next";
 import { GoBackButton } from "@/components/landing/GoBackButton";
 
+const RECOVERY_LINKS = [
+  { href: "/features", label: "Features" },
+  { href: "/docs", label: "API docs" },
+  { href: "/developers", label: "Developers" },
+  { href: "/sitemap.xml", label: "Sitemap" },
+  { href: "/llms.txt", label: "llms.txt" },
+];
+
 export const metadata: Metadata = {
   title: "404. Page not found | Screenshot Studio",
   description:
@@ -47,6 +55,21 @@ export default function NotFound() {
             Open editor
           </Link>
         </div>
+
+        <nav
+          aria-label="Other pages"
+          className="mt-10 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm text-muted-foreground"
+        >
+          {RECOVERY_LINKS.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className="underline decoration-muted-foreground/40 underline-offset-4 transition-colors hover:text-foreground"
+            >
+              {link.label}
+            </Link>
+          ))}
+        </nav>
       </main>
     </div>
   );

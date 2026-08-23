@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { invalidateCache, invalidateCacheBatch } from '@/lib/screenshot-cache'
+import { apiError, methodNotAllowed } from '@/lib/api/errors'
+
+const URL_HINT = 'Send an absolute http or https URL, for example {"url": "https://example.com"}.'
 
 export async function POST(request: NextRequest) {
   try {
@@ -7,40 +10,40 @@ export async function POST(request: NextRequest) {
     const { url, urls } = body
 
     if (!url && !urls) {
-      return NextResponse.json(
-        { error: 'Either "url" or "urls" is required' },
-        { status: 400 }
+      return apiError(
+        400,
+        'invalid_request',
+        'Either "url" or "urls" is required',
+        URL_HINT
       )
     }
 
     if (url && urls) {
-      return NextResponse.json(
-        { error: 'Provide either "url" or "urls", not both' },
-        { status: 400 }
+      return apiError(
+        400,
+        'invalid_request',
+        'Provide either "url" or "urls", not both',
+        'Send a single "url" string or a "urls" array of strings, never both.'
       )
     }
 
     if (url) {
       if (typeof url !== 'string') {
-        return NextResponse.json(
-          { error: '"url" must be a string' },
-          { status: 400 }
-        )
+        return apiError(400, 'invalid_request', '"url" must be a string', URL_HINT)
       }
 
       try {
         const validUrl = new URL(url)
         if (!['http:', 'https:'].includes(validUrl.protocol)) {
-          return NextResponse.json(
-            { error: 'URL must use http or https protocol' },
-            { status: 400 }
+          return apiError(
+            400,
+            'invalid_url',
+            'URL must use http or https protocol',
+            URL_HINT
           )
         }
-      } catch (error) {
-        return NextResponse.json(
-          { error: 'Invalid URL format' },
-          { status: 400 }
-        )
+      } catch {
+        return apiError(400, 'invalid_url', 'Invalid URL format', URL_HINT)
       }
 
       await invalidateCache(url)
@@ -50,63 +53,66 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    if (urls) {
-      if (!Array.isArray(urls)) {
-        return NextResponse.json(
-          { error: '"urls" must be an array' },
-          { status: 400 }
-        )
-      }
-
-      if (urls.length === 0) {
-        return NextResponse.json(
-          { error: '"urls" array cannot be empty' },
-          { status: 400 }
-        )
-      }
-
-      for (const u of urls) {
-        if (typeof u !== 'string') {
-          return NextResponse.json(
-            { error: 'All items in "urls" must be strings' },
-            { status: 400 }
-          )
-        }
-
-        try {
-          const validUrl = new URL(u)
-          if (!['http:', 'https:'].includes(validUrl.protocol)) {
-            return NextResponse.json(
-              { error: `URL must use http or https protocol: ${u}` },
-              { status: 400 }
-            )
-          }
-        } catch (error) {
-          return NextResponse.json(
-            { error: `Invalid URL format: ${u}` },
-            { status: 400 }
-          )
-        }
-      }
-
-      await invalidateCacheBatch(urls)
-      return NextResponse.json({
-        success: true,
-        message: `Cache invalidated for ${urls.length} URL(s)`,
-        count: urls.length,
-      })
+    if (!Array.isArray(urls)) {
+      return apiError(
+        400,
+        'invalid_request',
+        '"urls" must be an array',
+        'Send "urls" as a JSON array of absolute http or https URL strings.'
+      )
     }
 
-    return NextResponse.json(
-      { error: 'Invalid request' },
-      { status: 400 }
-    )
+    if (urls.length === 0) {
+      return apiError(
+        400,
+        'invalid_request',
+        '"urls" array cannot be empty',
+        'Include at least one absolute http or https URL in the "urls" array.'
+      )
+    }
+
+    for (const u of urls) {
+      if (typeof u !== 'string') {
+        return apiError(
+          400,
+          'invalid_request',
+          'All items in "urls" must be strings',
+          'Send "urls" as a JSON array of absolute http or https URL strings.'
+        )
+      }
+
+      try {
+        const validUrl = new URL(u)
+        if (!['http:', 'https:'].includes(validUrl.protocol)) {
+          return apiError(
+            400,
+            'invalid_url',
+            `URL must use http or https protocol: ${u}`,
+            URL_HINT
+          )
+        }
+      } catch {
+        return apiError(400, 'invalid_url', `Invalid URL format: ${u}`, URL_HINT)
+      }
+    }
+
+    await invalidateCacheBatch(urls)
+    return NextResponse.json({
+      success: true,
+      message: `Cache invalidated for ${urls.length} URL(s)`,
+      count: urls.length,
+    })
   } catch (error) {
     console.error('Error invalidating cache:', error)
-    return NextResponse.json(
-      { error: 'Failed to invalidate cache' },
-      { status: 500 }
+    return apiError(
+      500,
+      'internal_error',
+      'Failed to invalidate cache',
+      'Retry the request. Check the server logs for the underlying storage error.'
     )
   }
 }
 
+export async function GET() {
+  return methodNotAllowed(['POST'])
+}

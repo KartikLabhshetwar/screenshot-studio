@@ -138,19 +138,19 @@ export default function SocialMediaGraphicsPage() {
         "@type": "ListItem",
         position: 1,
         name: "Home",
-        item: "https://screenshot-studio.com",
+        item: "https://www.screenshot-studio.com",
       },
       {
         "@type": "ListItem",
         position: 2,
         name: "Features",
-        item: "https://screenshot-studio.com/features",
+        item: "https://www.screenshot-studio.com/features",
       },
       {
         "@type": "ListItem",
         position: 3,
         name: "Social Media Graphics",
-        item: "https://screenshot-studio.com/features/social-media-graphics",
+        item: "https://www.screenshot-studio.com/features/social-media-graphics",
       },
     ],
   };

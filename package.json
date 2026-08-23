@@ -7,6 +7,8 @@
     "build": "npx prisma generate && next build --webpack",
     "start": "next start",
     "lint": "eslint .",
+    "test": "tsx --test tests/*.test.ts",
+    "verify:agents": "tsx tests/verify-agent-endpoints.ts",
     "lint:fix": "eslint . --fix",
     "upload-to-r2": "tsx scripts/upload-to-r2.ts",
     "upload-all-to-r2": "tsx scripts/upload-all-to-r2.ts",

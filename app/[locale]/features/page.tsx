@@ -10,6 +10,7 @@ import {
 } from "hugeicons-react";
 import { Navigation } from "@/components/landing/Navigation";
 import { Footer } from "@/components/landing/Footer";
+import { OG_DEFAULTS } from "@/lib/seo/metadata";
 
 export const metadata: Metadata = {
   title: "Features - Screenshot Studio | All Tools & Capabilities",
@@ -30,6 +31,7 @@ export const metadata: Metadata = {
     "screenshot presentation tool",
   ],
   openGraph: {
+    ...OG_DEFAULTS,
     title: "Features - Screenshot Studio",
     description:
       "All tools and capabilities in one free editor. Beautify, animate, and transform screenshots.",
@@ -103,7 +105,7 @@ export default function FeaturesPage() {
       position: index + 1,
       name: feature.title,
       description: feature.description,
-      url: `https://screenshot-studio.com${feature.href}`,
+      url: `https://www.screenshot-studio.com${feature.href}`,
     })),
   };
 

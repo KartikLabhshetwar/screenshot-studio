@@ -70,7 +70,7 @@ export function SidebarLeft({
         </SidebarContent>
         <SidebarFooter className="p-4 sm:p-5 border-t border-sidebar-border">
           <a
-            href="https://github.com/KartikLabhshetwar/stage"
+            href="https://github.com/KartikLabhshetwar/screenshot-studio"
             target="_blank"
             rel="noopener noreferrer"
             className="w-full"

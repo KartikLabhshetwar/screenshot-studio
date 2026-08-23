@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { EditorLayout } from "@/components/editor/EditorLayout";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { AgentSummary } from "@/components/seo/AgentSummary";
+import { OG_DEFAULTS } from "@/lib/seo/metadata";
 
 export const metadata: Metadata = {
   title: "Screenshot Studio - Free Screenshot Editor & Mockup Maker",
@@ -28,6 +30,7 @@ export const metadata: Metadata = {
     canonical: "/",
   },
   openGraph: {
+    ...OG_DEFAULTS,
     title: "Screenshot Studio - Free Screenshot Editor & Mockup Maker",
     description:
       "Free screenshot editor online — add backgrounds, shadows, 3D effects, and animations. Export as PNG, JPG, or video.",
@@ -37,8 +40,11 @@ export const metadata: Metadata = {
 
 export default async function EditorPage() {
   return (
-    <ErrorBoundary>
-      <EditorLayout />
-    </ErrorBoundary>
+    <>
+      <AgentSummary />
+      <ErrorBoundary>
+        <EditorLayout />
+      </ErrorBoundary>
+    </>
   );
 }

@@ -9,6 +9,7 @@ import {
   getComparison,
   getAllComparisonSlugs,
 } from "@/lib/seo/comparisons";
+import { OG_DEFAULTS } from "@/lib/seo/metadata";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -30,6 +31,7 @@ export async function generateMetadata({
     description: data.metaDescription,
     keywords: data.keywords,
     openGraph: {
+      ...OG_DEFAULTS,
       title: data.metaTitle,
       description: data.metaDescription,
       url: `/compare/${data.slug}`,
@@ -99,19 +101,19 @@ export default async function ComparisonPage({ params }: PageProps) {
             "@type": "ListItem",
             position: 1,
             name: "Home",
-            item: "https://screenshot-studio.com",
+            item: "https://www.screenshot-studio.com",
           },
           {
             "@type": "ListItem",
             position: 2,
             name: "Compare",
-            item: "https://screenshot-studio.com/compare",
+            item: "https://www.screenshot-studio.com/compare",
           },
           {
             "@type": "ListItem",
             position: 3,
             name: `vs ${data.competitorName}`,
-            item: `https://screenshot-studio.com/compare/${data.slug}`,
+            item: `https://www.screenshot-studio.com/compare/${data.slug}`,
           },
         ],
       },
@@ -130,7 +132,7 @@ export default async function ComparisonPage({ params }: PageProps) {
         "@type": "WebPage",
         name: data.metaTitle,
         description: data.metaDescription,
-        url: `https://screenshot-studio.com/compare/${data.slug}`,
+        url: `https://www.screenshot-studio.com/compare/${data.slug}`,
         mainEntity: {
           "@type": "SoftwareApplication",
           name: "Screenshot Studio",

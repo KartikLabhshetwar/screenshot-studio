@@ -59,8 +59,15 @@ export default function TermsPage() {
             <p className="leading-relaxed text-muted-foreground">
               Screenshot Studio is a free, browser-based screenshot editing tool
               that allows users to beautify screenshots with backgrounds,
-              frames, effects, and more. The tool processes images entirely
-              within your browser. No images are uploaded to our servers.
+              frames, effects, and more. Editing happens in your browser, and images
+              you import are not uploaded to edit them. Exporting sends the
+              finished image to our compression endpoint, which returns it
+              without storing it, and capturing a screenshot from a URL sends
+              that address to a third-party capture service. Our{" "}
+              <Link href="/privacy-policy" className={linkClassName}>
+                privacy policy
+              </Link>{" "}
+              describes both in full.
             </p>
           </section>
 
@@ -105,7 +112,7 @@ export default function TermsPage() {
               tool. The Screenshot Studio software itself is open source and
               licensed under the terms specified in our{" "}
               <Link
-                href="https://github.com/KartikLabhshetwar/stage"
+                href="https://github.com/KartikLabhshetwar/screenshot-studio"
                 target="_blank"
                 rel="noopener noreferrer"
                 className={linkClassName}

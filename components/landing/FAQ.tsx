@@ -39,7 +39,7 @@ const defaultFAQs: FAQItem[] = [
   {
     question: "Is my data stored on your servers?",
     answer:
-      "No. Screenshot Studio runs entirely in your browser. Your images never leave your device unless you export them yourself.",
+      "No. Editing runs in your browser and imported images are not uploaded to edit them. Only export compression sends the finished image to the server, which recompresses it in memory and returns it without storing it.",
   },
 ];
 

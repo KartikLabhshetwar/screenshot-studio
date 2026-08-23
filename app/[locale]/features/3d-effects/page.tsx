@@ -136,19 +136,19 @@ export default function ThreeDEffectsPage() {
         "@type": "ListItem",
         position: 1,
         name: "Home",
-        item: "https://screenshot-studio.com",
+        item: "https://www.screenshot-studio.com",
       },
       {
         "@type": "ListItem",
         position: 2,
         name: "Features",
-        item: "https://screenshot-studio.com/features",
+        item: "https://www.screenshot-studio.com/features",
       },
       {
         "@type": "ListItem",
         position: 3,
         name: "3D Effects",
-        item: "https://screenshot-studio.com/features/3d-effects",
+        item: "https://www.screenshot-studio.com/features/3d-effects",
       },
     ],
   };

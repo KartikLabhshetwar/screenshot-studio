@@ -124,7 +124,7 @@ const reasons = [
   {
     title: "Privacy First",
     description:
-      "Everything runs in your browser. Your images never leave your machine.",
+      "Editing runs in your browser. Imported images are not uploaded to edit them, and export compression returns the finished image without storing it.",
   },
   {
     title: "Fast & Lightweight",
@@ -151,13 +151,13 @@ export default function ForDevelopersPage() {
             "@type": "ListItem",
             position: 1,
             name: "Home",
-            item: "https://screenshot-studio.com",
+            item: "https://www.screenshot-studio.com",
           },
           {
             "@type": "ListItem",
             position: 2,
             name: "For Developers",
-            item: "https://screenshot-studio.com/for/developers",
+            item: "https://www.screenshot-studio.com/for/developers",
           },
         ],
       },

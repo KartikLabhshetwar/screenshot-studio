@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { clearOldCache } from '@/lib/screenshot-cache'
+import { apiError, methodNotAllowed } from '@/lib/api/errors'
 
 export const maxDuration = 60
 
@@ -9,7 +10,12 @@ export async function POST(request: NextRequest) {
     const { secret } = body
 
     if (secret !== process.env.CLEANUP_SECRET) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return apiError(
+        401,
+        'unauthorized',
+        'Unauthorized',
+        'This maintenance endpoint requires the shared cleanup secret and is not part of the public API.'
+      )
     }
 
     await clearOldCache()
@@ -20,10 +26,16 @@ export async function POST(request: NextRequest) {
     })
   } catch (error) {
     console.error('Cache cleanup error:', error)
-    return NextResponse.json(
-      { error: 'Cache cleanup failed' },
-      { status: 500 }
+    return apiError(
+      500,
+      'internal_error',
+      'Cache cleanup failed',
+      'Retry the request. Check the server logs for the underlying storage error.'
     )
   }
+}
+
+export async function GET() {
+  return methodNotAllowed(['POST'])
 }
 

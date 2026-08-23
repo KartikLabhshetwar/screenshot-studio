@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import Link from "next/link";
 import { Navigation } from "@/components/landing/Navigation";
 import { Footer } from "@/components/landing/Footer";
+import { OG_DEFAULTS } from "@/lib/seo/metadata";
 
 export const metadata: Metadata = {
   title: "Changelog - Latest Updates & Features",
@@ -15,6 +16,7 @@ export const metadata: Metadata = {
     "animation maker updates",
   ],
   openGraph: {
+    ...OG_DEFAULTS,
     title: "Changelog - Screenshot Studio",
     description:
       "See what's new in Screenshot Studio. Latest updates including animation timeline, video export, and more.",
@@ -399,13 +401,13 @@ export default function ChangelogPage() {
             "@type": "ListItem",
             position: 1,
             name: "Home",
-            item: "https://screenshot-studio.com",
+            item: "https://www.screenshot-studio.com",
           },
           {
             "@type": "ListItem",
             position: 2,
             name: "Changelog",
-            item: "https://screenshot-studio.com/changelog",
+            item: "https://www.screenshot-studio.com/changelog",
           },
         ],
       },
@@ -414,7 +416,7 @@ export default function ChangelogPage() {
         name: "Screenshot Studio Changelog",
         description:
           "Latest updates, new features, and improvements to Screenshot Studio.",
-        url: "https://screenshot-studio.com/changelog",
+        url: "https://www.screenshot-studio.com/changelog",
         mainEntity: {
           "@type": "ItemList",
           name: "Screenshot Studio Release History",

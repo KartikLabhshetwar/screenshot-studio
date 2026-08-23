@@ -8,7 +8,7 @@ interface FooterProps {
 }
 
 const GITHUB_URL = "https://github.com/KartikLabhshetwar/screenshot-studio";
-const X_URL = "https://x.com/code_kartik";
+const X_URL = "https://x.com/screenshotstdio";
 const PEERLIST_URL =
   "https://peerlist.io/code_kartik/project/screenshot-studio";
 const PEERLIST_BADGE =
@@ -19,6 +19,7 @@ const navCol1 = [
   { href: "/features", label: "Features" },
   { href: "/changelog", label: "Changelog" },
   { href: "/free-screenshot-editor", label: "Free editor" },
+  { href: "/docs", label: "API docs" },
 ] as const;
 
 const navCol2 = [
@@ -26,6 +27,7 @@ const navCol2 = [
   { href: "/features/animation-maker", label: "Animations" },
   { href: "/about", label: "About" },
   { href: "/contact", label: "Contact" },
+  { href: "/developers", label: "Developers" },
 ] as const;
 
 function FooterNavLink({

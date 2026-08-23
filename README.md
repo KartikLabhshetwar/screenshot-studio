@@ -17,7 +17,7 @@
 
 A free, browser-based screenshot editor. Beautiful backgrounds, device frames, 3D effects, animations, and video export. No signup, no watermarks.
 
-**Live:** [screenshot-studio.com](https://screenshot-studio.com)
+**Live:** [screenshot-studio.com](https://www.screenshot-studio.com)
 
 ## Features
 

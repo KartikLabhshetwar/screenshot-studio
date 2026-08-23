@@ -9,6 +9,7 @@ import {
 } from "hugeicons-react";
 import { Navigation } from "@/components/landing/Navigation";
 import { Footer } from "@/components/landing/Footer";
+import { OG_DEFAULTS } from "@/lib/seo/metadata";
 
 export const metadata: Metadata = {
   title: "Free Browser Mockup Generator - Safari & Chrome Frames",
@@ -32,6 +33,7 @@ export const metadata: Metadata = {
     "chrome dark mode mockup",
   ],
   openGraph: {
+    ...OG_DEFAULTS,
     title: "Free Browser Mockup Generator - Safari & Chrome Frames",
     description:
       "Add realistic Safari and Chrome browser frames to screenshots. Light and dark modes, custom URL. Free, no signup.",
@@ -140,19 +142,19 @@ export default function BrowserMockupsPage() {
         "@type": "ListItem",
         position: 1,
         name: "Home",
-        item: "https://screenshot-studio.com",
+        item: "https://www.screenshot-studio.com",
       },
       {
         "@type": "ListItem",
         position: 2,
         name: "Features",
-        item: "https://screenshot-studio.com/features",
+        item: "https://www.screenshot-studio.com/features",
       },
       {
         "@type": "ListItem",
         position: 3,
         name: "Browser Mockups",
-        item: "https://screenshot-studio.com/features/browser-mockups",
+        item: "https://www.screenshot-studio.com/features/browser-mockups",
       },
     ],
   };

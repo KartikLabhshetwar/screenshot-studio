@@ -4,12 +4,12 @@ export function StructuredData() {
     "@graph": [
       {
         "@type": "WebApplication",
-        "@id": "https://screenshot-studio.com/#application",
+        "@id": "https://www.screenshot-studio.com/#application",
         name: "Screenshot Studio",
         alternateName: "Free Screenshot Editor Online",
         description:
           "Free screenshot editor online — transform plain screenshots into professional graphics with 100+ backgrounds, animations, 3D effects, and video export. No signup required.",
-        url: "https://screenshot-studio.com",
+        url: "https://www.screenshot-studio.com",
         applicationCategory: "DesignApplication",
         applicationSubCategory: "Screenshot Editor",
         operatingSystem: "Any (Web Browser)",
@@ -37,34 +37,34 @@ export function StructuredData() {
       },
       {
         "@type": "Organization",
-        "@id": "https://screenshot-studio.com/#organization",
+        "@id": "https://www.screenshot-studio.com/#organization",
         name: "Screenshot Studio",
-        url: "https://screenshot-studio.com",
+        url: "https://www.screenshot-studio.com",
         logo: {
           "@type": "ImageObject",
-          url: "https://screenshot-studio.com/icon-512.png",
+          url: "https://www.screenshot-studio.com/icon-512.png",
           width: 512,
           height: 512,
         },
         sameAs: [
           "https://github.com/KartikLabhshetwar/screenshot-studio",
-          "https://x.com/code_kartik",
+          "https://x.com/screenshotstdio",
         ],
       },
       {
         "@type": "WebSite",
-        "@id": "https://screenshot-studio.com/#website",
-        url: "https://screenshot-studio.com",
+        "@id": "https://www.screenshot-studio.com/#website",
+        url: "https://www.screenshot-studio.com",
         name: "Screenshot Studio",
         description:
           "Screenshot Studio is a free, browser-based screenshot editor that transforms plain screenshots into professional graphics with 100+ backgrounds, browser mockups, 3D effects, animations, and video export. No signup required.",
         publisher: {
-          "@id": "https://screenshot-studio.com/#organization",
+          "@id": "https://www.screenshot-studio.com/#organization",
         },
       },
       {
         "@type": "FAQPage",
-        "@id": "https://screenshot-studio.com/#faq",
+        "@id": "https://www.screenshot-studio.com/#faq",
         mainEntity: [
           {
             "@type": "Question",

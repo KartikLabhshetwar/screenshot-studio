@@ -1,8 +1,8 @@
 import { MetadataRoute } from "next";
+import { SITE_URL } from "@/lib/seo/metadata";
 
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl =
-    process.env.BETTER_AUTH_URL || "https://screenshot-studio.com";
+  const baseUrl = SITE_URL;
 
   return {
     rules: [
@@ -60,6 +60,66 @@ export default function robots(): MetadataRoute.Robots {
       },
       {
         userAgent: "Applebot",
+        allow: "/",
+      },
+      {
+        userAgent: "Applebot-Extended",
+        allow: "/",
+      },
+      {
+        userAgent: "OAI-SearchBot",
+        allow: "/",
+      },
+      {
+        userAgent: "Claude-User",
+        allow: "/",
+      },
+      {
+        userAgent: "Claude-SearchBot",
+        allow: "/",
+      },
+      {
+        userAgent: "Claude-Web",
+        allow: "/",
+      },
+      {
+        userAgent: "Perplexity-User",
+        allow: "/",
+      },
+      {
+        userAgent: "DeepSeekBot",
+        allow: "/",
+      },
+      {
+        userAgent: "MistralAI-User",
+        allow: "/",
+      },
+      {
+        userAgent: "cohere-ai",
+        allow: "/",
+      },
+      {
+        userAgent: "meta-externalagent",
+        allow: "/",
+      },
+      {
+        userAgent: "meta-externalfetcher",
+        allow: "/",
+      },
+      {
+        userAgent: "Amazonbot",
+        allow: "/",
+      },
+      {
+        userAgent: "ora-agent",
+        allow: "/",
+      },
+      {
+        userAgent: "DuckAssistBot",
+        allow: "/",
+      },
+      {
+        userAgent: "YouBot",
         allow: "/",
       },
       // Block aggressive/wasteful crawlers

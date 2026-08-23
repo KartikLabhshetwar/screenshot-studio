@@ -1,7 +1,7 @@
 # Screenshot Studio - Free Online Screenshot Editor
 
 ## About
-Screenshot Studio is a free, open-source, browser-based screenshot editor that transforms plain screenshots into professional-quality graphics. Your images never leave your browser. No signup, no watermarks, no downloads required.
+Screenshot Studio is a free, open-source, browser-based screenshot editor that transforms plain screenshots into professional-quality graphics. Editing runs in your browser: imported images are not uploaded to edit them, and export compression round-trips the finished image through the server without storing it. No signup, no watermarks, no downloads required.
 
 ## Core Features
 - **100+ Backgrounds** — Gradients, mesh, radiant, paper textures, patterns, solid colors
@@ -17,26 +17,41 @@ Screenshot Studio is a free, open-source, browser-based screenshot editor that t
 - **Templates & Presets** — One-click professional styling
 
 ## Pages
-- Editor: https://screenshot-studio.com/
-- Landing: https://screenshot-studio.com/landing
-- Free Screenshot Editor: https://screenshot-studio.com/free-screenshot-editor
-- Features: https://screenshot-studio.com/features
-- Screenshot Beautifier: https://screenshot-studio.com/features/screenshot-beautifier
-- Social Media Graphics: https://screenshot-studio.com/features/social-media-graphics
-- Animation Maker: https://screenshot-studio.com/features/animation-maker
-- 3D Effects: https://screenshot-studio.com/features/3d-effects
-- Browser Mockups: https://screenshot-studio.com/features/browser-mockups
-- For Developers: https://screenshot-studio.com/for/developers
-- For Marketers: https://screenshot-studio.com/for/marketers
-- For Designers: https://screenshot-studio.com/for/designers
-- vs Pika Style: https://screenshot-studio.com/compare/pika-style
-- vs Shots.so: https://screenshot-studio.com/compare/shots-so
-- vs Snagit: https://screenshot-studio.com/compare/snagit
-- Changelog: https://screenshot-studio.com/changelog
-- About: https://screenshot-studio.com/about
-- Contact: https://screenshot-studio.com/contact
-- Privacy Policy: https://screenshot-studio.com/privacy-policy
-- Terms: https://screenshot-studio.com/terms
+- Editor: https://www.screenshot-studio.com/
+- Landing: https://www.screenshot-studio.com/landing
+- Free Screenshot Editor: https://www.screenshot-studio.com/free-screenshot-editor
+- Features: https://www.screenshot-studio.com/features
+- Screenshot Beautifier: https://www.screenshot-studio.com/features/screenshot-beautifier
+- Social Media Graphics: https://www.screenshot-studio.com/features/social-media-graphics
+- Animation Maker: https://www.screenshot-studio.com/features/animation-maker
+- 3D Effects: https://www.screenshot-studio.com/features/3d-effects
+- Browser Mockups: https://www.screenshot-studio.com/features/browser-mockups
+- For Developers: https://www.screenshot-studio.com/for/developers
+- For Marketers: https://www.screenshot-studio.com/for/marketers
+- For Designers: https://www.screenshot-studio.com/for/designers
+- vs Pika Style: https://www.screenshot-studio.com/compare/pika-style
+- vs Shots.so: https://www.screenshot-studio.com/compare/shots-so
+- vs Snagit: https://www.screenshot-studio.com/compare/snagit
+- API Documentation: https://www.screenshot-studio.com/docs
+- API Authentication: https://www.screenshot-studio.com/docs/authentication
+- Developer Portal: https://www.screenshot-studio.com/developers
+- Changelog: https://www.screenshot-studio.com/changelog
+- About: https://www.screenshot-studio.com/about
+- Contact: https://www.screenshot-studio.com/contact
+- Privacy Policy: https://www.screenshot-studio.com/privacy-policy
+- Terms: https://www.screenshot-studio.com/terms
+
+## Developer Resources
+- API documentation: https://www.screenshot-studio.com/docs
+- Developer portal: https://www.screenshot-studio.com/developers
+- OpenAPI 3.1 specification: https://www.screenshot-studio.com/openapi.json
+- Authentication and rate limits: https://www.screenshot-studio.com/docs/authentication
+- Agent index: https://www.screenshot-studio.com/llms.txt
+- Full agent reference: https://www.screenshot-studio.com/llms-full.txt
+- Sitemap: https://www.screenshot-studio.com/sitemap.xml
+
+The public API needs no API key. Every page also serves Markdown to clients that
+send `Accept: text/markdown`. No official CLI tool and no MCP server are published yet.
 
 ## Languages
 Available in 8 languages: English, Spanish (/es), French (/fr), German (/de), Japanese (/ja), Portuguese (/pt), Korean (/ko), Chinese (/zh).
@@ -66,11 +81,11 @@ Developers, designers, marketers, indie hackers, content creators, and anyone wh
 100% free. No signup, no watermarks, no hidden costs, no premium tier. Unlimited exports with full feature access.
 
 ## Contact
-- Website: https://screenshot-studio.com
-- Twitter/X: https://x.com/code_kartik
-- GitHub: https://github.com/KartikLabhshetwar/stage
+- Website: https://www.screenshot-studio.com
+- Twitter/X: https://x.com/screenshotstdio
+- GitHub: https://github.com/KartikLabhshetwar/screenshot-studio
 - Email: kartik.labhshetwar@gmail.com
 
 ## LLMs.txt
-For structured markdown documentation, visit: https://screenshot-studio.com/llms.txt
-For the full detailed version: https://screenshot-studio.com/llms-full.txt
+For structured markdown documentation, visit: https://www.screenshot-studio.com/llms.txt
+For the full detailed version: https://www.screenshot-studio.com/llms-full.txt

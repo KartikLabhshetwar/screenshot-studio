@@ -27,7 +27,7 @@ const INTER =
 
 const contacts = [
   {
-    href: "https://github.com/KartikLabhshetwar/stage/issues",
+    href: "https://github.com/KartikLabhshetwar/screenshot-studio/issues",
     external: true,
     icon: GithubIcon,
     title: "Report a Bug",
@@ -35,7 +35,7 @@ const contacts = [
       "Found something broken? Open an issue on GitHub and we'll look into it.",
   },
   {
-    href: "https://github.com/KartikLabhshetwar/stage/issues/new?labels=enhancement",
+    href: "https://github.com/KartikLabhshetwar/screenshot-studio/issues/new?labels=enhancement",
     external: true,
     icon: GithubIcon,
     title: "Request a Feature",
@@ -43,12 +43,12 @@ const contacts = [
       "Have an idea to make Screenshot Studio better? We'd love to hear it.",
   },
   {
-    href: "https://x.com/code_kartik",
+    href: "https://x.com/screenshotstdio",
     external: true,
     icon: NewTwitterIcon,
     title: "Twitter / X",
     description:
-      "Follow for updates, tips, and behind-the-scenes. DMs are open.",
+      "Follow @screenshotstdio for release notes, tips, and product updates.",
   },
   {
     href: "mailto:kartik.labhshetwar@gmail.com",
@@ -116,7 +116,7 @@ export default function ContactPage() {
             Screenshot Studio is open source. If you&apos;re a developer and
             want to contribute, check out the{" "}
             <Link
-              href="https://github.com/KartikLabhshetwar/stage"
+              href="https://github.com/KartikLabhshetwar/screenshot-studio"
               target="_blank"
               rel="noopener noreferrer"
               className={linkClassName}

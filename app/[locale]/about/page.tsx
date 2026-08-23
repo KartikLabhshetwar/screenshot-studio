@@ -116,7 +116,7 @@ export default function AboutPage() {
               Screenshot Studio is fully open source. You can view, contribute
               to, or fork the project on{" "}
               <Link
-                href="https://github.com/KartikLabhshetwar/stage"
+                href="https://github.com/KartikLabhshetwar/screenshot-studio"
                 target="_blank"
                 rel="noopener noreferrer"
                 className={linkClassName}

@@ -11,6 +11,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import sharp from 'sharp';
 import { QUALITY_PRESETS, type ExportFormat, type QualityPreset } from '@/lib/export/types';
+import { apiError, methodNotAllowed } from '@/lib/api/errors';
 
 function isValidFormat(format: string): format is ExportFormat {
   return format === 'png' || format === 'jpeg' || format === 'webp';
@@ -21,30 +22,47 @@ function isValidQualityPreset(preset: string): preset is QualityPreset {
 }
 
 export async function POST(request: NextRequest) {
+  let formData: FormData;
   try {
-    const formData = await request.formData();
+    formData = await request.formData();
+  } catch {
+    return apiError(
+      400,
+      'invalid_request',
+      'Request body must be multipart/form-data',
+      'Send multipart/form-data with "image", "format", and "qualityPreset" parts.'
+    );
+  }
+
+  try {
     const imageFile = formData.get('image') as File | null;
     const format = formData.get('format') as string | null;
     const qualityPreset = formData.get('qualityPreset') as string | null;
 
     if (!imageFile) {
-      return NextResponse.json(
-        { error: 'Missing image file' },
-        { status: 400 }
+      return apiError(
+        400,
+        'invalid_request',
+        'Missing image file',
+        'Send multipart/form-data with an "image" file part, for example -F "image=@shot.png".'
       );
     }
 
     if (!format || !isValidFormat(format)) {
-      return NextResponse.json(
-        { error: 'Invalid format. Must be "png", "jpeg", or "webp"' },
-        { status: 400 }
+      return apiError(
+        400,
+        'unsupported_value',
+        'Invalid format. Must be "png", "jpeg", or "webp"',
+        'Set the "format" form field to one of: png, jpeg, webp.'
       );
     }
 
     if (!qualityPreset || !isValidQualityPreset(qualityPreset)) {
-      return NextResponse.json(
-        { error: 'Invalid qualityPreset. Must be "high", "medium", or "low"' },
-        { status: 400 }
+      return apiError(
+        400,
+        'unsupported_value',
+        'Invalid qualityPreset. Must be "high", "medium", or "low"',
+        'Set the "qualityPreset" form field to one of: high, medium, low.'
       );
     }
 
@@ -90,9 +108,15 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error('Export API error:', error);
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Failed to process image' },
-      { status: 500 }
+    return apiError(
+      500,
+      'internal_error',
+      error instanceof Error ? error.message : 'Failed to process image',
+      'Check that the uploaded file is a decodable PNG, JPEG, or WebP image, then retry.'
     );
   }
+}
+
+export async function GET() {
+  return methodNotAllowed(['POST']);
 }

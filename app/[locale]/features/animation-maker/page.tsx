@@ -9,6 +9,7 @@ import {
 } from "hugeicons-react";
 import { Navigation } from "@/components/landing/Navigation";
 import { Footer } from "@/components/landing/Footer";
+import { OG_DEFAULTS } from "@/lib/seo/metadata";
 
 export const metadata: Metadata = {
   title: "Free Animation Maker - Create Animated Screenshots & Slideshows",
@@ -32,6 +33,7 @@ export const metadata: Metadata = {
     "screenshot video export free",
   ],
   openGraph: {
+    ...OG_DEFAULTS,
     title: "Free Animation Maker - Create Animated Screenshots & Slideshows",
     description:
       "Create stunning animations from screenshots. Zoom, pan, and fade effects with video export.",
@@ -167,19 +169,19 @@ export default function AnimationMakerPage() {
         "@type": "ListItem",
         position: 1,
         name: "Home",
-        item: "https://screenshot-studio.com",
+        item: "https://www.screenshot-studio.com",
       },
       {
         "@type": "ListItem",
         position: 2,
         name: "Features",
-        item: "https://screenshot-studio.com/features",
+        item: "https://www.screenshot-studio.com/features",
       },
       {
         "@type": "ListItem",
         position: 3,
         name: "Animation Maker",
-        item: "https://screenshot-studio.com/features/animation-maker",
+        item: "https://www.screenshot-studio.com/features/animation-maker",
       },
     ],
   };

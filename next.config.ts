@@ -29,6 +29,7 @@ const nextConfig: NextConfig = {
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
           { key: "X-DNS-Prefetch-Control", value: "on" },
           { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
+          { key: "Vary", value: "Accept" },
         ],
       },
       // COOP/COEP for editor routes (FFmpeg WASM)
@@ -75,6 +76,14 @@ const nextConfig: NextConfig = {
       {
         source: "/llms-full.txt",
         destination: "/api/llms-full",
+      },
+      {
+        source: "/openapi.json",
+        destination: "/api/openapi",
+      },
+      {
+        source: "/.well-known/openapi.json",
+        destination: "/api/openapi",
       },
       // PostHog reverse proxy — static assets must come first
       {
