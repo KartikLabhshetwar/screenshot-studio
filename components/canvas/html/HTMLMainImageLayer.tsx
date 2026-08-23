@@ -555,6 +555,7 @@ export function HTMLMainImageLayer({
     <div
       ref={containerRef}
       data-main-image-layer="true"
+      data-export-clean-outline={isMainImageSelected ? 'true' : undefined}
       onPointerDown={handleMouseDown}
       style={{
         position: 'absolute',

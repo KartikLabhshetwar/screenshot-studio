@@ -96,6 +96,7 @@ function Handle({ cx: x, cy: y, primary, filled }: {
 }) {
   return (
     <circle
+      data-export-exclude="true"
       cx={x} cy={y} r={5}
       fill={filled ? primary : 'white'}
       stroke={filled ? 'white' : primary}
@@ -111,6 +112,7 @@ function DraggableHandle({ cx: x, cy: y, primary, onDrag }: {
 }) {
   return (
     <circle
+      data-export-exclude="true"
       cx={x} cy={y} r={6}
       fill={primary}
       stroke="white"
@@ -135,6 +137,7 @@ function AnnotationDeleteButton({ x, y, onDelete }: {
 }) {
   return (
     <g
+      data-export-exclude="true"
       style={{ cursor: 'pointer', pointerEvents: 'auto' }}
       onPointerDown={(e) => {
         e.stopPropagation();
@@ -258,7 +261,7 @@ function AnnotationElement({ annotation, isSelected, isHovered, onSelect, onDrag
           <path d={d} {...commonProps} fill="none" strokeLinecap="round" />
           <ArrowHead x={x2} y={y2} angle={endAngle} color={strokeColor} size={headSize} strokeW={strokeWidth} />
           {isSelected && (
-            <>
+            <g data-export-exclude="true">
               <line x1={x1} y1={y1} x2={ctrlX} y2={ctrlY}
                 stroke={sel} strokeWidth={0.75} strokeDasharray="4 3" opacity={0.4}
                 style={{ pointerEvents: 'none' }} />
@@ -276,7 +279,7 @@ function AnnotationElement({ annotation, isSelected, isHovered, onSelect, onDrag
               ) : (
                 <Handle cx={ctrlX} cy={ctrlY} primary={sel} filled />
               )}
-            </>
+            </g>
           )}
         </g>
       );
@@ -306,7 +309,7 @@ function AnnotationElement({ annotation, isSelected, isHovered, onSelect, onDrag
           <rect x={rx} y={ry} width={rw} height={rh} {...hitProps} />
           <rect x={rx} y={ry} width={rw} height={rh} {...commonProps} />
           {isSelected && (
-            <>
+            <g data-export-exclude="true">
               <rect x={rx} y={ry} width={rw} height={rh}
                 fill="none" stroke={sel} strokeWidth={1.5} strokeDasharray="6 3"
                 style={{ pointerEvents: 'none' }} />
@@ -316,7 +319,7 @@ function AnnotationElement({ annotation, isSelected, isHovered, onSelect, onDrag
                   <DraggableHandle cx={x2} cy={y2} primary={sel} onDrag={(e) => onEndpointDrag('p2', e)} />
                 </>
               )}
-            </>
+            </g>
           )}
         </g>
       );
@@ -331,7 +334,7 @@ function AnnotationElement({ annotation, isSelected, isHovered, onSelect, onDrag
           <ellipse cx={ecx} cy={ecy} rx={erx} ry={ery} {...hitProps} />
           <ellipse cx={ecx} cy={ecy} rx={erx} ry={ery} {...commonProps} />
           {isSelected && (
-            <>
+            <g data-export-exclude="true">
               <ellipse cx={ecx} cy={ecy} rx={erx} ry={ery}
                 fill="none" stroke={sel} strokeWidth={1.5} strokeDasharray="6 3"
                 style={{ pointerEvents: 'none' }} />
@@ -341,7 +344,7 @@ function AnnotationElement({ annotation, isSelected, isHovered, onSelect, onDrag
                   <DraggableHandle cx={x2} cy={y2} primary={sel} onDrag={(e) => onEndpointDrag('p2', e)} />
                 </>
               )}
-            </>
+            </g>
           )}
         </g>
       );
