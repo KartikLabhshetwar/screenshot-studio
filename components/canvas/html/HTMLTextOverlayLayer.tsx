@@ -90,6 +90,7 @@ function DraggableText({
     <div
       ref={ref}
       data-text-overlay-id={overlay.id}
+      data-export-clean-outline={isSelected ? 'true' : undefined}
       onMouseDown={handleMouseDown}
       style={{
         position: 'absolute',
