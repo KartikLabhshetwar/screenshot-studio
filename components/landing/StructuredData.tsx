@@ -47,7 +47,7 @@ export function StructuredData() {
           height: 512,
         },
         sameAs: [
-          "https://github.com/KartikLabhshetwar/screenshot-studio",
+          "https://github.com/opennookorg/screenshot-studio",
           "https://x.com/screenshotstdio",
         ],
       },

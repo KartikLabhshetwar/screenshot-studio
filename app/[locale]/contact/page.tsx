@@ -27,7 +27,7 @@ const INTER =
 
 const contacts = [
   {
-    href: "https://github.com/KartikLabhshetwar/screenshot-studio/issues",
+    href: "https://github.com/opennookorg/screenshot-studio/issues",
     external: true,
     icon: GithubIcon,
     title: "Report a Bug",
@@ -35,7 +35,7 @@ const contacts = [
       "Found something broken? Open an issue on GitHub and we'll look into it.",
   },
   {
-    href: "https://github.com/KartikLabhshetwar/screenshot-studio/issues/new?labels=enhancement",
+    href: "https://github.com/opennookorg/screenshot-studio/issues/new?labels=enhancement",
     external: true,
     icon: GithubIcon,
     title: "Request a Feature",
@@ -116,7 +116,7 @@ export default function ContactPage() {
             Screenshot Studio is open source. If you&apos;re a developer and
             want to contribute, check out the{" "}
             <Link
-              href="https://github.com/KartikLabhshetwar/screenshot-studio"
+              href="https://github.com/opennookorg/screenshot-studio"
               target="_blank"
               rel="noopener noreferrer"
               className={linkClassName}

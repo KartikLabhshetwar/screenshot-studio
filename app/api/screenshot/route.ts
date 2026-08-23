@@ -255,7 +255,7 @@ export async function POST(request: NextRequest) {
       500,
       'internal_error',
       'Failed to capture screenshot. Please try again or contact support if the issue persists.',
-      'Retry the request. If it keeps failing, report it at https://github.com/KartikLabhshetwar/screenshot-studio/issues'
+      'Retry the request. If it keeps failing, report it at https://github.com/opennookorg/screenshot-studio/issues'
     )
   }
 }

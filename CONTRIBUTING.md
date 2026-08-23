@@ -186,8 +186,8 @@ Include:
 
 ## Getting Help
 
-- [GitHub Issues](https://github.com/KartikLabhshetwar/screenshot-studio/issues)
-- [GitHub Discussions](https://github.com/KartikLabhshetwar/screenshot-studio/discussions)
+- [GitHub Issues](https://github.com/opennookorg/screenshot-studio/issues)
+- [GitHub Discussions](https://github.com/opennookorg/screenshot-studio/discussions)
 
 ## License
 

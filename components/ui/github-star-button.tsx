@@ -5,7 +5,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { CountUp } from "@/components/ui/CountUp";
 
-const REPO = "KartikLabhshetwar/screenshot-studio";
+const REPO = "opennookorg/screenshot-studio";
 const CACHE_KEY = "gh-stars-v2";
 const CACHE_TTL = 5 * 60 * 1000;
 

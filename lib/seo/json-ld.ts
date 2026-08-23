@@ -18,7 +18,7 @@ export function getOrganizationSchema() {
       height: 512,
     },
     sameAs: [
-      "https://github.com/KartikLabhshetwar/screenshot-studio",
+      "https://github.com/opennookorg/screenshot-studio",
       "https://x.com/screenshotstdio",
     ],
     email: "kartik.labhshetwar@gmail.com",
@@ -46,7 +46,7 @@ export function getOrganizationSchema() {
       {
         "@type": "ContactPoint",
         contactType: "technical support",
-        url: "https://github.com/KartikLabhshetwar/screenshot-studio/issues",
+        url: "https://github.com/opennookorg/screenshot-studio/issues",
         email: "kartik.labhshetwar@gmail.com",
       },
     ],

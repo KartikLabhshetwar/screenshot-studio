@@ -266,7 +266,7 @@ export default function PrivacyPolicyPage() {
               Screenshot Studio is open source. Every claim on this page can be
               checked against the{" "}
               <Link
-                href="https://github.com/KartikLabhshetwar/screenshot-studio"
+                href="https://github.com/opennookorg/screenshot-studio"
                 target="_blank"
                 rel="noopener noreferrer"
                 className={linkClassName}

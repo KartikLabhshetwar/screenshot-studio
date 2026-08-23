@@ -7,7 +7,7 @@ interface FooterProps {
   brandName?: string;
 }
 
-const GITHUB_URL = "https://github.com/KartikLabhshetwar/screenshot-studio";
+const GITHUB_URL = "https://github.com/opennookorg/screenshot-studio";
 const X_URL = "https://x.com/screenshotstdio";
 const PEERLIST_URL =
   "https://peerlist.io/code_kartik/project/screenshot-studio";

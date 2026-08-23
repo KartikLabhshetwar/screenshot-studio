@@ -83,7 +83,7 @@ Developers, designers, marketers, indie hackers, content creators, and anyone wh
 ## Contact
 - Website: https://www.screenshot-studio.com
 - Twitter/X: https://x.com/screenshotstdio
-- GitHub: https://github.com/KartikLabhshetwar/screenshot-studio
+- GitHub: https://github.com/opennookorg/screenshot-studio
 - Email: kartik.labhshetwar@gmail.com
 
 ## LLMs.txt

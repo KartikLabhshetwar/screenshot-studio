@@ -34,7 +34,7 @@ A free, browser-based screenshot editor. Beautiful backgrounds, device frames, 3
 ## Quick Start
 
 ```bash
-git clone https://github.com/KartikLabhshetwar/screenshot-studio.git
+git clone https://github.com/opennookorg/screenshot-studio.git
 cd screenshot-studio
 npm install
 npm run dev
@@ -52,13 +52,13 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 ## Contributors
 
-<a href="https://github.com/KartikLabhshetwar/screenshot-studio/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=KartikLabhshetwar/screenshot-studio" />
+<a href="https://github.com/opennookorg/screenshot-studio/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=opennookorg/screenshot-studio" />
 </a>
 
 ## Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=KartikLabhshetwar/screenshot-studio&type=Date)](https://star-history.com/#KartikLabhshetwar/screenshot-studio&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=opennookorg/screenshot-studio&type=Date)](https://star-history.com/#opennookorg/screenshot-studio&Date)
 
 ## License
 

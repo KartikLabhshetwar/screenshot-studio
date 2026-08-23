@@ -112,7 +112,7 @@ export default function TermsPage() {
               tool. The Screenshot Studio software itself is open source and
               licensed under the terms specified in our{" "}
               <Link
-                href="https://github.com/KartikLabhshetwar/screenshot-studio"
+                href="https://github.com/opennookorg/screenshot-studio"
                 target="_blank"
                 rel="noopener noreferrer"
                 className={linkClassName}
