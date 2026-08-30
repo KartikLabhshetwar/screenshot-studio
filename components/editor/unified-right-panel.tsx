@@ -27,7 +27,7 @@ import {
   ImageOverlaySection,
   DepthSection,
   TweetImportSection,
-  CodeSnippetSection,
+  CodeImagesLinkCard,
   ImagePositionSection,
 } from './sections';
 import { cn } from '@/lib/utils';
@@ -159,7 +159,7 @@ export function UnifiedRightPanel({
               <ImagePositionSection />
               <ShadowSection />
               <TweetImportSection />
-              <CodeSnippetSection />
+              <CodeImagesLinkCard />
               <ImageOverlaySection />
               <AnnotateSection />
               <TextSection />

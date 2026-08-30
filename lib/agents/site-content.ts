@@ -22,7 +22,7 @@ export const AGENT_PAGES: AgentPage[] = [
       "Safari, Chrome, and Arc browser mockups in light and dark",
       "3D perspective transforms and fully configurable shadows",
       "20+ animation presets with a keyframe timeline and video export",
-      "Import a tweet by URL or a code snippet and render it as an image",
+      "Import a tweet by URL and render it as an image",
       "Export up to 5x resolution",
     ],
   },
@@ -37,6 +37,19 @@ export const AGENT_PAGES: AgentPage[] = [
     title: "Free Screenshot Editor Online - Screenshot Studio",
     summary:
       "Free browser-based screenshot editor with no signup and no watermark. Covers the full editing workflow from upload to export.",
+  },
+  {
+    path: "/code",
+    title: "Code to Image: Create Beautiful Code Screenshots - Screenshot Studio",
+    summary:
+      "A focused code to image editor. Paste code, pick a syntax theme and gradient background, toggle line numbers and a window frame, then export a PNG or copy a shareable link. Rendering happens in the browser, so code is not sent to a server to create the image. No signup, no watermark.",
+    points: [
+      "12 syntax highlighting themes and 20+ languages, with auto-detect",
+      "11 gradient backgrounds plus a transparent option",
+      "Line numbers, macOS window frame, and 10 monospace fonts",
+      "Shareable links that restore the exact design from the URL",
+      "2x and 3x PNG export, plus copy image to clipboard",
+    ],
   },
   {
     path: "/features",
@@ -75,10 +88,16 @@ export const AGENT_PAGES: AgentPage[] = [
       "Safari, Chrome, and Arc browser frames plus macOS window chrome, with editable URL bar text.",
   },
   {
+    path: "/features/code-snippets",
+    title: "Code to Image Generator: Free Code Screenshots - Screenshot Studio",
+    summary:
+      "Marketing overview of the code to image tool: syntax themes, gradient backgrounds, line numbers, window frame, and shareable links, positioned as a free ray.so and carbon.now.sh alternative.",
+  },
+  {
     path: "/for/developers",
     title: "Screenshot Studio for Developers",
     summary:
-      "Ship README, changelog, and docs screenshots that look designed, including code-snippet-to-image capture.",
+      "Ship README, changelog, and docs screenshots that look designed, plus a standalone code to image tool at /code.",
   },
   {
     path: "/for/marketers",

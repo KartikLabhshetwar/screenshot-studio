@@ -21,6 +21,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "weekly",
       priority: 0.9,
     },
+    { path: "/code", changeFrequency: "weekly", priority: 0.9 },
 
     // Features
     { path: "/features", changeFrequency: "monthly", priority: 0.8 },
@@ -46,6 +47,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
     {
       path: "/features/browser-mockups",
+      changeFrequency: "monthly",
+      priority: 0.8,
+    },
+    {
+      path: "/features/code-snippets",
       changeFrequency: "monthly",
       priority: 0.8,
     },

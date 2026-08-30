@@ -27,15 +27,16 @@ interface NavigationProps {
 
 const resourceLinks = [
   { label: "Features", href: "/features" },
+  { label: "Code Images", href: "/code" },
   { label: "For Designers", href: "/for/designers" },
   { label: "For Developers", href: "/for/developers" },
   { label: "Screenshot Editor", href: "/free-screenshot-editor" },
 ] as const;
 
 const featuredResource = {
-  headline: "Browser mockups are now available.",
-  ctaLabel: "See changelog",
-  ctaHref: "/changelog",
+  headline: "Code Images are now a standalone tool.",
+  ctaLabel: "Try Code Images",
+  ctaHref: "/code",
 };
 
 const SCROLL_COMPACT_AT = 10;
@@ -361,7 +362,7 @@ export function Navigation({
               onClick={() => setMobileMenuOpen(false)}
               className="rounded-md px-3 py-2.5 text-[15px] font-medium text-muted-foreground transition-colors hover:bg-foreground/[0.06] hover:text-foreground"
             >
-              Changelog
+              {featuredResource.ctaLabel}
             </Link>
             <div className="my-2 h-px bg-foreground/10" />
             <Link
