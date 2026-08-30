@@ -18,7 +18,7 @@ import {
   BackgroundSection,
   DepthSection,
   TweetImportSection,
-  CodeSnippetSection,
+  CodeImagesLinkCard,
   ImageOverlaySection,
   AnnotateSection,
   TextSection,
@@ -131,7 +131,7 @@ export function LeftEditPanel() {
               )}
               <ShadowSection />
               <TweetImportSection />
-              <CodeSnippetSection />
+              <CodeImagesLinkCard />
               <ImageOverlaySection />
               <AnnotateSection />
               <TextSection />
