@@ -281,14 +281,14 @@ const BottomControls = React.memo(function BottomControls({
 
   return (
     <div
-      className={`fixed bottom-6 left-1/2 z-20 w-[min(94vw,880px)] -translate-x-1/2 rounded-xl bg-[#1f1f1f]/95 shadow-2xl ring-1 ring-white/10 backdrop-blur transition-all duration-300 ease-out motion-reduce:transition-none ${
+      className={`fixed bottom-6 left-1/2 z-20 w-max max-w-[calc(100vw-32px)] -translate-x-1/2 rounded-xl bg-[#1f1f1f]/95 shadow-2xl ring-1 ring-white/10 backdrop-blur transition-all duration-300 ease-out motion-reduce:transition-none ${
         mounted ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
       }`}
     >
-      <div className="scrollbar-none flex items-end gap-5 overflow-x-auto px-4 py-3">
+      <div className="scrollbar-none flex items-end gap-5 overflow-x-auto sm:overflow-visible px-4 py-3">
         <ControlField label="Theme">
           <Select value={theme} onValueChange={onThemeChange}>
-            <SelectTrigger size="sm" className="w-36 border-white/10 bg-white/[0.04] text-white">
+            <SelectTrigger size="sm" className="w-[150px] border-white/10 bg-white/[0.04] text-white">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -357,7 +357,7 @@ const BottomControls = React.memo(function BottomControls({
 
         <ControlField label="Language">
           <Select value={lang} onValueChange={onLangChange}>
-            <SelectTrigger size="sm" className="w-28 border-white/10 bg-white/[0.04] text-white">
+            <SelectTrigger size="sm" className="w-[150px] border-white/10 bg-white/[0.04] text-white">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
