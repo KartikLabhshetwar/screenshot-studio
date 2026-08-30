@@ -109,9 +109,14 @@ const TopBar = React.memo(function TopBar({
   return (
     <header className="flex h-[50px] shrink-0 items-center justify-between gap-3 border-b border-white/[0.06] px-4">
       <div className="flex items-center gap-2">
-        <span className="relative size-6 shrink-0 overflow-hidden rounded-md">
-          <Image src="/logo-mark.png" alt="Screenshot Studio" fill className="object-cover" />
-        </span>
+        <Image
+          src="/logo-mark.png"
+          alt="Screenshot Studio"
+          width={28}
+          height={28}
+          className="h-7 w-7 shrink-0"
+          priority
+        />
         <span className="text-sm font-medium text-white/90">Code Images</span>
         <span className="hidden text-xs text-white/40 sm:inline">
           by Screenshot Studio
