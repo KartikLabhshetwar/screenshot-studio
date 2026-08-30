@@ -5,9 +5,9 @@ import { AgentSummary } from "@/components/seo/AgentSummary";
 import { OG_DEFAULTS } from "@/lib/seo/metadata";
 
 export const metadata: Metadata = {
-  title: "Free Screenshot Editor & Mockup Maker",
+  title: "Online Screenshot Editor & Mockup Maker",
   description:
-    "Free online screenshot editor and mockup maker. Add gradient backgrounds, Safari and Chrome browser mockups, shadows, 3D effects, and animations. No signup.",
+    "Online screenshot editor and mockup maker that runs in your browser. Add gradient backgrounds, Safari and Chrome browser mockups, shadows, 3D effects, and animations. No signup.",
   keywords: [
     "screenshot editor online free",
     "free screenshot editor",

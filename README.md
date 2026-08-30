@@ -1,35 +1,21 @@
-
-
-<a href="https://vercel.com/oss">
-  <img alt="Vercel OSS Program" src="https://vercel.com/oss/program-badge.svg" />
-</a>
-<br/>
-<br/>
-<a href="https://peerlist.io/code_kartik/project/screenshot-studio" target="_blank" rel="noreferrer">
-			<img
-			  src="https://dqy38fnwh4fqs.cloudfront.net/website/project-spotlight/project-week-rank-one-dark.svg"
-			  alt="Screenshot Studio"
-			  style="width: auto; height: 64px;"
-			/>
-</a>
+<a href="https://vercel.com/oss"><img alt="Vercel OSS Program" src="https://vercel.com/oss/program-badge.svg" /></a>
+<a href="https://peerlist.io/code_kartik/project/screenshot-studio"><img alt="Peerlist Project Spotlight, Rank 1" src="https://dqy38fnwh4fqs.cloudfront.net/website/project-spotlight/project-week-rank-one-dark.svg" height="40" /></a>
 
 # Screenshot Studio
 
-A free, browser-based screenshot editor. Beautiful backgrounds, device frames, 3D effects, animations, and video export. No signup, no watermarks.
+Free, open-source screenshot editor and mockup maker that runs in the browser. No signup, no watermarks.
 
-**Live:** [screenshot-studio.com](https://www.screenshot-studio.com)
+**Live:** [screenshot-studio.com](https://www.screenshot-studio.com) · **Code to image:** [screenshot-studio.com/code](https://www.screenshot-studio.com/code)
 
 ## Features
 
-- **100+ Backgrounds** — gradients, solid colors, images, blur, noise
-- **Browser Mockups** — Safari & Chrome (light/dark) with realistic toolbars, adjustable header size, and custom URL
-- **Device Frames** — Arc browser, Polaroid, glass, outline, border styles
-- **3D Transforms** — 30+ perspective presets with realistic depth
-- **Draw & Markup** — arrows, shapes, blur regions, text overlays
-- **Tweet & Code Snippets** — import tweets, generate code images
-- **Animations** — 20+ presets, timeline editor, keyframe control
-- **Video Export** — MP4, WebM, GIF with hardware-accelerated encoding
-- **High-Res Export** — PNG/JPG up to 5x scale, fully in-browser
+- 100+ backgrounds: gradients, mesh, images, blur, noise
+- Browser mockups: Safari, Chrome, Arc, macOS window, Polaroid, glass frames
+- 3D perspective transforms with configurable shadows
+- Annotations: arrows, shapes, blur regions, text and image overlays
+- Code to image with 32 syntax themes; tweet to image
+- Animation timeline with 20+ presets and keyframe control
+- Export PNG, JPEG, WebP up to 5x, and MP4, WebM, GIF encoded in the browser
 
 ## Quick Start
 
@@ -40,25 +26,15 @@ npm install
 npm run dev
 ```
 
-Open [localhost:3000](http://localhost:3000)
+Open [localhost:3000](http://localhost:3000). Core features need no environment variables; see `.env.example` for optional R2, database, and analytics config.
 
 ## Tech Stack
 
-Next.js 16 · React 19 · TypeScript · Tailwind CSS 4 · Zustand · Radix UI · Motion · FFmpeg WASM · WebCodecs
+Next.js 16 · React 19 · TypeScript · Tailwind CSS 4 · Zustand · Radix UI · Motion · FFmpeg WASM · WebCodecs · Prisma
 
 ## Contributing
 
 See [CONTRIBUTING.md](./CONTRIBUTING.md).
-
-## Contributors
-
-<a href="https://github.com/opennookorg/screenshot-studio/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=opennookorg/screenshot-studio" />
-</a>
-
-## Star History
-
-[![Star History Chart](https://api.star-history.com/svg?repos=opennookorg/screenshot-studio&type=Date)](https://star-history.com/#opennookorg/screenshot-studio&Date)
 
 ## License
 

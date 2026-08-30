@@ -35,7 +35,7 @@ const navCol3 = [
   { href: "/for/developers", label: "For developers" },
   { href: "/for/marketers", label: "For marketers" },
   { href: "/compare/pika-style", label: "Pika alternative" },
-  { href: "/compare/shots-so", label: "Shots.so alternative" },
+  { href: "/compare/carbon", label: "Carbon alternative" },
 ] as const;
 
 function FooterNavLink({

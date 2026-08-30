@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import Link from 'next/link';
 import { CodeImageEditorLoader } from '@/components/code-image/CodeImageEditorLoader';
 import { OG_DEFAULTS } from '@/lib/seo/metadata';
 import {
@@ -123,6 +124,17 @@ export default function CodeImagePage() {
               </AccordionItem>
             ))}
           </Accordion>
+          <p className="mt-10 text-sm text-muted-foreground">
+            Coming from another tool? See how it compares to{' '}
+            <Link href="/compare/carbon" className="underline">Carbon</Link>
+            {' '}and{' '}
+            <Link href="/compare/ray-so" className="underline">Ray.so</Link>,
+            or explore the{' '}
+            <Link href="/features/code-snippets" className="underline">
+              code snippet feature
+            </Link>
+            .
+          </p>
         </div>
       </section>
     </>
