@@ -1,29 +1,25 @@
-import { RAYSO_THEMES, type RaySyntaxTokens } from './rayso-themes-data';
+import { CODE_THEME_SOURCES, type SyntaxPalette } from './code-themes-data';
+import type { BackgroundSelection } from './code-backgrounds';
 
 export interface CodeTheme {
   id: string;
   label: string;
   swatch: string;
-  partner: boolean;
   from: string;
   to: string;
-  light: RaySyntaxTokens;
-  dark: RaySyntaxTokens;
+  light: SyntaxPalette;
+  dark: SyntaxPalette;
 }
 
-export const CODE_THEMES: CodeTheme[] = RAYSO_THEMES.map((t) => ({
+export const CODE_THEMES: CodeTheme[] = CODE_THEME_SOURCES.map((t) => ({
   id: t.id,
   label: t.name,
   swatch: t.from,
-  partner: t.partner,
   from: t.from,
   to: t.to,
   light: t.light,
   dark: t.dark,
 }));
-
-export const COLOR_THEMES = CODE_THEMES.filter((t) => !t.partner);
-export const PARTNER_THEMES = CODE_THEMES.filter((t) => t.partner);
 
 export const WINDOW_SURFACE_DARK = 'rgba(0, 0, 0, 0.88)';
 export const WINDOW_SURFACE_LIGHT = 'rgba(255, 255, 255, 0.95)';
@@ -94,6 +90,7 @@ export interface CodeImageState {
   lang: string;
   dark: boolean;
   showBackground: boolean;
+  background: BackgroundSelection;
   padding: number;
   lineNumbers: boolean;
   font: string;
@@ -108,6 +105,7 @@ export const DEFAULT_STATE: CodeImageState = {
   lang: 'typescript',
   dark: true,
   showBackground: true,
+  background: { kind: 'theme', id: '' },
   padding: 64,
   lineNumbers: true,
   font: 'jetbrainsMono',

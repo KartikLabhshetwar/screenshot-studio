@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { domToBlob } from 'modern-screenshot';
 import { toast } from 'sonner';
 import {
@@ -10,16 +10,12 @@ import {
   Download04Icon,
   ArrowDown01Icon,
   InformationCircleIcon,
-  SparklesIcon,
   CheckmarkCircle02Icon,
-  CodeIcon,
 } from 'hugeicons-react';
 import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
@@ -41,12 +37,11 @@ import {
 import { SegmentedControl } from '@/components/ui/segmented-control';
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
-import { useImageStore } from '@/lib/store';
 import { CodeFrame } from './CodeFrame';
+import { BackgroundPicker } from './BackgroundPicker';
+import type { BackgroundSelection } from './code-backgrounds';
 import {
   CODE_THEMES,
-  COLOR_THEMES,
-  PARTNER_THEMES,
   LANGUAGES,
   GOOGLE_FONTS_URL,
   PADDING_OPTIONS,
@@ -96,11 +91,9 @@ interface TopBarProps {
   exporting: boolean;
   justExported: boolean;
   copying: boolean;
-  openingStudio: boolean;
   onExportPng: () => void;
   onCopyImage: () => void;
   onCopyUrl: () => void;
-  onOpenInStudio: () => void;
 }
 
 const TopBar = React.memo(function TopBar({
@@ -109,17 +102,15 @@ const TopBar = React.memo(function TopBar({
   exporting,
   justExported,
   copying,
-  openingStudio,
   onExportPng,
   onCopyImage,
   onCopyUrl,
-  onOpenInStudio,
 }: TopBarProps) {
   return (
     <header className="flex h-[50px] shrink-0 items-center justify-between gap-3 border-b border-white/[0.06] px-4">
       <div className="flex items-center gap-2">
-        <span className="flex size-5 items-center justify-center rounded-md bg-blue-500 text-white">
-          <CodeIcon size={13} />
+        <span className="relative size-6 shrink-0 overflow-hidden rounded-md">
+          <Image src="/logo-mark.png" alt="Screenshot Studio" fill className="object-cover" />
         </span>
         <span className="text-sm font-medium text-white/90">Code Images</span>
         <span className="hidden text-xs text-white/40 sm:inline">
@@ -140,8 +131,7 @@ const TopBar = React.memo(function TopBar({
               <DialogTitle>Code Images</DialogTitle>
               <DialogDescription>
                 Turn a code snippet into a beautiful, shareable image. Pick a
-                theme, background, and window style, then export a PNG or
-                send it into Screenshot Studio to animate it.
+                theme, background, and window style, then export a crisp PNG.
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-1.5 text-sm text-muted-foreground">
@@ -164,18 +154,6 @@ const TopBar = React.memo(function TopBar({
             </div>
           </DialogContent>
         </Dialog>
-
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          onClick={onOpenInStudio}
-          disabled={openingStudio}
-          className="text-white/70 hover:bg-white/10 hover:text-white"
-        >
-          <SparklesIcon size={16} />
-          {openingStudio ? 'Opening…' : 'Animate in Studio'}
-        </Button>
 
         <div className="flex items-center">
           <Button
@@ -216,10 +194,6 @@ const TopBar = React.memo(function TopBar({
                 <Link01Icon size={15} />
                 Copy URL
               </DropdownMenuItem>
-              <DropdownMenuItem onSelect={onOpenInStudio}>
-                <SparklesIcon size={15} />
-                Open in Studio
-              </DropdownMenuItem>
               <DropdownMenuSeparator />
               {SCALE_OPTIONS.map((scale) => (
                 <DropdownMenuItem
@@ -250,6 +224,8 @@ interface BottomControlsProps {
   onDarkChange: (dark: boolean) => void;
   showBackground: boolean;
   onShowBackgroundChange: (show: boolean) => void;
+  background: BackgroundSelection;
+  onBackgroundChange: (background: BackgroundSelection) => void;
   lineNumbers: boolean;
   onLineNumbersChange: (on: boolean) => void;
   padding: number;
@@ -267,6 +243,8 @@ const BottomControls = React.memo(function BottomControls({
   onDarkChange,
   showBackground,
   onShowBackgroundChange,
+  background,
+  onBackgroundChange,
   lineNumbers,
   onLineNumbersChange,
   padding,
@@ -275,14 +253,16 @@ const BottomControls = React.memo(function BottomControls({
   onLangChange,
   windowStyle,
   onWindowStyleChange,
-}: BottomControlsProps) {
+  visible,
+}: BottomControlsProps & { visible: boolean }) {
   const [mounted, setMounted] = React.useState(false);
   React.useEffect(() => setMounted(true), []);
+  const activeTheme = CODE_THEMES.find((t) => t.id === theme) ?? CODE_THEMES[0];
 
   return (
     <div
       className={`fixed bottom-6 left-1/2 z-20 w-max max-w-[calc(100vw-32px)] -translate-x-1/2 rounded-xl bg-[#1f1f1f]/95 shadow-2xl ring-1 ring-white/10 backdrop-blur transition-all duration-300 ease-out motion-reduce:transition-none ${
-        mounted ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
+        mounted && visible ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-4 opacity-0'
       }`}
     >
       <div className="scrollbar-none flex items-end gap-5 overflow-x-auto sm:overflow-visible px-4 py-3">
@@ -292,24 +272,12 @@ const BottomControls = React.memo(function BottomControls({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectGroup>
-                <SelectLabel>Colors</SelectLabel>
-                {COLOR_THEMES.map((t) => (
-                  <SelectItem key={t.id} value={t.id}>
-                    <ThemeSwatch color={t.swatch} />
-                    {t.label}
-                  </SelectItem>
-                ))}
-              </SelectGroup>
-              <SelectGroup>
-                <SelectLabel>Partners</SelectLabel>
-                {PARTNER_THEMES.map((t) => (
-                  <SelectItem key={t.id} value={t.id}>
-                    <ThemeSwatch color={t.swatch} />
-                    {t.label}
-                  </SelectItem>
-                ))}
-              </SelectGroup>
+              {CODE_THEMES.map((t) => (
+                <SelectItem key={t.id} value={t.id}>
+                  <ThemeSwatch color={t.swatch} />
+                  {t.label}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </ControlField>
@@ -317,7 +285,16 @@ const BottomControls = React.memo(function BottomControls({
         <Divider />
 
         <ControlField label="Background">
-          <Switch checked={showBackground} onCheckedChange={onShowBackgroundChange} aria-label="Background" />
+          <div className="flex items-center gap-2">
+            <Switch checked={showBackground} onCheckedChange={onShowBackgroundChange} aria-label="Background" />
+            <BackgroundPicker
+              theme={activeTheme}
+              dark={dark}
+              background={background}
+              onBackgroundChange={onBackgroundChange}
+              disabled={!showBackground}
+            />
+          </div>
         </ControlField>
 
         <ControlField label="Dark mode">
@@ -397,10 +374,9 @@ export function CodeImageEditor() {
   const [exporting, setExporting] = React.useState(false);
   const [justExported, setJustExported] = React.useState(false);
   const [copying, setCopying] = React.useState(false);
-  const [openingStudio, setOpeningStudio] = React.useState(false);
+  const [stageVisible, setStageVisible] = React.useState(true);
   const frameRef = React.useRef<HTMLDivElement>(null);
-  const router = useRouter();
-  const addImages = useImageStore((s) => s.addImages);
+  const stageRef = React.useRef<HTMLElement>(null);
 
   const update = React.useCallback((patch: Partial<CodeImageState>) => {
     setState((s) => ({ ...s, ...patch }));
@@ -488,23 +464,16 @@ export function CodeImageEditor() {
     );
   }, []);
 
-  const handleOpenInStudio = React.useCallback(async () => {
-    setOpeningStudio(true);
-    try {
-      const blob = await captureBlob(2);
-      if (!blob) throw new Error('Could not render code image');
-      const file = new File([blob], `${state.title || 'code-image'}.png`, {
-        type: blob.type,
-      });
-      addImages([file]);
-      router.push('/');
-    } catch (error) {
-      console.error('Open in Studio failed', error);
-      toast.error('Could not open in Studio');
-    } finally {
-      setOpeningStudio(false);
-    }
-  }, [captureBlob, state.title, addImages, router]);
+  React.useEffect(() => {
+    const stage = stageRef.current;
+    if (!stage) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setStageVisible(entry.isIntersecting),
+      { rootMargin: '0px 0px -110px 0px', threshold: 0 },
+    );
+    observer.observe(stage);
+    return () => observer.disconnect();
+  }, []);
 
   React.useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
@@ -530,6 +499,10 @@ export function CodeImageEditor() {
     (showBackground: boolean) => update({ showBackground }),
     [update],
   );
+  const onBackgroundChange = React.useCallback(
+    (background: BackgroundSelection) => update({ background }),
+    [update],
+  );
   const onLineNumbersChange = React.useCallback(
     (lineNumbers: boolean) => update({ lineNumbers }),
     [update],
@@ -552,14 +525,13 @@ export function CodeImageEditor() {
         exporting={exporting}
         justExported={justExported}
         copying={copying}
-        openingStudio={openingStudio}
         onExportPng={handleExportPng}
         onCopyImage={handleCopyImage}
         onCopyUrl={handleCopyUrl}
-        onOpenInStudio={handleOpenInStudio}
       />
 
       <main
+        ref={stageRef}
         className="relative flex min-h-[calc(100dvh-50px)] flex-1 items-center justify-center overflow-auto px-6 pb-32 pt-10"
         style={{
           backgroundImage:
@@ -575,6 +547,7 @@ export function CodeImageEditor() {
           lang={state.lang}
           dark={state.dark}
           showBackground={state.showBackground}
+          background={state.background}
           padding={state.padding}
           lineNumbers={state.lineNumbers}
           fontId={state.font}
@@ -593,6 +566,8 @@ export function CodeImageEditor() {
         onDarkChange={onDarkChange}
         showBackground={state.showBackground}
         onShowBackgroundChange={onShowBackgroundChange}
+        background={state.background}
+        onBackgroundChange={onBackgroundChange}
         lineNumbers={state.lineNumbers}
         onLineNumbersChange={onLineNumbersChange}
         padding={state.padding}
@@ -601,6 +576,7 @@ export function CodeImageEditor() {
         onLangChange={onLangChange}
         windowStyle={state.window}
         onWindowStyleChange={onWindowStyleChange}
+        visible={stageVisible}
       />
     </div>
   );

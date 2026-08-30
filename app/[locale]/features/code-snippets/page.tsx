@@ -56,15 +56,15 @@ const chipLinkClassName =
 const features = [
   {
     icon: SourceCodeIcon,
-    title: "32 Syntax Themes",
+    title: "14 Syntax Themes",
     description:
-      "Midnight, Sunset, Candy, and more, plus partner themes like Vercel, Stripe, and Supabase. Auto-detects your language or pick from 20+ manually.",
+      "Midnight, Sunset, Candy, and more. Auto-detects your language or pick from 20+ manually.",
   },
   {
     icon: ColorsIcon,
-    title: "Gradient Backgrounds",
+    title: "Gradients, Images & Patterns",
     description:
-      "Every theme ships its own gradient, or turn the background off for a transparent PNG.",
+      "Every theme ships its own gradient, or pick from dozens of gradients, image backgrounds, and patterns, or turn the background off for a transparent PNG.",
   },
   {
     icon: Download04Icon,
@@ -76,7 +76,7 @@ const features = [
     icon: Link01Icon,
     title: "Shareable Links & 2x/4x Export",
     description:
-      "Every setting is saved to the URL, so you can share a link, export a 2x or 4x PNG, or animate it in Studio.",
+      "Every setting is saved to the URL, so you can share a link or export a 2x or 4x PNG.",
   },
 ] as const;
 
@@ -179,11 +179,10 @@ export default function CodeSnippetsFeaturePage() {
           priceCurrency: "USD",
         },
         featureList: [
-          "32 syntax highlighting themes, including Vercel, Stripe, and Supabase",
-          "Gradient backgrounds plus transparent export",
+          "14 syntax highlighting themes",
+          "Gradient, image, and pattern backgrounds plus transparent export",
           "Line numbers and macOS window frame",
           "Shareable links and 2x or 4x PNG export",
-          "Animate in Studio for video and GIF export",
           "No signup required",
         ],
       },

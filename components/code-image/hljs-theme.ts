@@ -1,7 +1,7 @@
 import type { CSSProperties } from 'react';
-import type { RaySyntaxTokens } from './rayso-themes-data';
+import type { SyntaxPalette } from './code-themes-data';
 
-function resolved(tokens: RaySyntaxTokens) {
+function resolved(tokens: SyntaxPalette) {
   const fg = tokens.foreground;
   return {
     foreground: fg,
@@ -20,7 +20,7 @@ function resolved(tokens: RaySyntaxTokens) {
 }
 
 export function buildHljsStyle(
-  tokens: RaySyntaxTokens,
+  tokens: SyntaxPalette,
   background: string,
 ): Record<string, CSSProperties> {
   const t = resolved(tokens);

@@ -22,6 +22,7 @@ import typescript from 'react-syntax-highlighter/dist/esm/languages/hljs/typescr
 import xml from 'react-syntax-highlighter/dist/esm/languages/hljs/xml';
 import yaml from 'react-syntax-highlighter/dist/esm/languages/hljs/yaml';
 import { buildHljsStyle } from './hljs-theme';
+import { resolveCodeBackground, type BackgroundSelection } from './code-backgrounds';
 import {
   CODE_THEMES,
   FONTS,
@@ -64,6 +65,7 @@ interface CodeFrameProps {
   lang: string;
   dark: boolean;
   showBackground: boolean;
+  background: BackgroundSelection;
   padding: number;
   lineNumbers: boolean;
   fontId: string;
@@ -125,6 +127,7 @@ export const CodeFrame = React.forwardRef<HTMLDivElement, CodeFrameProps>(
       lang,
       dark,
       showBackground,
+      background,
       padding,
       lineNumbers,
       fontId,
@@ -142,7 +145,6 @@ export const CodeFrame = React.forwardRef<HTMLDivElement, CodeFrameProps>(
 
     const theme = CODE_THEMES.find((t) => t.id === themeId) ?? CODE_THEMES[0];
     const tokens = dark ? theme.dark : theme.light;
-    const isVercel = theme.id === 'vercel';
     const isMonoLight = theme.id === 'mono' && !dark;
 
     const windowBg = dark ? WINDOW_SURFACE_DARK : WINDOW_SURFACE_LIGHT;
@@ -156,8 +158,11 @@ export const CodeFrame = React.forwardRef<HTMLDivElement, CodeFrameProps>(
     const gutterColor = dark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.3)';
     const titleColor = dark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.45)';
     const caretColor = dark ? 'rgba(255,255,255,0.9)' : 'rgba(0,0,0,0.85)';
-    const gridColor = dark ? 'rgba(255,255,255,0.08)' : '#ebebeb';
-    const bracketColor = dark ? 'rgba(255,255,255,0.35)' : '#a8a8a8';
+
+    const resolvedBackground = React.useMemo(
+      () => resolveCodeBackground(background, theme, dark),
+      [background, theme, dark],
+    );
 
     const lines = code.split('\n');
 
@@ -202,21 +207,22 @@ export const CodeFrame = React.forwardRef<HTMLDivElement, CodeFrameProps>(
 
     return (
       <div
+        ref={ref}
         className="relative transition-[background-color] duration-200 ease-out motion-reduce:transition-none"
         style={{
           backgroundImage: showBackground
-            ? `linear-gradient(135deg, ${theme.from} 0%, ${theme.to} 100%)`
+            ? resolvedBackground.backgroundImage
             : dark
               ? 'linear-gradient(45deg, #222 25%, transparent 0), linear-gradient(-45deg, #222 25%, transparent 0), linear-gradient(45deg, transparent 75%, #222 0), linear-gradient(-45deg, transparent 75%, #222 0)'
               : 'linear-gradient(45deg, #eee 25%, transparent 0), linear-gradient(-45deg, #eee 25%, transparent 0), linear-gradient(45deg, transparent 75%, #eee 0), linear-gradient(-45deg, transparent 75%, #eee 0)',
-          backgroundColor: showBackground ? theme.to : dark ? '#111' : '#fafafa',
-          backgroundPosition: showBackground ? '0 0' : '0 0, 0 10px, 10px -10px, -10px 0',
-          backgroundSize: showBackground ? 'cover' : '20px 20px',
+          backgroundColor: showBackground ? resolvedBackground.backgroundColor : dark ? '#111' : '#fafafa',
+          backgroundPosition: showBackground ? resolvedBackground.backgroundPosition : '0 0, 0 10px, 10px -10px, -10px 0',
+          backgroundSize: showBackground ? resolvedBackground.backgroundSize : '20px 20px',
+          backgroundRepeat: showBackground ? resolvedBackground.backgroundRepeat : undefined,
           padding: `${padding}px`,
         }}
       >
         <div
-          ref={ref}
           className="relative mx-auto transition-[width,background-color] duration-200 ease-out motion-reduce:transition-none"
           style={{ width }}
         >
@@ -224,51 +230,6 @@ export const CodeFrame = React.forwardRef<HTMLDivElement, CodeFrameProps>(
             <>
               <ResizeHandle side="left" onResize={resizeFromLeft} />
               <ResizeHandle side="right" onResize={resizeFromRight} />
-            </>
-          ) : null}
-
-          {isVercel && showBackground ? (
-            <>
-              <span
-                aria-hidden
-                className="pointer-events-none absolute left-[-150px] top-0 h-px w-[1200px]"
-                style={{ background: gridColor }}
-              />
-              <span
-                aria-hidden
-                className="pointer-events-none absolute left-[-150px] bottom-0 h-px w-[1200px]"
-                style={{ background: gridColor }}
-              />
-              <span
-                aria-hidden
-                className="pointer-events-none absolute left-0 top-[-150px] h-[calc(100%+300px)] w-px"
-                style={{ background: gridColor }}
-              />
-              <span
-                aria-hidden
-                className="pointer-events-none absolute right-0 top-[-150px] h-[calc(100%+300px)] w-px"
-                style={{ background: gridColor }}
-              />
-              {[
-                { top: -12, left: -12 },
-                { bottom: -12, right: -12 },
-              ].map((pos, i) => (
-                <span
-                  key={i}
-                  aria-hidden
-                  className="pointer-events-none absolute h-[25px] w-[25px]"
-                  style={pos}
-                >
-                  <span
-                    className="absolute left-0 top-1/2 h-px w-full"
-                    style={{ background: bracketColor }}
-                  />
-                  <span
-                    className="absolute left-1/2 top-0 h-full w-px"
-                    style={{ background: bracketColor }}
-                  />
-                </span>
-              ))}
             </>
           ) : null}
 

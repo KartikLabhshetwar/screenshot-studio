@@ -11,7 +11,7 @@ import {
 export const metadata: Metadata = {
   title: 'Code to Image: Create Beautiful Code Screenshots',
   description:
-    'Turn code into a shareable image. 32 themes, gradients, and window styles, export a crisp PNG or animate it in Studio. Free, no signup, no watermark.',
+    'Turn code into a shareable image. 14 themes plus gradient, image, and pattern backgrounds, export a crisp PNG. Free, no signup, no watermark.',
   keywords: [
     'code to image',
     'code snippet screenshot',
@@ -25,13 +25,12 @@ export const metadata: Metadata = {
     'code image generator free',
     'share code as image',
     'code snippet generator',
-    'animated code screenshot',
   ],
   openGraph: {
     ...OG_DEFAULTS,
     title: 'Code to Image: Create Beautiful Code Screenshots',
     description:
-      'Turn code into beautiful, shareable images. 32 themes, gradients, line numbers, and window frames. Free, no signup.',
+      'Turn code into beautiful, shareable images. 14 themes, gradients, images, and window frames. Free, no signup.',
     url: '/code',
   },
   alternates: {
@@ -48,7 +47,7 @@ const faqs = [
   {
     question: 'How many syntax themes are included?',
     answer:
-      'Over 30 themes ported from ray.so, including its full color set (Midnight, Candy, Sunset, and more) and partner themes like Vercel, Supabase, and Tailwind.',
+      '14 color themes (Midnight, Candy, Sunset, and more), each pairable with its own gradient, one of Screenshot Studio\'s gradient and image backgrounds, or a simple pattern.',
   },
   {
     question: 'Can I export a transparent background?',
@@ -56,9 +55,9 @@ const faqs = [
       'Yes. Turn the Background switch off before exporting and the PNG keeps a transparent backdrop.',
   },
   {
-    question: 'Can I animate my code screenshot?',
+    question: 'What kind of backgrounds can I use?',
     answer:
-      'Yes. Use "Animate in Studio" to send your code image into the full Screenshot Studio editor, where you can add motion and export it as a video or GIF.',
+      'Pick the theme\'s own gradient, one of dozens of gradient presets, a real image background, or a simple grid, dot, or line pattern, all from the Background picker.',
   },
 ];
 
@@ -78,11 +77,10 @@ const faqJsonLd = {
         priceCurrency: 'USD',
       },
       featureList: [
-        '32 syntax themes ported from ray.so',
-        'Vercel, Supabase, Tailwind, and other partner themes',
+        '14 syntax highlighting themes',
+        'Gradient, image, and pattern backgrounds',
         'Resizable window frame with macOS or no title bar',
         'Transparent background export',
-        'Animate in Studio for video and GIF export',
       ],
     },
     {
@@ -107,16 +105,15 @@ export default function CodeImagePage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
       />
       <CodeImageEditorLoader />
-      <section className="bg-background px-6 py-16">
+      <section className="bg-background px-6 pt-16 pb-48">
         <div className="mx-auto max-w-3xl">
           <h1 className="mb-3 text-2xl font-semibold tracking-[-0.02em] text-foreground">
             Code to Image Generator
           </h1>
           <p className="mb-10 text-muted-foreground">
-            Paste a snippet, pick from 32 themes ported from ray.so, and
-            export a crisp PNG in seconds. No signup, no watermark, and
-            everything runs in your browser. Want motion? Send your code
-            image into Screenshot Studio and animate it as a video or GIF.
+            Paste a snippet, pick a theme and background, and export a crisp
+            PNG in seconds. No signup, no watermark, everything runs in your
+            browser.
           </p>
           <Accordion type="single" collapsible>
             {faqs.map((faq) => (
