@@ -15,6 +15,9 @@ export const metadata: Metadata = {
   description:
     "Add stunning 3D effects to screenshots. Perspective tilt, rotation, depth shadows, and realistic lighting. Transform flat images into eye-catching 3D mockups.",
   keywords: [
+    "free online 3d mockup generator",
+    "3d mockup generator",
+    "laptop mockup generator",
     "3d screenshot effects",
     "3d image editor",
     "perspective screenshot",
