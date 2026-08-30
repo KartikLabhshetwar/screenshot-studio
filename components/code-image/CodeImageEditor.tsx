@@ -16,10 +16,7 @@ import {
   Settings02Icon,
 } from 'hugeicons-react';
 import { useIsMobile } from '@/hooks/use-mobile';
-import {
-  Sheet,
-  SheetContent,
-} from '@/components/ui/sheet';
+import { Drawer } from 'vaul';
 import {
   Select,
   SelectContent,
@@ -495,98 +492,98 @@ const MobileControlsDrawer = React.memo(function MobileControlsDrawer({
   const activeTheme = CODE_THEMES.find((t) => t.id === theme) ?? CODE_THEMES[0];
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange} modal={false}>
-      <SheetContent
-        side="bottom"
-        showCloseButton={false}
-        className="max-h-[80dvh] rounded-t-2xl border-white/10 bg-[#1f1f1f] p-0 text-white"
-      >
-        <div className="mx-auto mt-2 h-1 w-10 rounded-full bg-white/20" />
-        <div
-          className="space-y-1 overflow-y-auto px-5 pt-4"
-          style={{ paddingBottom: 'max(16px, env(safe-area-inset-bottom, 0px))' }}
-        >
-          <MobileControlRow label="Theme">
-            <Select value={theme} onValueChange={onThemeChange}>
-              <SelectTrigger size="sm" className="w-[160px] border-white/10 bg-white/[0.04] text-white">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {CODE_THEMES.map((t) => (
-                  <SelectItem key={t.id} value={t.id}>
-                    <ThemeSwatch color={t.swatch} />
-                    {t.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </MobileControlRow>
+    <Drawer.Root open={open} onOpenChange={onOpenChange}>
+      <Drawer.Portal>
+        <Drawer.Overlay className="fixed inset-0 z-40 bg-black/40" />
+        <Drawer.Content className="fixed inset-x-0 bottom-0 z-50 max-h-[80dvh] rounded-t-2xl bg-[#1f1f1f] text-white outline-none">
+          <div className="mx-auto mt-3 h-1.5 w-12 rounded-full bg-white/30" />
+          <Drawer.Title className="sr-only">Customize</Drawer.Title>
+          <div
+            className="space-y-1 overflow-y-auto px-5 pt-4"
+            style={{ paddingBottom: 'max(16px, env(safe-area-inset-bottom, 0px))' }}
+          >
+            <MobileControlRow label="Theme">
+              <Select value={theme} onValueChange={onThemeChange}>
+                <SelectTrigger size="sm" className="w-[160px] border-white/10 bg-white/[0.04] text-white">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {CODE_THEMES.map((t) => (
+                    <SelectItem key={t.id} value={t.id}>
+                      <ThemeSwatch color={t.swatch} />
+                      {t.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </MobileControlRow>
 
-          <MobileControlRow label="Language">
-            <Select value={lang} onValueChange={onLangChange}>
-              <SelectTrigger size="sm" className="w-[160px] border-white/10 bg-white/[0.04] text-white">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {LANGUAGES.map((l) => (
-                  <SelectItem key={l.id} value={l.id}>
-                    {l.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </MobileControlRow>
+            <MobileControlRow label="Language">
+              <Select value={lang} onValueChange={onLangChange}>
+                <SelectTrigger size="sm" className="w-[160px] border-white/10 bg-white/[0.04] text-white">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {LANGUAGES.map((l) => (
+                    <SelectItem key={l.id} value={l.id}>
+                      {l.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </MobileControlRow>
 
-          <div className="h-px bg-white/10" />
+            <div className="h-px bg-white/10" />
 
-          <MobileControlRow label="Background">
-            <div className="flex items-center gap-3">
-              <BackgroundPicker
-                theme={activeTheme}
-                dark={dark}
-                background={background}
-                onBackgroundChange={onBackgroundChange}
-                disabled={!showBackground}
+            <MobileControlRow label="Background">
+              <div className="flex items-center gap-3">
+                <BackgroundPicker
+                  theme={activeTheme}
+                  dark={dark}
+                  background={background}
+                  onBackgroundChange={onBackgroundChange}
+                  disabled={!showBackground}
+                />
+                <Switch checked={showBackground} onCheckedChange={onShowBackgroundChange} />
+              </div>
+            </MobileControlRow>
+
+            <MobileControlRow label="Dark mode">
+              <Switch checked={dark} onCheckedChange={onDarkChange} />
+            </MobileControlRow>
+
+            <MobileControlRow label="Line numbers">
+              <Switch checked={lineNumbers} onCheckedChange={onLineNumbersChange} />
+            </MobileControlRow>
+
+            <div className="h-px bg-white/10" />
+
+            <MobileControlRow label="Padding">
+              <SegmentedControl
+                size="sm"
+                className="w-[180px] bg-white/[0.04]"
+                options={PADDING_OPTIONS.map((p) => ({ id: String(p), label: String(p) }))}
+                value={String(padding)}
+                onChange={(v) => onPaddingChange(Number(v))}
               />
-              <Switch checked={showBackground} onCheckedChange={onShowBackgroundChange} />
-            </div>
-          </MobileControlRow>
+            </MobileControlRow>
 
-          <MobileControlRow label="Dark mode">
-            <Switch checked={dark} onCheckedChange={onDarkChange} />
-          </MobileControlRow>
-
-          <MobileControlRow label="Line numbers">
-            <Switch checked={lineNumbers} onCheckedChange={onLineNumbersChange} />
-          </MobileControlRow>
-
-          <div className="h-px bg-white/10" />
-
-          <MobileControlRow label="Padding">
-            <SegmentedControl
-              size="sm"
-              className="w-[180px] bg-white/[0.04]"
-              options={PADDING_OPTIONS.map((p) => ({ id: String(p), label: String(p) }))}
-              value={String(padding)}
-              onChange={(v) => onPaddingChange(Number(v))}
-            />
-          </MobileControlRow>
-
-          <MobileControlRow label="Window">
-            <SegmentedControl
-              size="sm"
-              className="w-[110px] bg-white/[0.04]"
-              options={[
-                { id: 'none', label: 'None' },
-                { id: 'mac', label: 'Mac' },
-              ]}
-              value={windowStyle}
-              onChange={(v) => onWindowStyleChange(v as WindowStyle)}
-            />
-          </MobileControlRow>
-        </div>
-      </SheetContent>
-    </Sheet>
+            <MobileControlRow label="Window">
+              <SegmentedControl
+                size="sm"
+                className="w-[110px] bg-white/[0.04]"
+                options={[
+                  { id: 'none', label: 'None' },
+                  { id: 'mac', label: 'Mac' },
+                ]}
+                value={windowStyle}
+                onChange={(v) => onWindowStyleChange(v as WindowStyle)}
+              />
+            </MobileControlRow>
+          </div>
+        </Drawer.Content>
+      </Drawer.Portal>
+    </Drawer.Root>
   );
 });
 
@@ -599,6 +596,7 @@ export function CodeImageEditor() {
   const [copying, setCopying] = React.useState(false);
   const [stageVisible, setStageVisible] = React.useState(true);
   const [drawerOpen, setDrawerOpen] = React.useState(false);
+  const [containerWidth, setContainerWidth] = React.useState(0);
   const isMobile = useIsMobile();
   const frameRef = React.useRef<HTMLDivElement>(null);
   const stageRef = React.useRef<HTMLElement>(null);
@@ -725,6 +723,16 @@ export function CodeImageEditor() {
   }, []);
 
   React.useEffect(() => {
+    const stage = stageRef.current;
+    if (!stage) return;
+    const observer = new ResizeObserver(([entry]) => {
+      setContainerWidth(entry.contentRect.width);
+    });
+    observer.observe(stage);
+    return () => observer.disconnect();
+  }, []);
+
+  React.useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
       const mod = e.metaKey || e.ctrlKey;
       if (mod && e.key.toLowerCase() === 's') {
@@ -741,6 +749,11 @@ export function CodeImageEditor() {
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [handleExportPng, handleCopyImage]);
+
+  const frameTotal = state.width + state.padding * 2;
+  const mobileScale = isMobile && containerWidth > 0 && containerWidth < frameTotal
+    ? (containerWidth - 24) / frameTotal
+    : 1;
 
   const onThemeChange = React.useCallback((theme: string) => update({ theme }), [update]);
   const onDarkChange = React.useCallback((dark: boolean) => update({ dark }), [update]);
@@ -781,32 +794,41 @@ export function CodeImageEditor() {
 
       <main
         ref={stageRef}
-        className="relative min-h-[calc(100dvh-50px)] flex-1 overflow-auto"
+        className="relative min-h-[calc(100dvh-50px)] flex-1 overflow-hidden lg:overflow-auto"
         style={{
           backgroundImage:
             'radial-gradient(ellipse at center, rgba(255,255,255,0.05) 0%, rgba(0,0,0,0) 60%)',
         }}
       >
         <div className="mx-auto flex min-h-[calc(100dvh-50px)] min-w-fit items-center justify-center px-3 pb-24 pt-6 lg:px-6 lg:pb-32 lg:pt-10">
-          <CodeFrame
-            ref={frameRef}
-            editable
-            code={state.code}
-            onCodeChange={onCodeChange}
-            themeId={state.theme}
-            lang={state.lang}
-            dark={state.dark}
-            showBackground={state.showBackground}
-            background={state.background}
-            padding={state.padding}
-            lineNumbers={state.lineNumbers}
-            fontId={state.font}
-            windowStyle={state.window}
-            title={state.title}
-            onTitleChange={onTitleChange}
-            width={state.width}
-            onWidthChange={isMobile ? undefined : onWidthChange}
-          />
+          <div
+            style={mobileScale < 1 ? {
+              transform: `scale(${mobileScale})`,
+              transformOrigin: 'top center',
+              width: frameTotal,
+              height: (frameRef.current?.offsetHeight ?? 400) * mobileScale,
+            } : undefined}
+          >
+            <CodeFrame
+              ref={frameRef}
+              editable
+              code={state.code}
+              onCodeChange={onCodeChange}
+              themeId={state.theme}
+              lang={state.lang}
+              dark={state.dark}
+              showBackground={state.showBackground}
+              background={state.background}
+              padding={state.padding}
+              lineNumbers={state.lineNumbers}
+              fontId={state.font}
+              windowStyle={state.window}
+              title={state.title}
+              onTitleChange={onTitleChange}
+              width={state.width}
+              onWidthChange={isMobile ? undefined : onWidthChange}
+            />
+          </div>
         </div>
       </main>
 
