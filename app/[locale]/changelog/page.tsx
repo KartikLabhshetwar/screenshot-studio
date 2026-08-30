@@ -40,6 +40,27 @@ interface ChangelogEntry {
 
 const changelog: ChangelogEntry[] = [
   {
+    date: "August 30, 2026",
+    version: "2.6.0",
+    title: "Code Images",
+    description:
+      "The code snippet generator is now a standalone editor at /code, with its own full-page workspace and shareable links.",
+    changes: [
+      {
+        type: "added",
+        text: "Standalone Code Images editor at /code with a full-page workspace and a slim top bar",
+      },
+      {
+        type: "added",
+        text: "Shareable links that restore the exact theme, background, and code from the URL",
+      },
+      {
+        type: "improved",
+        text: "Code snippet generator moved out of the main screenshot editor sidebar into its own page, linked from a Code Images card",
+      },
+    ],
+  },
+  {
     date: "March 9, 2026",
     version: "2.5.0",
     title: "Browser Mockups",

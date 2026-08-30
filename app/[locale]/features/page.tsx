@@ -6,6 +6,7 @@ import {
   CubeIcon,
   MagicWand01Icon,
   Share08Icon,
+  SourceCodeIcon,
   Video01Icon,
 } from "hugeicons-react";
 import { Navigation } from "@/components/landing/Navigation";
@@ -105,6 +106,14 @@ const features = [
       "Add realistic Safari and Chrome browser frames to screenshots. Light and dark modes with custom URL.",
     href: "/features/browser-mockups",
     keywords: ["Safari", "Chrome", "browser frame", "URL bar"],
+  },
+  {
+    icon: SourceCodeIcon,
+    title: "Code Images",
+    description:
+      "Turn code into beautiful, shareable images. Syntax themes, gradient backgrounds, line numbers, and a window frame.",
+    href: "/features/code-snippets",
+    keywords: ["syntax highlighting", "gradients", "line numbers", "shareable links"],
   },
 ] as const;
 
