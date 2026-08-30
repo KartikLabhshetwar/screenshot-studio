@@ -1,48 +1,76 @@
 'use client';
 
 import * as React from 'react';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { domToBlob } from 'modern-screenshot';
 import { toast } from 'sonner';
 import {
-  ArrowLeft01Icon,
   Copy01Icon,
   Link01Icon,
   Download04Icon,
-  Moon02Icon,
-  Sun03Icon,
+  ArrowDown01Icon,
+  InformationCircleIcon,
+  SparklesIcon,
+  CheckmarkCircle02Icon,
+  CodeIcon,
 } from 'hugeicons-react';
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 import { SegmentedControl } from '@/components/ui/segmented-control';
+import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
-import { cn } from '@/lib/utils';
+import { useImageStore } from '@/lib/store';
 import { CodeFrame } from './CodeFrame';
 import {
   CODE_THEMES,
-  BACKGROUNDS,
+  COLOR_THEMES,
+  PARTNER_THEMES,
   LANGUAGES,
-  FONTS,
   GOOGLE_FONTS_URL,
   PADDING_OPTIONS,
+  FRAME_WIDTH_MIN,
+  FRAME_WIDTH_MAX,
   DEFAULT_STATE,
   type CodeImageState,
+  type WindowStyle,
 } from './code-themes';
 
 const GOOGLE_FONTS_LINK_ID = 'code-image-google-fonts';
 const HASH_WRITE_DELAY = 400;
-const SCALE_OPTIONS = [1, 2, 3] as const;
+const SCALE_OPTIONS = [2, 4] as const;
 
 function decodeState(hash: string): Partial<CodeImageState> | null {
   try {
-    return JSON.parse(decodeURIComponent(atob(hash)));
+    const parsed = JSON.parse(decodeURIComponent(atob(hash)));
+    if (parsed.width) {
+      parsed.width = Math.min(FRAME_WIDTH_MAX, Math.max(FRAME_WIDTH_MIN, parsed.width));
+    }
+    if (parsed.theme && !CODE_THEMES.some((t) => t.id === parsed.theme)) {
+      parsed.theme = DEFAULT_STATE.theme;
+    }
+    return parsed;
   } catch (error) {
     console.warn('Could not parse code image state from URL', error);
     return null;
@@ -53,23 +81,310 @@ function encodeState(state: CodeImageState): string {
   return btoa(encodeURIComponent(JSON.stringify(state)));
 }
 
-function Field({
-  label,
-  htmlFor,
-  children,
-}: {
-  label: string;
-  htmlFor?: string;
-  children: React.ReactNode;
-}) {
+function ThemeSwatch({ color }: { color: string }) {
   return (
-    <div>
-      <Label
-        htmlFor={htmlFor}
-        className="mb-1.5 text-xs font-medium text-muted-foreground"
-      >
+    <span
+      className="size-3 shrink-0 rounded-full border border-white/10"
+      style={{ background: color }}
+    />
+  );
+}
+
+interface TopBarProps {
+  exportScale: number;
+  onExportScaleChange: (scale: number) => void;
+  exporting: boolean;
+  justExported: boolean;
+  copying: boolean;
+  openingStudio: boolean;
+  onExportPng: () => void;
+  onCopyImage: () => void;
+  onCopyUrl: () => void;
+  onOpenInStudio: () => void;
+}
+
+const TopBar = React.memo(function TopBar({
+  exportScale,
+  onExportScaleChange,
+  exporting,
+  justExported,
+  copying,
+  openingStudio,
+  onExportPng,
+  onCopyImage,
+  onCopyUrl,
+  onOpenInStudio,
+}: TopBarProps) {
+  return (
+    <header className="flex h-[50px] shrink-0 items-center justify-between gap-3 border-b border-white/[0.06] px-4">
+      <div className="flex items-center gap-2">
+        <span className="flex size-5 items-center justify-center rounded-md bg-blue-500 text-white">
+          <CodeIcon size={13} />
+        </span>
+        <span className="text-sm font-medium text-white/90">Code Images</span>
+        <span className="hidden text-xs text-white/40 sm:inline">
+          by Screenshot Studio
+        </span>
+      </div>
+
+      <div className="flex items-center gap-2">
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button type="button" variant="ghost" size="sm" className="text-white/70 hover:bg-white/10 hover:text-white">
+              <InformationCircleIcon size={16} />
+              About
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Code Images</DialogTitle>
+              <DialogDescription>
+                Turn a code snippet into a beautiful, shareable image. Pick a
+                theme, background, and window style, then export a PNG or
+                send it into Screenshot Studio to animate it.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-1.5 text-sm text-muted-foreground">
+              <div className="flex items-center justify-between">
+                <span>Export image</span>
+                <kbd className="rounded border border-border bg-muted px-1.5 py-0.5 text-xs">Cmd/Ctrl+S</kbd>
+              </div>
+              <div className="flex items-center justify-between">
+                <span>Copy image</span>
+                <kbd className="rounded border border-border bg-muted px-1.5 py-0.5 text-xs">Cmd/Ctrl+Shift+C</kbd>
+              </div>
+              <div className="flex items-center justify-between">
+                <span>Indent / dedent line</span>
+                <kbd className="rounded border border-border bg-muted px-1.5 py-0.5 text-xs">Tab / Shift+Tab</kbd>
+              </div>
+              <div className="flex items-center justify-between">
+                <span>Exit editing</span>
+                <kbd className="rounded border border-border bg-muted px-1.5 py-0.5 text-xs">Esc</kbd>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={onOpenInStudio}
+          disabled={openingStudio}
+          className="text-white/70 hover:bg-white/10 hover:text-white"
+        >
+          <SparklesIcon size={16} />
+          {openingStudio ? 'Opening…' : 'Animate in Studio'}
+        </Button>
+
+        <div className="flex items-center">
+          <Button
+            type="button"
+            size="sm"
+            onClick={onExportPng}
+            disabled={exporting}
+            className="rounded-r-none"
+          >
+            {justExported ? (
+              <CheckmarkCircle02Icon size={16} />
+            ) : (
+              <Download04Icon size={16} />
+            )}
+            {justExported ? 'Exported' : exporting ? 'Exporting…' : `Export Image`}
+          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                type="button"
+                size="sm"
+                aria-label="More export options"
+                className="rounded-l-none border-l border-l-black/15 px-2"
+              >
+                <ArrowDown01Icon size={14} />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuItem onSelect={onExportPng}>
+                <Download04Icon size={15} />
+                Export PNG
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={onCopyImage} disabled={copying}>
+                <Copy01Icon size={15} />
+                {copying ? 'Copying…' : 'Copy Image'}
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={onCopyUrl}>
+                <Link01Icon size={15} />
+                Copy URL
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={onOpenInStudio}>
+                <SparklesIcon size={15} />
+                Open in Studio
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              {SCALE_OPTIONS.map((scale) => (
+                <DropdownMenuItem
+                  key={scale}
+                  onSelect={() => onExportScaleChange(scale)}
+                >
+                  <span
+                    className={
+                      exportScale === scale ? 'font-medium text-foreground' : ''
+                    }
+                  >
+                    Export at {scale}x
+                  </span>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </div>
+    </header>
+  );
+});
+
+interface BottomControlsProps {
+  theme: string;
+  onThemeChange: (theme: string) => void;
+  dark: boolean;
+  onDarkChange: (dark: boolean) => void;
+  showBackground: boolean;
+  onShowBackgroundChange: (show: boolean) => void;
+  lineNumbers: boolean;
+  onLineNumbersChange: (on: boolean) => void;
+  padding: number;
+  onPaddingChange: (padding: number) => void;
+  lang: string;
+  onLangChange: (lang: string) => void;
+  windowStyle: WindowStyle;
+  onWindowStyleChange: (style: WindowStyle) => void;
+}
+
+const BottomControls = React.memo(function BottomControls({
+  theme,
+  onThemeChange,
+  dark,
+  onDarkChange,
+  showBackground,
+  onShowBackgroundChange,
+  lineNumbers,
+  onLineNumbersChange,
+  padding,
+  onPaddingChange,
+  lang,
+  onLangChange,
+  windowStyle,
+  onWindowStyleChange,
+}: BottomControlsProps) {
+  const [mounted, setMounted] = React.useState(false);
+  React.useEffect(() => setMounted(true), []);
+
+  return (
+    <div
+      className={`fixed bottom-6 left-1/2 z-20 w-[min(94vw,880px)] -translate-x-1/2 rounded-xl bg-[#1f1f1f]/95 shadow-2xl ring-1 ring-white/10 backdrop-blur transition-all duration-300 ease-out motion-reduce:transition-none ${
+        mounted ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
+      }`}
+    >
+      <div className="scrollbar-none flex items-end gap-5 overflow-x-auto px-4 py-3">
+        <ControlField label="Theme">
+          <Select value={theme} onValueChange={onThemeChange}>
+            <SelectTrigger size="sm" className="w-36 border-white/10 bg-white/[0.04] text-white">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectLabel>Colors</SelectLabel>
+                {COLOR_THEMES.map((t) => (
+                  <SelectItem key={t.id} value={t.id}>
+                    <ThemeSwatch color={t.swatch} />
+                    {t.label}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+              <SelectGroup>
+                <SelectLabel>Partners</SelectLabel>
+                {PARTNER_THEMES.map((t) => (
+                  <SelectItem key={t.id} value={t.id}>
+                    <ThemeSwatch color={t.swatch} />
+                    {t.label}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        </ControlField>
+
+        <Divider />
+
+        <ControlField label="Background">
+          <Switch checked={showBackground} onCheckedChange={onShowBackgroundChange} aria-label="Background" />
+        </ControlField>
+
+        <ControlField label="Dark mode">
+          <Switch checked={dark} onCheckedChange={onDarkChange} aria-label="Dark mode" />
+        </ControlField>
+
+        <ControlField label="Line numbers">
+          <Switch checked={lineNumbers} onCheckedChange={onLineNumbersChange} aria-label="Line numbers" />
+        </ControlField>
+
+        <Divider />
+
+        <ControlField label="Padding">
+          <SegmentedControl
+            size="sm"
+            className="w-[168px] bg-white/[0.04]"
+            options={PADDING_OPTIONS.map((p) => ({ id: String(p), label: String(p) }))}
+            value={String(padding)}
+            onChange={(v) => onPaddingChange(Number(v))}
+          />
+        </ControlField>
+
+        <ControlField label="Window">
+          <SegmentedControl
+            size="sm"
+            className="w-20 bg-white/[0.04]"
+            options={[
+              { id: 'none', label: 'None' },
+              { id: 'mac', label: 'Mac' },
+            ]}
+            value={windowStyle}
+            onChange={(v) => onWindowStyleChange(v as WindowStyle)}
+          />
+        </ControlField>
+
+        <Divider />
+
+        <ControlField label="Language">
+          <Select value={lang} onValueChange={onLangChange}>
+            <SelectTrigger size="sm" className="w-28 border-white/10 bg-white/[0.04] text-white">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {LANGUAGES.map((l) => (
+                <SelectItem key={l.id} value={l.id}>
+                  {l.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </ControlField>
+      </div>
+      <div className="mx-auto h-1 w-10 rounded-full bg-white/10" aria-hidden />
+    </div>
+  );
+});
+
+function Divider() {
+  return <span className="mb-1.5 h-8 w-px shrink-0 bg-white/10" aria-hidden />;
+}
+
+function ControlField({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="flex shrink-0 flex-col items-start gap-1.5">
+      <span className="text-[10px] font-medium uppercase tracking-wide text-white/40">
         {label}
-      </Label>
+      </span>
       {children}
     </div>
   );
@@ -78,10 +393,14 @@ function Field({
 export function CodeImageEditor() {
   const [state, setState] = React.useState<CodeImageState>(DEFAULT_STATE);
   const [hydrated, setHydrated] = React.useState(false);
-  const [exportScale, setExportScale] = React.useState(2);
+  const [exportScale, setExportScale] = React.useState<number>(2);
   const [exporting, setExporting] = React.useState(false);
+  const [justExported, setJustExported] = React.useState(false);
   const [copying, setCopying] = React.useState(false);
+  const [openingStudio, setOpeningStudio] = React.useState(false);
   const frameRef = React.useRef<HTMLDivElement>(null);
+  const router = useRouter();
+  const addImages = useImageStore((s) => s.addImages);
 
   const update = React.useCallback((patch: Partial<CodeImageState>) => {
     setState((s) => ({ ...s, ...patch }));
@@ -114,39 +433,41 @@ export function CodeImageEditor() {
     return () => clearTimeout(timer);
   }, [state, hydrated]);
 
-  const captureBlob = React.useCallback(async () => {
+  const captureBlob = React.useCallback(async (scale: number) => {
     if (!frameRef.current) return null;
     await document.fonts.ready;
     return domToBlob(frameRef.current, {
-      scale: exportScale,
+      scale,
       filter: (el) => !(el instanceof HTMLTextAreaElement),
     });
-  }, [exportScale]);
+  }, []);
 
-  const handleExport = React.useCallback(async () => {
+  const handleExportPng = React.useCallback(async () => {
     setExporting(true);
     try {
-      const blob = await captureBlob();
+      const blob = await captureBlob(exportScale);
       if (!blob) throw new Error('Export produced no image');
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'code-image.png';
+      a.download = `${state.title || 'code-image'}.png`;
       a.click();
       URL.revokeObjectURL(url);
       toast.success('Image exported');
+      setJustExported(true);
+      setTimeout(() => setJustExported(false), 1500);
     } catch (error) {
       console.error('Code image export failed', error);
       toast.error('Could not export image');
     } finally {
       setExporting(false);
     }
-  }, [captureBlob]);
+  }, [captureBlob, exportScale, state.title]);
 
   const handleCopyImage = React.useCallback(async () => {
     setCopying(true);
     try {
-      const blob = await captureBlob();
+      const blob = await captureBlob(exportScale);
       if (!blob) throw new Error('Copy produced no image');
       await navigator.clipboard.write([
         new ClipboardItem({ [blob.type]: blob }),
@@ -158,21 +479,39 @@ export function CodeImageEditor() {
     } finally {
       setCopying(false);
     }
-  }, [captureBlob]);
+  }, [captureBlob, exportScale]);
 
-  const handleCopyLink = React.useCallback(() => {
+  const handleCopyUrl = React.useCallback(() => {
     navigator.clipboard.writeText(window.location.href).then(
-      () => toast.success('Link copied'),
-      () => toast.error('Could not copy link'),
+      () => toast.success('URL copied'),
+      () => toast.error('Could not copy URL'),
     );
   }, []);
+
+  const handleOpenInStudio = React.useCallback(async () => {
+    setOpeningStudio(true);
+    try {
+      const blob = await captureBlob(2);
+      if (!blob) throw new Error('Could not render code image');
+      const file = new File([blob], `${state.title || 'code-image'}.png`, {
+        type: blob.type,
+      });
+      addImages([file]);
+      router.push('/');
+    } catch (error) {
+      console.error('Open in Studio failed', error);
+      toast.error('Could not open in Studio');
+    } finally {
+      setOpeningStudio(false);
+    }
+  }, [captureBlob, state.title, addImages, router]);
 
   React.useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
       const mod = e.metaKey || e.ctrlKey;
       if (mod && e.key.toLowerCase() === 's') {
         e.preventDefault();
-        handleExport();
+        handleExportPng();
       } else if (mod && e.shiftKey && e.key.toLowerCase() === 'c') {
         e.preventDefault();
         handleCopyImage();
@@ -183,241 +522,86 @@ export function CodeImageEditor() {
     }
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [handleExport, handleCopyImage]);
+  }, [handleExportPng, handleCopyImage]);
+
+  const onThemeChange = React.useCallback((theme: string) => update({ theme }), [update]);
+  const onDarkChange = React.useCallback((dark: boolean) => update({ dark }), [update]);
+  const onShowBackgroundChange = React.useCallback(
+    (showBackground: boolean) => update({ showBackground }),
+    [update],
+  );
+  const onLineNumbersChange = React.useCallback(
+    (lineNumbers: boolean) => update({ lineNumbers }),
+    [update],
+  );
+  const onPaddingChange = React.useCallback((padding: number) => update({ padding }), [update]);
+  const onLangChange = React.useCallback((lang: string) => update({ lang }), [update]);
+  const onWindowStyleChange = React.useCallback(
+    (window: WindowStyle) => update({ window }),
+    [update],
+  );
+  const onCodeChange = React.useCallback((code: string) => update({ code }), [update]);
+  const onTitleChange = React.useCallback((title: string) => update({ title }), [update]);
+  const onWidthChange = React.useCallback((width: number) => update({ width }), [update]);
 
   return (
-    <div className="flex h-screen flex-col bg-background">
-      <header className="flex h-14 shrink-0 flex-wrap items-center justify-between gap-2 border-b border-border px-4">
-        <div className="flex items-center gap-3">
-          <Link
-            href="/"
-            className="flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
-          >
-            <ArrowLeft01Icon size={18} />
-            Screenshot Studio
-          </Link>
-          <span className="h-4 w-px bg-border" aria-hidden />
-          <span className="text-sm font-medium text-foreground">
-            Code Images
-          </span>
-        </div>
+    <div className="flex min-h-dvh flex-col bg-[#181818]">
+      <TopBar
+        exportScale={exportScale}
+        onExportScaleChange={setExportScale}
+        exporting={exporting}
+        justExported={justExported}
+        copying={copying}
+        openingStudio={openingStudio}
+        onExportPng={handleExportPng}
+        onCopyImage={handleCopyImage}
+        onCopyUrl={handleCopyUrl}
+        onOpenInStudio={handleOpenInStudio}
+      />
 
-        <div className="flex items-center gap-2">
-          <Select
-            value={String(exportScale)}
-            onValueChange={(v) => setExportScale(Number(v))}
-          >
-            <SelectTrigger size="sm" aria-label="Export scale" className="w-16">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {SCALE_OPTIONS.map((s) => (
-                <SelectItem key={s} value={String(s)}>
-                  {s}x
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+      <main
+        className="relative flex min-h-[calc(100dvh-50px)] flex-1 items-center justify-center overflow-auto px-6 pb-32 pt-10"
+        style={{
+          backgroundImage:
+            'radial-gradient(ellipse at center, rgba(255,255,255,0.05) 0%, rgba(0,0,0,0) 60%)',
+        }}
+      >
+        <CodeFrame
+          ref={frameRef}
+          editable
+          code={state.code}
+          onCodeChange={onCodeChange}
+          themeId={state.theme}
+          lang={state.lang}
+          dark={state.dark}
+          showBackground={state.showBackground}
+          padding={state.padding}
+          lineNumbers={state.lineNumbers}
+          fontId={state.font}
+          windowStyle={state.window}
+          title={state.title}
+          onTitleChange={onTitleChange}
+          width={state.width}
+          onWidthChange={onWidthChange}
+        />
+      </main>
 
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={handleCopyLink}
-          >
-            <Link01Icon size={16} />
-            Copy link
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={handleCopyImage}
-            disabled={copying}
-          >
-            <Copy01Icon size={16} />
-            {copying ? 'Copying…' : 'Copy image'}
-          </Button>
-          <Button
-            type="button"
-            size="sm"
-            onClick={handleExport}
-            disabled={exporting}
-          >
-            <Download04Icon size={16} />
-            {exporting ? 'Exporting…' : 'Export PNG'}
-          </Button>
-        </div>
-      </header>
-
-      <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
-        <div className="min-w-0 flex-1 overflow-auto p-6 lg:p-10">
-          <div className="m-auto w-fit">
-            <CodeFrame
-              ref={frameRef}
-              editable
-              code={state.code}
-              onCodeChange={(code) => update({ code })}
-              themeId={state.theme}
-              lang={state.lang}
-              bgId={state.bg}
-              dark={state.dark}
-              padding={state.padding}
-              lineNumbers={state.lineNumbers}
-              fontId={state.font}
-              windowStyle={state.window}
-              title={state.title}
-            />
-          </div>
-        </div>
-
-        <div className="w-full shrink-0 space-y-5 overflow-y-auto border-t border-border p-4 lg:w-80 lg:border-t-0 lg:border-l">
-          <Field label="Theme" htmlFor="code-image-theme">
-            <Select
-              value={state.theme}
-              onValueChange={(theme) => {
-                const next = CODE_THEMES.find((t) => t.id === theme);
-                update({ theme, bg: next?.background ?? state.bg });
-              }}
-            >
-              <SelectTrigger id="code-image-theme" size="sm" className="w-full">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {CODE_THEMES.map((t) => (
-                  <SelectItem key={t.id} value={t.id}>
-                    <span
-                      className="size-3 shrink-0 rounded-full border border-foreground/10"
-                      style={{ background: t.swatch }}
-                    />
-                    {t.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </Field>
-
-          <Field label="Background" htmlFor="code-image-bg">
-            <Select value={state.bg} onValueChange={(bg) => update({ bg })}>
-              <SelectTrigger id="code-image-bg" size="sm" className="w-full">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {BACKGROUNDS.map((b) => (
-                  <SelectItem key={b.id} value={b.id}>
-                    <span
-                      className="size-3 shrink-0 rounded-full border border-foreground/10"
-                      style={{ background: b.css }}
-                    />
-                    {b.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </Field>
-
-          <Field label="Language" htmlFor="code-image-lang">
-            <Select value={state.lang} onValueChange={(lang) => update({ lang })}>
-              <SelectTrigger id="code-image-lang" size="sm" className="w-full">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {LANGUAGES.map((l) => (
-                  <SelectItem key={l.id} value={l.id}>
-                    {l.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </Field>
-
-          <Field label="Font" htmlFor="code-image-font">
-            <Select value={state.font} onValueChange={(font) => update({ font })}>
-              <SelectTrigger id="code-image-font" size="sm" className="w-full">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {FONTS.map((f) => (
-                  <SelectItem key={f.id} value={f.id}>
-                    <span style={{ fontFamily: f.css }}>{f.label}</span>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </Field>
-
-          <div className="grid grid-cols-2 gap-3">
-            <Field label="Appearance">
-              <div role="group" aria-label="Appearance">
-                <SegmentedControl
-                  size="sm"
-                  options={[
-                    { id: 'dark', icon: <Moon02Icon size={14} />, ariaLabel: 'Dark' },
-                    { id: 'light', icon: <Sun03Icon size={14} />, ariaLabel: 'Light' },
-                  ]}
-                  value={state.dark ? 'dark' : 'light'}
-                  onChange={(v) => update({ dark: v === 'dark' })}
-                />
-              </div>
-            </Field>
-
-            <Field label="Line numbers">
-              <div role="group" aria-label="Line numbers">
-                <SegmentedControl
-                  size="sm"
-                  options={[
-                    { id: 'on', label: 'On' },
-                    { id: 'off', label: 'Off' },
-                  ]}
-                  value={state.lineNumbers ? 'on' : 'off'}
-                  onChange={(v) => update({ lineNumbers: v === 'on' })}
-                />
-              </div>
-            </Field>
-          </div>
-
-          <Field label="Padding">
-            <div role="group" aria-label="Padding">
-              <SegmentedControl
-                size="sm"
-                options={PADDING_OPTIONS.map((p) => ({
-                  id: String(p),
-                  label: String(p),
-                }))}
-                value={String(state.padding)}
-                onChange={(v) => update({ padding: Number(v) })}
-              />
-            </div>
-          </Field>
-
-          <Field label="Window style">
-            <div role="group" aria-label="Window style">
-              <SegmentedControl
-                size="sm"
-                options={[
-                  { id: 'none', label: 'None' },
-                  { id: 'mac', label: 'macOS' },
-                ]}
-                value={state.window}
-                onChange={(v) => update({ window: v as CodeImageState['window'] })}
-              />
-            </div>
-          </Field>
-
-          {state.window === 'mac' ? (
-            <Field label="Window title" htmlFor="code-image-title">
-              <Input
-                id="code-image-title"
-                value={state.title}
-                onChange={(e) => update({ title: e.target.value })}
-                placeholder="untitled"
-                maxLength={60}
-                className={cn('h-8 text-sm')}
-              />
-            </Field>
-          ) : null}
-        </div>
-      </div>
+      <BottomControls
+        theme={state.theme}
+        onThemeChange={onThemeChange}
+        dark={state.dark}
+        onDarkChange={onDarkChange}
+        showBackground={state.showBackground}
+        onShowBackgroundChange={onShowBackgroundChange}
+        lineNumbers={state.lineNumbers}
+        onLineNumbersChange={onLineNumbersChange}
+        padding={state.padding}
+        onPaddingChange={onPaddingChange}
+        lang={state.lang}
+        onLangChange={onLangChange}
+        windowStyle={state.window}
+        onWindowStyleChange={onWindowStyleChange}
+      />
     </div>
   );
 }
