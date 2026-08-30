@@ -56,27 +56,27 @@ const chipLinkClassName =
 const features = [
   {
     icon: SourceCodeIcon,
-    title: "12 Syntax Themes",
+    title: "32 Syntax Themes",
     description:
-      "Dracula, Monokai, Nord, GitHub, and more. Auto-detects your language or pick from 20+ manually.",
+      "Midnight, Sunset, Candy, and more, plus partner themes like Vercel, Stripe, and Supabase. Auto-detects your language or pick from 20+ manually.",
   },
   {
     icon: ColorsIcon,
     title: "Gradient Backgrounds",
     description:
-      "Eleven built-in gradients, or turn the background off for a transparent PNG.",
+      "Every theme ships its own gradient, or turn the background off for a transparent PNG.",
   },
   {
     icon: Download04Icon,
     title: "Line Numbers & Window Frame",
     description:
-      "Toggle line numbers, a macOS-style title bar, padding, and font to match your brand.",
+      "Toggle line numbers, a macOS-style title bar or none at all, and resize the frame to fit your code.",
   },
   {
     icon: Link01Icon,
-    title: "Shareable Links & 2x Export",
+    title: "Shareable Links & 2x/4x Export",
     description:
-      "Every setting is saved to the URL, so you can share a link or export a 2x PNG instantly.",
+      "Every setting is saved to the URL, so you can share a link, export a 2x or 4x PNG, or animate it in Studio.",
   },
 ] as const;
 
@@ -130,6 +130,7 @@ const faqs = [
 ];
 
 const relatedLinks = [
+  { href: "/code", label: "Open the Code Image Editor" },
   { href: "/features/screenshot-beautifier", label: "Screenshot Beautifier" },
   { href: "/features/browser-mockups", label: "Browser Mockups" },
   { href: "/features/social-media-graphics", label: "Social Media Graphics" },
@@ -178,10 +179,11 @@ export default function CodeSnippetsFeaturePage() {
           priceCurrency: "USD",
         },
         featureList: [
-          "12 syntax highlighting themes",
-          "11 gradient backgrounds plus transparent export",
+          "32 syntax highlighting themes, including Vercel, Stripe, and Supabase",
+          "Gradient backgrounds plus transparent export",
           "Line numbers and macOS window frame",
-          "Shareable links and 2x PNG export",
+          "Shareable links and 2x or 4x PNG export",
+          "Animate in Studio for video and GIF export",
           "No signup required",
         ],
       },
@@ -330,7 +332,7 @@ export default function CodeSnippetsFeaturePage() {
             >
               Explore More Features
             </h2>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
               {relatedLinks.map((link) => (
                 <Link
                   key={link.href}
