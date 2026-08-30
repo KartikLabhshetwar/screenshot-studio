@@ -4,7 +4,6 @@ import { getAllComparisonSlugs } from "@/lib/seo/comparisons";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = SITE_URL;
-  const now = new Date();
 
   const comparisonSlugs = getAllComparisonSlugs();
 
@@ -85,7 +84,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
   for (const page of staticPages) {
     entries.push({
       url: `${baseUrl}${page.path}`,
-      lastModified: now,
       changeFrequency: page.changeFrequency,
       priority: page.priority,
     });
@@ -94,7 +92,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
   for (const slug of comparisonSlugs) {
     entries.push({
       url: `${baseUrl}/compare/${slug}`,
-      lastModified: now,
       changeFrequency: "monthly",
       priority: 0.8,
     });
