@@ -800,7 +800,7 @@ export function CodeImageEditor() {
             'radial-gradient(ellipse at center, rgba(255,255,255,0.05) 0%, rgba(0,0,0,0) 60%)',
         }}
       >
-        <div className="mx-auto flex min-h-[calc(100dvh-50px)] min-w-fit items-center justify-center px-3 pb-24 pt-6 lg:px-6 lg:pb-32 lg:pt-10">
+        <div className="mx-auto flex min-h-[calc(100dvh-50px)] items-center justify-center px-3 pb-24 pt-6 lg:min-w-fit lg:px-6 lg:pb-32 lg:pt-10">
           <div
             style={mobileScale < 1 ? {
               transform: `scale(${mobileScale})`,
