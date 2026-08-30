@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import { Navigation } from "@/components/landing/Navigation";
 import { Footer } from "@/components/landing/Footer";
 import Link from "next/link";
+import { OG_DEFAULTS } from "@/lib/seo/metadata";
 import {
   PaintBoardIcon,
   ColorsIcon,
@@ -13,15 +14,39 @@ import {
 } from "hugeicons-react";
 
 export const metadata: Metadata = {
-  title: "Screenshot Studio for Designers - Professional Design Tools",
+  title: "Mockup & Screenshot Tool for Designers",
   description:
-    "Create stunning screenshots and mockups for your design portfolio. Perfect for UI/UX designers, graphic designers, and creative professionals.",
+    "Free mockup tool for UI/UX designers. Create app mockups, UI mockups, and portfolio screenshots with backgrounds, browser frames, and 3D effects. No signup.",
   keywords: [
     "screenshot tool for designers",
     "UI mockup creator",
     "design portfolio screenshots",
     "designer screenshot editor",
+    "mockup screenshot",
+    "mockup online",
+    "mockup screen",
+    "mockups ui",
+    "mockup ui ux",
+    "app mockup generator",
+    "ui mockup generator",
+    "shots app alternative",
+    "shots net alternative",
+    "moqups alternative",
+    "previewed app alternative",
+    "appshots alternative",
+    "goodmockups alternative",
+    "mockup me alternative",
   ],
+  openGraph: {
+    ...OG_DEFAULTS,
+    title: "Mockup & Screenshot Tool for Designers",
+    description:
+      "Create app mockups, UI mockups, and portfolio screenshots with backgrounds, browser frames, and 3D effects. Free, no signup.",
+    url: "/for/designers",
+  },
+  alternates: {
+    canonical: "/for/designers",
+  },
 };
 
 const ctaClassName =
@@ -184,6 +209,39 @@ export default function ForDesignersPage() {
                 </p>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="border-t border-border py-20">
+        <div className="container mx-auto px-6">
+          <div className="mx-auto max-w-3xl">
+            <h2
+              className="mb-6 text-3xl font-semibold tracking-[-0.03em] text-foreground md:text-4xl"
+              style={{ fontFamily: INTER }}
+            >
+              A Mockup Tool Built for UI and UX Work
+            </h2>
+            <div className="space-y-4 text-lg leading-relaxed text-muted-foreground">
+              <p>
+                Export a frame from Figma, Sketch, or your running app, drop it
+                into Screenshot Studio, and get a presentation-ready UI mockup in
+                under a minute. Pick a browser frame or a clean device-style
+                window, set the padding and corner radius, and choose from more
+                than a hundred gradient and solid backgrounds.
+              </p>
+              <p>
+                For case studies and Dribbble shots, tilt the mockup in 3D to
+                add depth, or stack several screens into an animated walkthrough
+                and export it as a video. Everything renders at high resolution
+                so your work looks sharp on portfolio sites, Behance, and
+                LinkedIn.
+              </p>
+              <p>
+                Screenshot Studio is free and open source, so you can use it for
+                client work without licenses, watermarks, or accounts.
+              </p>
+            </div>
           </div>
         </div>
       </section>

@@ -13,7 +13,7 @@ import {
 export const metadata: Metadata = {
   title: "Screenshot Studio Developer Portal",
   description:
-    "Developer portal for Screenshot Studio: API documentation, OpenAPI 3.1 specification, authentication and rate limits, quickstart requests, agent files, and the open-source repository.",
+    "Developer portal for Screenshot Studio: API docs, OpenAPI 3.1 spec, authentication, rate limits, quickstart requests, and the open-source repository.",
   keywords: [
     "Screenshot Studio developers",
     "Screenshot Studio developer portal",

@@ -11,9 +11,9 @@ import { Navigation } from "@/components/landing/Navigation";
 import { Footer } from "@/components/landing/Footer";
 
 export const metadata: Metadata = {
-  title: "Free Screenshot Beautifier - Make Screenshots Look Professional",
+  title: "Free Screenshot Beautifier Online",
   description:
-    "Transform plain screenshots into stunning mockups with our free screenshot beautifier. Add gradient backgrounds, browser frames, shadows, rounded corners, and padding. Better than Pika Style. Export in high resolution. No signup required.",
+    "Free screenshot beautifier: add gradient backgrounds, browser frames, shadows, rounded corners, and padding to turn plain screenshots into mockups. No signup.",
   keywords: [
     "screenshot beautifier",
     "screenshot editor online free",

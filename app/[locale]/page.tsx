@@ -5,9 +5,9 @@ import { AgentSummary } from "@/components/seo/AgentSummary";
 import { OG_DEFAULTS } from "@/lib/seo/metadata";
 
 export const metadata: Metadata = {
-  title: "Screenshot Studio - Free Screenshot Editor & Mockup Maker",
+  title: "Free Screenshot Editor & Mockup Maker",
   description:
-    "Free screenshot editor and mockup maker online — add gradient backgrounds, Safari and Chrome browser mockups, shadows, 3D effects, and animations to your screenshots. Import tweets and generate code snippets as images. Better free alternative to Pika Style and Shots.so. Export as PNG, JPG, or video. No signup needed.",
+    "Free online screenshot editor and mockup maker. Add gradient backgrounds, Safari and Chrome browser mockups, shadows, 3D effects, and animations. No signup.",
   keywords: [
     "screenshot editor online free",
     "free screenshot editor",
@@ -25,6 +25,20 @@ export const metadata: Metadata = {
     "tweet to screenshot",
     "code snippet screenshot",
     "code to image generator",
+    "mockup screenshot",
+    "mockup online",
+    "mockup screen",
+    "mockups ui",
+    "mockup ui ux",
+    "app mockup generator",
+    "ui mockup generator",
+    "shots app alternative",
+    "shots net alternative",
+    "moqups alternative",
+    "previewed app alternative",
+    "appshots alternative",
+    "goodmockups alternative",
+    "mockup me alternative",
   ],
   alternates: {
     canonical: "/",
@@ -33,7 +47,7 @@ export const metadata: Metadata = {
     ...OG_DEFAULTS,
     title: "Screenshot Studio - Free Screenshot Editor & Mockup Maker",
     description:
-      "Free screenshot editor online — add backgrounds, shadows, 3D effects, and animations. Export as PNG, JPG, or video.",
+      "Free screenshot editor online: add backgrounds, shadows, 3D effects, and animations. Export as PNG, JPG, or video.",
     url: "/",
   },
 };

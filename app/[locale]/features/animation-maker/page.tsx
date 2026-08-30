@@ -12,7 +12,7 @@ import { Footer } from "@/components/landing/Footer";
 import { OG_DEFAULTS } from "@/lib/seo/metadata";
 
 export const metadata: Metadata = {
-  title: "Free Animation Maker - Create Animated Screenshots & Slideshows",
+  title: "Free Screenshot Animation Maker",
   description:
     "Create stunning animations from screenshots. Build slideshows with zoom, pan, and fade effects. Export to video or GIF. Free browser-based animation tool.",
   keywords: [

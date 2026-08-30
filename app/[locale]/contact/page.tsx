@@ -105,6 +105,38 @@ export default function ContactPage() {
           ))}
         </div>
 
+        <section className="mb-8 rounded-2xl bg-card p-6 ring-1 ring-inset ring-border shadow-[var(--card-highlight-shadow)]">
+          <h2
+            className="mb-2 text-lg font-semibold tracking-[-0.02em] text-foreground"
+            style={{ fontFamily: INTER }}
+          >
+            Before You Reach Out
+          </h2>
+          <p className="mb-3 leading-relaxed text-muted-foreground">
+            Many questions are already answered on the{" "}
+            <Link href="/features" className={linkClassName}>
+              features
+            </Link>{" "}
+            page, in the{" "}
+            <Link href="/docs" className={linkClassName}>
+              API docs
+            </Link>
+            , or in the{" "}
+            <Link href="/changelog" className={linkClassName}>
+              changelog
+            </Link>
+            . Screenshot Studio is free, needs no account, and processes your
+            images in the browser, so there is nothing to cancel and no
+            subscription to manage.
+          </p>
+          <p className="leading-relaxed text-muted-foreground">
+            When reporting a bug, include your browser and operating system,
+            the steps you took, and a screenshot or exported file if you can.
+            GitHub issues are usually answered within a few days; email may
+            take a little longer.
+          </p>
+        </section>
+
         <section className="rounded-2xl bg-card p-6 ring-1 ring-inset ring-border shadow-[var(--card-highlight-shadow)]">
           <h2
             className="mb-2 text-lg font-semibold tracking-[-0.02em] text-foreground"

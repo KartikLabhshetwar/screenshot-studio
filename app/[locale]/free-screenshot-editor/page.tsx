@@ -14,9 +14,9 @@ import { Navigation } from "@/components/landing/Navigation";
 import { Footer } from "@/components/landing/Footer";
 
 export const metadata: Metadata = {
-  title: "Free Screenshot Editor Online - Beautify Screenshots",
+  title: "Free Screenshot Editor Online",
   description:
-    "Looking for a free screenshot editor online? Screenshot Studio is the best free alternative to Pika Style and Shots.so. Beautify screenshots with 100+ gradient backgrounds, browser mockups, shadows, 3D effects, animations, and video export. No signup, no watermarks.",
+    "Free screenshot editor online: beautify screenshots with gradient backgrounds, browser mockups, shadows, 3D effects, and animations. No signup, no watermarks.",
   keywords: [
     "screenshot editor online free",
     "free screenshot editor",

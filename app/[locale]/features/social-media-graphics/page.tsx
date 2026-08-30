@@ -11,9 +11,9 @@ import { Navigation } from "@/components/landing/Navigation";
 import { Footer } from "@/components/landing/Footer";
 
 export const metadata: Metadata = {
-  title: "Free Social Media Graphics Maker - Create Stunning Posts",
+  title: "Free Social Media Graphics Maker",
   description:
-    "Create professional social media graphics for Twitter, LinkedIn, and Instagram. Transform screenshots into shareable content with perfect dimensions. Free, no signup.",
+    "Create social media graphics for Twitter, LinkedIn, and Instagram. Turn screenshots into shareable posts with perfect dimensions. Free, no signup.",
   keywords: [
     "social media graphics maker",
     "twitter card generator",

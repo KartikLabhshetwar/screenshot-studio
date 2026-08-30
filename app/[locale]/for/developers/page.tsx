@@ -13,9 +13,9 @@ import {
 } from "hugeicons-react";
 
 export const metadata: Metadata = {
-  title: "Screenshot Editor for Developers - Free Tool",
+  title: "Screenshot Editor for Developers",
   description:
-    "Make your code, projects, and portfolio look professional. Beautify terminal screenshots, code snippets, and app UIs with backgrounds, 3D effects, and animations. Free, no signup.",
+    "Beautify code screenshots, terminal output, and app UIs with backgrounds, 3D effects, and animations. Free screenshot mockup tool for developers, no signup.",
   keywords: [
     "screenshot editor for developers",
     "code screenshot beautifier",

@@ -13,7 +13,7 @@ import {
 export const metadata: Metadata = {
   title: "Screenshot Studio API Documentation",
   description:
-    "Screenshot Studio API documentation: endpoints, request and response schemas, rate limits, JSON error codes, and the OpenAPI 3.1 specification. No API key required.",
+    "Screenshot Studio API docs: endpoints, request and response schemas, rate limits, JSON error codes, and the OpenAPI 3.1 spec. No API key required.",
   keywords: [
     "Screenshot Studio API",
     "Screenshot Studio API docs",

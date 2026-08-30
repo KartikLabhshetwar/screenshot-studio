@@ -13,9 +13,9 @@ import {
 } from "hugeicons-react";
 
 export const metadata: Metadata = {
-  title: "Screenshot Editor for Marketers - Free Tool",
+  title: "Screenshot Editor for Marketers",
   description:
-    "Create scroll-stopping product screenshots for landing pages, social media, and ad creatives. Add backgrounds, 3D effects, and animations. Free, no design skills needed.",
+    "Create scroll-stopping product screenshots and mockups for landing pages, social media, and ads. Backgrounds, 3D effects, animations. Free, no design skills.",
   keywords: [
     "screenshot editor for marketers",
     "product screenshot tool",

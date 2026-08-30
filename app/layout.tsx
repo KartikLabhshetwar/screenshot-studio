@@ -248,7 +248,7 @@ export const metadata: Metadata = {
     // bing: "your-bing-verification",
   },
   description:
-    "Free screenshot editor and mockup tool — transform plain screenshots into professional graphics in seconds. 100+ gradient backgrounds, browser frames, shadows, animations, 3D effects, and video export. The best free alternative to Pika Style and Shots.so. No signup needed.",
+    "Free screenshot editor and mockup maker. Add gradient backgrounds, browser frames, shadows, 3D effects, and animations to screenshots in seconds. No signup.",
   keywords: [
     // Primary keywords
     "screenshot editor online free",
@@ -266,6 +266,20 @@ export const metadata: Metadata = {
     "browser mockup generator",
     "window mockup generator",
     "screenshot wrapper",
+    "mockup screenshot",
+    "mockup online",
+    "mockup screen",
+    "mockups ui",
+    "mockup ui ux",
+    "app mockup generator",
+    "ui mockup generator",
+    "shots app alternative",
+    "shots net alternative",
+    "moqups alternative",
+    "previewed app alternative",
+    "appshots alternative",
+    "goodmockups alternative",
+    "mockup me alternative",
     // Feature keywords
     "social media graphics maker",
     "image background editor",
@@ -307,7 +321,7 @@ export const metadata: Metadata = {
     siteName: "Screenshot Studio",
     title: "Screenshot Studio - Free Screenshot Editor Online",
     description:
-      "Free screenshot editor online — create stunning social media graphics in seconds. 100+ backgrounds, animations, 3D effects, video export. No signup required.",
+      "Free screenshot editor online: create stunning social media graphics in seconds. 100+ backgrounds, animations, 3D effects, video export. No signup required.",
     images: [
       {
         url: "https://www.screenshot-studio.com/og.jpg",
@@ -321,7 +335,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Screenshot Studio - Free Screenshot Editor Online",
     description:
-      "Free screenshot editor online — transform screenshots into stunning graphics. Animations, 3D effects, video export. No signup.",
+      "Free screenshot editor online: transform screenshots into stunning graphics. Animations, 3D effects, video export. No signup.",
     images: ["https://www.screenshot-studio.com/og.jpg"],
     creator: "@screenshotstdio",
     site: "@screenshotstdio",

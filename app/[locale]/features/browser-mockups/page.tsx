@@ -12,11 +12,26 @@ import { Footer } from "@/components/landing/Footer";
 import { OG_DEFAULTS } from "@/lib/seo/metadata";
 
 export const metadata: Metadata = {
-  title: "Free Browser Mockup Generator - Safari & Chrome Frames",
+  title: "Free Browser Mockup Generator",
   description:
-    "Add realistic Safari and Chrome browser frames to your screenshots for free. Light and dark modes, adjustable header size, custom URL bar. Works in 2D and 3D perspective. No signup required.",
+    "Free browser mockup generator. Add Safari and Chrome frames to screenshots with light and dark modes, custom URL bar, and 3D perspective. No signup required.",
   keywords: [
     "browser mockup generator",
+    "mockup screenshot",
+    "mockup online",
+    "mockup screen",
+    "mockups ui",
+    "mockup ui ux",
+    "app mockup generator",
+    "ui mockup generator",
+    "shots app alternative",
+    "shots net alternative",
+    "moqups alternative",
+    "previewed app alternative",
+    "appshots alternative",
+    "goodmockups alternative",
+    "mockup me alternative",
+
     "safari browser mockup",
     "chrome browser mockup",
     "browser frame screenshot",
