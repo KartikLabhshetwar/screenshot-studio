@@ -30,6 +30,14 @@ const navCol2 = [
   { href: "/developers", label: "Developers" },
 ] as const;
 
+const navCol3 = [
+  { href: "/code", label: "Code to image" },
+  { href: "/for/developers", label: "For developers" },
+  { href: "/for/marketers", label: "For marketers" },
+  { href: "/compare/pika-style", label: "Pika alternative" },
+  { href: "/compare/shots-so", label: "Shots.so alternative" },
+] as const;
+
 function FooterNavLink({
   href,
   label,
@@ -97,7 +105,7 @@ export function Footer({ brandName = "Screenshot Studio" }: FooterProps) {
             </a>
           </div>
 
-          <div className="grid h-full w-full grid-cols-2 gap-2 md:max-w-md md:justify-self-end">
+          <div className="grid h-full w-full grid-cols-2 gap-2 sm:grid-cols-3 md:max-w-xl md:justify-self-end">
             <div className="flex h-full flex-col gap-2">
               {navCol1.map((item) => (
                 <FooterNavLink key={item.href} {...item} />
@@ -105,6 +113,11 @@ export function Footer({ brandName = "Screenshot Studio" }: FooterProps) {
             </div>
             <div className="flex h-full flex-col gap-2">
               {navCol2.map((item) => (
+                <FooterNavLink key={item.href} {...item} />
+              ))}
+            </div>
+            <div className="flex h-full flex-col gap-2">
+              {navCol3.map((item) => (
                 <FooterNavLink key={item.href} {...item} />
               ))}
             </div>

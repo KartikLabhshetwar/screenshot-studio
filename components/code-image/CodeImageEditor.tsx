@@ -12,7 +12,14 @@ import {
   ArrowDown01Icon,
   InformationCircleIcon,
   CheckmarkCircle02Icon,
+  Share01Icon,
+  Settings02Icon,
 } from 'hugeicons-react';
+import { useIsMobile } from '@/hooks/use-mobile';
+import {
+  Sheet,
+  SheetContent,
+} from '@/components/ui/sheet';
 import {
   Select,
   SelectContent,
@@ -167,7 +174,7 @@ const TopBar = React.memo(function TopBar({
           </DialogContent>
         </Dialog>
 
-        <div className="flex items-center">
+        <div className="hidden items-center lg:flex">
           <Button
             type="button"
             size="sm"
@@ -379,6 +386,210 @@ function ControlField({ label, children }: { label: string; children: React.Reac
   );
 }
 
+function MobileControlRow({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="flex min-h-[44px] items-center justify-between gap-4">
+      <span className="text-sm text-white/70">{label}</span>
+      <div className="shrink-0">{children}</div>
+    </div>
+  );
+}
+
+interface MobileActionBarProps {
+  onCustomize: () => void;
+  onShare: () => void;
+  onExport: () => void;
+  exporting: boolean;
+  justExported: boolean;
+}
+
+const MobileActionBar = React.memo(function MobileActionBar({
+  onCustomize,
+  onShare,
+  onExport,
+  exporting,
+  justExported,
+}: MobileActionBarProps) {
+  return (
+    <div
+      className="fixed bottom-0 left-0 right-0 z-30 border-t border-white/[0.06] bg-[#1f1f1f]/95 backdrop-blur-lg"
+      style={{ paddingBottom: 'max(8px, env(safe-area-inset-bottom, 0px))' }}
+    >
+      <div className="flex items-center gap-2 px-4 py-2.5">
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={onCustomize}
+          className="text-white/70 hover:bg-white/10 hover:text-white"
+        >
+          <Settings02Icon size={18} />
+          Customize
+        </Button>
+        <div className="flex-1" />
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={onShare}
+          className="text-white/70 hover:bg-white/10 hover:text-white"
+        >
+          <Share01Icon size={18} />
+          Share
+        </Button>
+        <Button
+          type="button"
+          size="sm"
+          onClick={onExport}
+          disabled={exporting}
+        >
+          {justExported ? <CheckmarkCircle02Icon size={16} /> : <Download04Icon size={16} />}
+          {justExported ? 'Exported' : exporting ? 'Exporting…' : 'Export'}
+        </Button>
+      </div>
+    </div>
+  );
+});
+
+interface MobileControlsDrawerProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  theme: string;
+  onThemeChange: (theme: string) => void;
+  dark: boolean;
+  onDarkChange: (dark: boolean) => void;
+  showBackground: boolean;
+  onShowBackgroundChange: (show: boolean) => void;
+  background: BackgroundSelection;
+  onBackgroundChange: (background: BackgroundSelection) => void;
+  lineNumbers: boolean;
+  onLineNumbersChange: (on: boolean) => void;
+  padding: number;
+  onPaddingChange: (padding: number) => void;
+  lang: string;
+  onLangChange: (lang: string) => void;
+  windowStyle: WindowStyle;
+  onWindowStyleChange: (style: WindowStyle) => void;
+}
+
+const MobileControlsDrawer = React.memo(function MobileControlsDrawer({
+  open,
+  onOpenChange,
+  theme,
+  onThemeChange,
+  dark,
+  onDarkChange,
+  showBackground,
+  onShowBackgroundChange,
+  background,
+  onBackgroundChange,
+  lineNumbers,
+  onLineNumbersChange,
+  padding,
+  onPaddingChange,
+  lang,
+  onLangChange,
+  windowStyle,
+  onWindowStyleChange,
+}: MobileControlsDrawerProps) {
+  const activeTheme = CODE_THEMES.find((t) => t.id === theme) ?? CODE_THEMES[0];
+
+  return (
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent
+        side="bottom"
+        showCloseButton={false}
+        className="max-h-[80dvh] rounded-t-2xl border-white/10 bg-[#1f1f1f] p-0 text-white"
+      >
+        <div className="mx-auto mt-2 h-1 w-10 rounded-full bg-white/20" />
+        <div
+          className="space-y-1 overflow-y-auto px-5 pt-4"
+          style={{ paddingBottom: 'max(16px, env(safe-area-inset-bottom, 0px))' }}
+        >
+          <MobileControlRow label="Theme">
+            <Select value={theme} onValueChange={onThemeChange}>
+              <SelectTrigger size="sm" className="w-[150px] border-white/10 bg-white/[0.04] text-white">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {CODE_THEMES.map((t) => (
+                  <SelectItem key={t.id} value={t.id}>
+                    <ThemeSwatch color={t.swatch} />
+                    {t.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </MobileControlRow>
+
+          <MobileControlRow label="Language">
+            <Select value={lang} onValueChange={onLangChange}>
+              <SelectTrigger size="sm" className="w-[150px] border-white/10 bg-white/[0.04] text-white">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {LANGUAGES.map((l) => (
+                  <SelectItem key={l.id} value={l.id}>
+                    {l.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </MobileControlRow>
+
+          <div className="h-px bg-white/10" />
+
+          <MobileControlRow label="Background">
+            <div className="flex items-center gap-3">
+              <BackgroundPicker
+                theme={activeTheme}
+                dark={dark}
+                background={background}
+                onBackgroundChange={onBackgroundChange}
+                disabled={!showBackground}
+              />
+              <Switch checked={showBackground} onCheckedChange={onShowBackgroundChange} />
+            </div>
+          </MobileControlRow>
+
+          <MobileControlRow label="Dark mode">
+            <Switch checked={dark} onCheckedChange={onDarkChange} />
+          </MobileControlRow>
+
+          <MobileControlRow label="Line numbers">
+            <Switch checked={lineNumbers} onCheckedChange={onLineNumbersChange} />
+          </MobileControlRow>
+
+          <div className="h-px bg-white/10" />
+
+          <MobileControlRow label="Padding">
+            <SegmentedControl
+              size="sm"
+              className="bg-white/[0.04]"
+              options={PADDING_OPTIONS.map((p) => ({ id: String(p), label: String(p) }))}
+              value={String(padding)}
+              onChange={(v) => onPaddingChange(Number(v))}
+            />
+          </MobileControlRow>
+
+          <MobileControlRow label="Window">
+            <SegmentedControl
+              size="sm"
+              className="bg-white/[0.04]"
+              options={[
+                { id: 'none', label: 'None' },
+                { id: 'mac', label: 'Mac' },
+              ]}
+              value={windowStyle}
+              onChange={(v) => onWindowStyleChange(v as WindowStyle)}
+            />
+          </MobileControlRow>
+        </div>
+      </SheetContent>
+    </Sheet>
+  );
+});
+
 export function CodeImageEditor() {
   const [state, setState] = React.useState<CodeImageState>(DEFAULT_STATE);
   const [hydrated, setHydrated] = React.useState(false);
@@ -387,6 +598,8 @@ export function CodeImageEditor() {
   const [justExported, setJustExported] = React.useState(false);
   const [copying, setCopying] = React.useState(false);
   const [stageVisible, setStageVisible] = React.useState(true);
+  const [drawerOpen, setDrawerOpen] = React.useState(false);
+  const isMobile = useIsMobile();
   const frameRef = React.useRef<HTMLDivElement>(null);
   const stageRef = React.useRef<HTMLElement>(null);
 
@@ -476,6 +689,24 @@ export function CodeImageEditor() {
     );
   }, []);
 
+  const handleShare = React.useCallback(async () => {
+    try {
+      const blob = await captureBlob(exportScale);
+      if (!blob) throw new Error('No image');
+      const file = new File([blob], `${state.title || 'code-image'}.png`, { type: 'image/png' });
+      if (navigator.canShare?.({ files: [file] })) {
+        await navigator.share({ files: [file], title: state.title || 'Code Image' });
+      } else {
+        await navigator.clipboard.writeText(window.location.href);
+        toast.success('URL copied to clipboard');
+      }
+    } catch (error) {
+      if ((error as Error).name !== 'AbortError') {
+        toast.error('Could not share');
+      }
+    }
+  }, [captureBlob, exportScale, state.title]);
+
   React.useEffect(() => {
     const stage = stageRef.current;
     if (!stage) return;
@@ -544,7 +775,7 @@ export function CodeImageEditor() {
 
       <main
         ref={stageRef}
-        className="relative flex min-h-[calc(100dvh-50px)] flex-1 items-center justify-center overflow-auto px-6 pb-32 pt-10"
+        className="relative flex min-h-[calc(100dvh-50px)] flex-1 items-center justify-center overflow-auto px-3 pb-24 pt-6 lg:px-6 lg:pb-32 lg:pt-10"
         style={{
           backgroundImage:
             'radial-gradient(ellipse at center, rgba(255,255,255,0.05) 0%, rgba(0,0,0,0) 60%)',
@@ -567,29 +798,61 @@ export function CodeImageEditor() {
           title={state.title}
           onTitleChange={onTitleChange}
           width={state.width}
-          onWidthChange={onWidthChange}
+          onWidthChange={isMobile ? undefined : onWidthChange}
         />
       </main>
 
-      <BottomControls
-        theme={state.theme}
-        onThemeChange={onThemeChange}
-        dark={state.dark}
-        onDarkChange={onDarkChange}
-        showBackground={state.showBackground}
-        onShowBackgroundChange={onShowBackgroundChange}
-        background={state.background}
-        onBackgroundChange={onBackgroundChange}
-        lineNumbers={state.lineNumbers}
-        onLineNumbersChange={onLineNumbersChange}
-        padding={state.padding}
-        onPaddingChange={onPaddingChange}
-        lang={state.lang}
-        onLangChange={onLangChange}
-        windowStyle={state.window}
-        onWindowStyleChange={onWindowStyleChange}
-        visible={stageVisible}
-      />
+      {isMobile ? (
+        <>
+          <MobileActionBar
+            onCustomize={() => setDrawerOpen(true)}
+            onShare={handleShare}
+            onExport={handleExportPng}
+            exporting={exporting}
+            justExported={justExported}
+          />
+          <MobileControlsDrawer
+            open={drawerOpen}
+            onOpenChange={setDrawerOpen}
+            theme={state.theme}
+            onThemeChange={onThemeChange}
+            dark={state.dark}
+            onDarkChange={onDarkChange}
+            showBackground={state.showBackground}
+            onShowBackgroundChange={onShowBackgroundChange}
+            background={state.background}
+            onBackgroundChange={onBackgroundChange}
+            lineNumbers={state.lineNumbers}
+            onLineNumbersChange={onLineNumbersChange}
+            padding={state.padding}
+            onPaddingChange={onPaddingChange}
+            lang={state.lang}
+            onLangChange={onLangChange}
+            windowStyle={state.window}
+            onWindowStyleChange={onWindowStyleChange}
+          />
+        </>
+      ) : (
+        <BottomControls
+          theme={state.theme}
+          onThemeChange={onThemeChange}
+          dark={state.dark}
+          onDarkChange={onDarkChange}
+          showBackground={state.showBackground}
+          onShowBackgroundChange={onShowBackgroundChange}
+          background={state.background}
+          onBackgroundChange={onBackgroundChange}
+          lineNumbers={state.lineNumbers}
+          onLineNumbersChange={onLineNumbersChange}
+          padding={state.padding}
+          onPaddingChange={onPaddingChange}
+          lang={state.lang}
+          onLangChange={onLangChange}
+          windowStyle={state.window}
+          onWindowStyleChange={onWindowStyleChange}
+          visible={stageVisible}
+        />
+      )}
     </div>
   );
 }

@@ -110,7 +110,7 @@ function ResizeHandle({
       tabIndex={0}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
-      className="group absolute top-1/2 z-10 flex h-10 w-4 -translate-y-1/2 cursor-ew-resize touch-none items-center justify-center outline-none"
+      className="group absolute top-1/2 z-10 hidden h-10 w-4 -translate-y-1/2 cursor-ew-resize touch-none items-center justify-center outline-none lg:flex"
       style={side === 'left' ? { left: -8 } : { right: -8 }}
     >
       <span className="size-2.5 rounded-full bg-white/90 opacity-0 shadow-[0_1px_4px_rgba(0,0,0,0.4)] transition-opacity duration-150 group-hover:opacity-100 group-focus-visible:opacity-100" />
