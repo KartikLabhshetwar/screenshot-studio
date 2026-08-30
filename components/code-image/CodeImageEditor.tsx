@@ -388,8 +388,8 @@ function ControlField({ label, children }: { label: string; children: React.Reac
 
 function MobileControlRow({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="flex min-h-[44px] items-center justify-between gap-4">
-      <span className="text-sm text-white/70">{label}</span>
+    <div className="flex min-h-[48px] items-center justify-between gap-4">
+      <span className="text-base text-white/80">{label}</span>
       <div className="shrink-0">{children}</div>
     </div>
   );
@@ -495,7 +495,7 @@ const MobileControlsDrawer = React.memo(function MobileControlsDrawer({
   const activeTheme = CODE_THEMES.find((t) => t.id === theme) ?? CODE_THEMES[0];
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
+    <Sheet open={open} onOpenChange={onOpenChange} modal={false}>
       <SheetContent
         side="bottom"
         showCloseButton={false}
@@ -508,7 +508,7 @@ const MobileControlsDrawer = React.memo(function MobileControlsDrawer({
         >
           <MobileControlRow label="Theme">
             <Select value={theme} onValueChange={onThemeChange}>
-              <SelectTrigger size="sm" className="w-[150px] border-white/10 bg-white/[0.04] text-white">
+              <SelectTrigger size="sm" className="w-[160px] border-white/10 bg-white/[0.04] text-white">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -524,7 +524,7 @@ const MobileControlsDrawer = React.memo(function MobileControlsDrawer({
 
           <MobileControlRow label="Language">
             <Select value={lang} onValueChange={onLangChange}>
-              <SelectTrigger size="sm" className="w-[150px] border-white/10 bg-white/[0.04] text-white">
+              <SelectTrigger size="sm" className="w-[160px] border-white/10 bg-white/[0.04] text-white">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -565,7 +565,7 @@ const MobileControlsDrawer = React.memo(function MobileControlsDrawer({
           <MobileControlRow label="Padding">
             <SegmentedControl
               size="sm"
-              className="bg-white/[0.04]"
+              className="w-[180px] bg-white/[0.04]"
               options={PADDING_OPTIONS.map((p) => ({ id: String(p), label: String(p) }))}
               value={String(padding)}
               onChange={(v) => onPaddingChange(Number(v))}
@@ -575,7 +575,7 @@ const MobileControlsDrawer = React.memo(function MobileControlsDrawer({
           <MobileControlRow label="Window">
             <SegmentedControl
               size="sm"
-              className="bg-white/[0.04]"
+              className="w-[110px] bg-white/[0.04]"
               options={[
                 { id: 'none', label: 'None' },
                 { id: 'mac', label: 'Mac' },
@@ -692,17 +692,23 @@ export function CodeImageEditor() {
   const handleShare = React.useCallback(async () => {
     try {
       const blob = await captureBlob(exportScale);
-      if (!blob) throw new Error('No image');
-      const file = new File([blob], `${state.title || 'code-image'}.png`, { type: 'image/png' });
-      if (navigator.canShare?.({ files: [file] })) {
-        await navigator.share({ files: [file], title: state.title || 'Code Image' });
-      } else {
-        await navigator.clipboard.writeText(window.location.href);
-        toast.success('URL copied to clipboard');
+      if (blob) {
+        const file = new File([blob], `${state.title || 'code-image'}.png`, { type: 'image/png' });
+        if (navigator.canShare?.({ files: [file] })) {
+          await navigator.share({ files: [file], title: state.title || 'Code Image' });
+          return;
+        }
       }
+      if (navigator.share) {
+        await navigator.share({ title: state.title || 'Code Image', url: window.location.href });
+        return;
+      }
+      await navigator.clipboard.writeText(window.location.href);
+      toast.success('URL copied to clipboard');
     } catch (error) {
       if ((error as Error).name !== 'AbortError') {
-        toast.error('Could not share');
+        await navigator.clipboard.writeText(window.location.href).catch(() => {});
+        toast.success('URL copied to clipboard');
       }
     }
   }, [captureBlob, exportScale, state.title]);
@@ -775,31 +781,33 @@ export function CodeImageEditor() {
 
       <main
         ref={stageRef}
-        className="relative flex min-h-[calc(100dvh-50px)] flex-1 items-center justify-center overflow-auto px-3 pb-24 pt-6 lg:px-6 lg:pb-32 lg:pt-10"
+        className="relative min-h-[calc(100dvh-50px)] flex-1 overflow-auto"
         style={{
           backgroundImage:
             'radial-gradient(ellipse at center, rgba(255,255,255,0.05) 0%, rgba(0,0,0,0) 60%)',
         }}
       >
-        <CodeFrame
-          ref={frameRef}
-          editable
-          code={state.code}
-          onCodeChange={onCodeChange}
-          themeId={state.theme}
-          lang={state.lang}
-          dark={state.dark}
-          showBackground={state.showBackground}
-          background={state.background}
-          padding={state.padding}
-          lineNumbers={state.lineNumbers}
-          fontId={state.font}
-          windowStyle={state.window}
-          title={state.title}
-          onTitleChange={onTitleChange}
-          width={state.width}
-          onWidthChange={isMobile ? undefined : onWidthChange}
-        />
+        <div className="mx-auto flex min-h-[calc(100dvh-50px)] min-w-fit items-center justify-center px-3 pb-24 pt-6 lg:px-6 lg:pb-32 lg:pt-10">
+          <CodeFrame
+            ref={frameRef}
+            editable
+            code={state.code}
+            onCodeChange={onCodeChange}
+            themeId={state.theme}
+            lang={state.lang}
+            dark={state.dark}
+            showBackground={state.showBackground}
+            background={state.background}
+            padding={state.padding}
+            lineNumbers={state.lineNumbers}
+            fontId={state.font}
+            windowStyle={state.window}
+            title={state.title}
+            onTitleChange={onTitleChange}
+            width={state.width}
+            onWidthChange={isMobile ? undefined : onWidthChange}
+          />
+        </div>
       </main>
 
       {isMobile ? (
