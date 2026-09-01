@@ -9,7 +9,14 @@ import { AspectRatioKey } from "@/lib/constants/aspect-ratios";
 import { BackgroundConfig, BackgroundType } from "@/lib/constants/backgrounds";
 import { gradientColors } from "@/lib/constants/gradient-colors";
 import { solidColors } from "@/lib/constants/solid-colors";
-import type { Mockup } from "@/types/mockup";
+import type { DeviceLayoutId, Mockup } from "@/types/mockup";
+import { getDeviceLayout, MAX_DEVICE_MOCKUPS } from "@/lib/constants/mockups";
+import {
+  applyLayoutToMockups,
+  cloneMockups,
+  createDeviceScreen,
+  restoreMockupsFromLayoutSnapshot,
+} from "@/lib/device-mockups/layouts";
 import type { TimelineState, AnimationTrack, Keyframe, AnimatableProperties, AnimationClip } from "@/types/animation";
 import { DEFAULT_TIMELINE_STATE } from "@/types/animation";
 import { clonePresetTracks, getPresetById, ANIMATION_PRESETS } from "@/lib/animation/presets";
@@ -541,6 +548,8 @@ export interface ImageState {
   textOverlays: TextOverlay[];
   imageOverlays: ImageOverlay[];
   mockups: Mockup[];
+  activeDeviceLayoutId: DeviceLayoutId | null;
+  deviceLayoutSnapshot: Mockup[] | null;
   imageOpacity: number;
   imageScale: number;
   imageBorder: ImageBorder;
@@ -584,10 +593,14 @@ export interface ImageState {
   updateImageOverlay: (id: string, updates: Partial<ImageOverlay>) => void;
   removeImageOverlay: (id: string) => void;
   clearImageOverlays: () => void;
-  addMockup: (mockup: Omit<Mockup, "id">) => void;
+  addMockup: (mockup: Omit<Mockup, "id">) => string | null;
   updateMockup: (id: string, updates: Partial<Mockup>) => void;
   removeMockup: (id: string) => void;
   clearMockups: () => void;
+  duplicateMockup: (id: string) => string | null;
+  reorderMockup: (id: string, direction: 'up' | 'down' | 'top' | 'bottom') => void;
+  clearDeviceLayout: () => void;
+  applyDeviceLayout: (layoutId: DeviceLayoutId) => void;
   setImageOpacity: (opacity: number) => void;
   setImageScale: (scale: number) => void;
   setImageBorder: (border: ImageBorder | Partial<ImageBorder>) => void;
@@ -674,8 +687,8 @@ export interface ImageState {
   reorderImageOverlay: (id: string, direction: 'up' | 'down' | 'top' | 'bottom') => void;
   showTemplates: boolean;
   setShowTemplates: (show: boolean) => void;
-  editorMode: 'screenshot' | 'browser';
-  setEditorMode: (mode: 'screenshot' | 'browser') => void;
+  editorMode: 'screenshot' | 'browser' | 'device';
+  setEditorMode: (mode: 'screenshot' | 'browser' | 'device') => void;
   browserUrl: string;
   setBrowserUrl: (url: string) => void;
   browserHeaderSize: number;
@@ -728,6 +741,8 @@ export const useImageStore = create<ImageState>()(
     textOverlays: [],
     imageOverlays: [],
     mockups: [],
+    activeDeviceLayoutId: null,
+    deviceLayoutSnapshot: null,
     imageOpacity: 1,
     imageScale: 100,
     imageBorder: {
@@ -859,6 +874,8 @@ export const useImageStore = create<ImageState>()(
         textOverlays: [],
         imageOverlays: [],
         mockups: [],
+        activeDeviceLayoutId: null,
+        deviceLayoutSnapshot: null,
         // Reset annotations & blur
         annotations: [],
         activeAnnotationTool: null,
@@ -958,6 +975,8 @@ export const useImageStore = create<ImageState>()(
         textOverlays: [],
         imageOverlays: [],
         mockups: [],
+        activeDeviceLayoutId: null,
+        deviceLayoutSnapshot: null,
         // Reset annotations & blur
         annotations: [],
         activeAnnotationTool: null,
@@ -1159,12 +1178,16 @@ export const useImageStore = create<ImageState>()(
     },
 
     addMockup: (mockup) => {
+      if (get().mockups.length >= MAX_DEVICE_MOCKUPS) return null;
       const id = `mockup-${Date.now()}-${Math.random()
         .toString(36)
         .substr(2, 9)}`;
       set((state) => ({
         mockups: [...state.mockups, { ...mockup, id }],
+        activeDeviceLayoutId: null,
+        deviceLayoutSnapshot: null,
       }));
+      return id;
     },
 
     updateMockup: (id, updates) => {
@@ -1178,11 +1201,88 @@ export const useImageStore = create<ImageState>()(
     removeMockup: (id) => {
       set((state) => ({
         mockups: state.mockups.filter((mockup) => mockup.id !== id),
+        activeDeviceLayoutId: null,
+        deviceLayoutSnapshot: null,
       }));
     },
 
     clearMockups: () => {
-      set({ mockups: [] });
+      set({ mockups: [], activeDeviceLayoutId: null, deviceLayoutSnapshot: null });
+    },
+
+    duplicateMockup: (id) => {
+      const state = get();
+      if (state.mockups.length >= MAX_DEVICE_MOCKUPS) return null;
+      const source = state.mockups.find((mockup) => mockup.id === id);
+      if (!source) return null;
+      const duplicateId = `mockup-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
+      set({
+        mockups: [
+          ...state.mockups,
+          {
+            ...source,
+            id: duplicateId,
+            position: {
+              x: Math.min(0.92, source.position.x + 0.04),
+              y: Math.min(0.92, source.position.y + 0.04),
+            },
+            screen: { ...source.screen, offset: { ...source.screen.offset } },
+          },
+        ],
+        activeDeviceLayoutId: null,
+        deviceLayoutSnapshot: null,
+      });
+      return duplicateId;
+    },
+
+    reorderMockup: (id, direction) => {
+      set((state) => {
+        const mockups = [...state.mockups];
+        const index = mockups.findIndex((mockup) => mockup.id === id);
+        if (index === -1) return state;
+        const target = direction === 'top'
+          ? mockups.length - 1
+          : direction === 'bottom'
+            ? 0
+            : direction === 'up'
+              ? Math.min(mockups.length - 1, index + 1)
+              : Math.max(0, index - 1);
+        if (target === index) return state;
+        const [mockup] = mockups.splice(index, 1);
+        mockups.splice(target, 0, mockup);
+        return { mockups };
+      });
+    },
+
+    applyDeviceLayout: (layoutId) => {
+      const layout = getDeviceLayout(layoutId);
+      if (!layout) return;
+      const state = get();
+      if (state.mockups.length > layout.slots.length) return;
+      const fallbackScreen = state.mockups[0]?.screen
+        ?? createDeviceScreen(state.uploadedImageUrl, state.imageName);
+      set({
+        mockups: applyLayoutToMockups(state.mockups, layout, fallbackScreen),
+        activeDeviceLayoutId: layoutId,
+        deviceLayoutSnapshot: state.activeDeviceLayoutId
+          ? state.deviceLayoutSnapshot
+          : cloneMockups(state.mockups),
+      });
+    },
+
+    clearDeviceLayout: () => {
+      set((state) => {
+        const snapshot = state.deviceLayoutSnapshot;
+        if (!snapshot) {
+          return { activeDeviceLayoutId: null, deviceLayoutSnapshot: null };
+        }
+
+        return {
+          mockups: restoreMockupsFromLayoutSnapshot(snapshot, state.mockups),
+          activeDeviceLayoutId: null,
+          deviceLayoutSnapshot: null,
+        };
+      });
     },
 
     setImageOpacity: (opacity: number) => {
@@ -1336,6 +1436,8 @@ export const useImageStore = create<ImageState>()(
         textOverlays: [],
         imageOverlays: [],
         mockups: [],
+        activeDeviceLayoutId: null,
+        deviceLayoutSnapshot: null,
         annotations: [],
         activeAnnotationTool: null,
         blurRegions: [],

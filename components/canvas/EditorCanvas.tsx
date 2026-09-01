@@ -11,6 +11,10 @@ import { CanvasStageLoadingOverlay } from "@/components/canvas/CanvasStageLoadin
 import ClientCanvas from "@/components/canvas/ClientCanvas";
 import { cn } from "@/lib/utils";
 import { Cancel01Icon } from "hugeicons-react";
+import {
+  hasVisibleMockups,
+  shouldRenderSourceImage,
+} from "@/lib/device-mockups/layouts";
 
 export function EditorCanvas() {
   const { screenshot } = useEditorStore();
@@ -24,10 +28,16 @@ export function EditorCanvas() {
     stopPreview,
     uploadedImageUrl,
     showTimeline,
+    editorMode,
+    mockups,
   } = useImageStore();
 
   // Check both stores - imageStore is the source of truth (tracked by undo/redo)
-  const hasImage = !!uploadedImageUrl && !!screenshot.src;
+  const hasImage = !!uploadedImageUrl
+    && !!screenshot.src
+    && shouldRenderSourceImage(editorMode, mockups);
+  const hasDeviceScene = editorMode === "device" && hasVisibleMockups(mockups);
+  const hasRenderableContent = hasImage || hasDeviceScene;
   const [exportOpen, setExportOpen] = useState(false);
   const [canvasReady, setCanvasReady] = useState(false);
   const loadStartedAtRef = React.useRef<number | null>(null);
@@ -49,7 +59,7 @@ export function EditorCanvas() {
       readyTimeoutRef.current = null;
     }
 
-    if (!hasImage) {
+    if (!hasRenderableContent) {
       setCanvasReady(false);
       loadStartedAtRef.current = null;
       return;
@@ -57,7 +67,7 @@ export function EditorCanvas() {
 
     setCanvasReady(false);
     loadStartedAtRef.current = Date.now();
-  }, [hasImage, screenshot.src, uploadedImageUrl]);
+  }, [hasRenderableContent, screenshot.src, uploadedImageUrl]);
 
   React.useEffect(() => {
     return () => {
@@ -102,7 +112,7 @@ export function EditorCanvas() {
     stopPreview,
   ]);
 
-  const showLoading = hasImage && !canvasReady;
+  const showLoading = hasRenderableContent && !canvasReady;
 
   return (
     <>
@@ -122,7 +132,7 @@ export function EditorCanvas() {
             showBackground={!canvasReady}
             className="overflow-hidden"
           >
-            {!hasImage ? (
+            {!hasRenderableContent ? (
               <CleanUploadState />
             ) : (
               <>

@@ -3,10 +3,10 @@
 import * as React from 'react';
 import { useImageStore } from '@/lib/store';
 import { getAspectRatioPreset } from '@/lib/aspect-ratio-utils';
-import { SectionWrapper } from './SectionWrapper';
 import { domToCanvas } from 'modern-screenshot';
-import { Loading03Icon, Cancel01Icon, LinkSquare02Icon } from 'hugeicons-react';
+import { ArrowDown01Icon, Cancel01Icon, LinkSquare02Icon, Loading03Icon, NewTwitterIcon } from 'hugeicons-react';
 import { SegmentedControl } from '@/components/ui/segmented-control';
+import { Button } from '@/components/ui/button';
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -289,6 +289,8 @@ export function TweetImportSection() {
   const [tweetTheme, setTweetTheme] = React.useState<'light' | 'dark'>('dark');
   const [status, setStatus] = React.useState<Status>('idle');
   const [error, setError] = React.useState<string | null>(null);
+  const [isOpen, setIsOpen] = React.useState(false);
+  const requestAbortRef = React.useRef<AbortController | null>(null);
 
   // Separate ref for the off-screen full-width capture element
   const hiddenCaptureRef = React.useRef<HTMLDivElement>(null);
@@ -331,9 +333,20 @@ export function TweetImportSection() {
       setError(null);
       setTweetData(null);
 
+      requestAbortRef.current?.abort();
+      const controller = new AbortController();
+      requestAbortRef.current = controller;
+      let timedOut = false;
+      const timeoutId = window.setTimeout(() => {
+        timedOut = true;
+        controller.abort();
+      }, 20000);
+
       try {
-        const res = await fetch(`/api/tweet/${id}`);
+        const res = await fetch(`/api/tweet/${id}`, { signal: controller.signal });
         const json = await res.json();
+        if (requestAbortRef.current !== controller) return;
+
         if (!res.ok || !json.data) {
           setError(json.error || 'Tweet not found');
           setStatus('idle');
@@ -342,23 +355,34 @@ export function TweetImportSection() {
           setStatus('loaded');
         }
       } catch {
-        setError('Failed to fetch tweet');
+        if (requestAbortRef.current !== controller) return;
+        setError(timedOut ? 'Tweet preview timed out. Try again' : 'Failed to fetch tweet');
         setStatus('idle');
+      } finally {
+        window.clearTimeout(timeoutId);
+        if (requestAbortRef.current === controller) {
+          requestAbortRef.current = null;
+        }
       }
     },
     []
   );
 
-  // ── Auto-fetch on paste ──
-  const handlePaste = React.useCallback(
-    (e: React.ClipboardEvent<HTMLInputElement>) => {
-      const pasted = e.clipboardData.getData('text');
-      if (parseTweetId(pasted)) {
-        setTimeout(() => fetchTweet(pasted), 0);
-      }
-    },
-    [fetchTweet]
-  );
+  React.useEffect(() => {
+    return () => requestAbortRef.current?.abort();
+  }, []);
+
+  const handleCancelFetch = React.useCallback(() => {
+    requestAbortRef.current?.abort();
+    requestAbortRef.current = null;
+    setStatus('idle');
+    setError(null);
+  }, []);
+
+  const handleDismissPreview = React.useCallback(() => {
+    setTweetData(null);
+    setStatus('idle');
+  }, []);
 
   // ── Add to canvas ──
   // Captures from the hidden off-screen element which is already at TWEET_WIDTH.
@@ -415,70 +439,150 @@ export function TweetImportSection() {
 
   return (
     <>
-    <SectionWrapper title="Add Tweet" defaultOpen={false}>
-      <div className="space-y-2.5">
-        <div className="relative">
-          <LinkSquare02Icon size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground/50" />
-          <input
-            type="text"
-            value={urlInput}
-            onChange={(e) => {
-              setUrlInput(e.target.value);
-              if (error) setError(null);
-            }}
-            onPaste={handlePaste}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') fetchTweet(urlInput);
-            }}
-            placeholder="Paste tweet URL or ID\u2026"
-            spellCheck={false}
-            autoComplete="off"
-            className="w-full h-9 pl-8 pr-16 rounded-md border border-foreground/10 bg-foreground/[0.04] text-xs text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus-visible:ring-1 focus-visible:ring-foreground/15 focus-visible:border-foreground/25 transition-colors"
-          />
-          {urlInput && (
-            <button
-              onClick={() => { setUrlInput(''); setError(null); setTweetData(null); setStatus('idle'); }}
-              aria-label="Clear input"
-              className="absolute right-[52px] top-1/2 -translate-y-1/2 p-0.5 text-muted-foreground/40 hover:text-muted-foreground transition-colors cursor-pointer"
-            >
-              <Cancel01Icon size={12} />
-            </button>
-          )}
+      <div className="mb-1 px-2">
+        <div className="overflow-hidden rounded-md border border-foreground/10 bg-foreground/[0.04] transition-colors hover:bg-foreground/[0.06]">
           <button
-            onClick={() => fetchTweet(urlInput)}
-            disabled={status === 'loading' || !urlInput.trim()}
-            aria-label="Fetch tweet"
-            className="absolute right-1.5 top-1/2 -translate-y-1/2 h-6 px-2.5 rounded-md bg-primary text-primary-foreground text-[10px] font-semibold hover:bg-foreground/90 disabled:opacity-40 disabled:cursor-not-allowed transition-colors focus-visible:ring-1 focus-visible:ring-foreground/25 cursor-pointer"
+            type="button"
+            onClick={() => setIsOpen((open) => !open)}
+            aria-expanded={isOpen}
+            aria-controls="tweet-import-content"
+            className="group flex w-full items-center gap-3 px-3 py-3 text-left"
           >
-            {status === 'loading' ? (
-              <Loading03Icon size={12} className="animate-spin" />
-            ) : (
-              'Fetch'
-            )}
+            <span className="flex size-9 shrink-0 items-center justify-center rounded-md bg-foreground/[0.06] text-foreground">
+              <NewTwitterIcon size={18} />
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block text-sm font-medium text-foreground">Add a Tweet</span>
+              <span className="block truncate text-xs text-muted-foreground">Turn any X post into an image</span>
+            </span>
+            <ArrowDown01Icon
+              size={16}
+              className={`shrink-0 text-muted-foreground transition-transform duration-200 motion-reduce:transition-none group-hover:text-foreground ${isOpen ? "rotate-180" : ""}`}
+              aria-hidden="true"
+            />
           </button>
-        </div>
 
-        {error && <p className="text-[10px] text-destructive">{error}</p>}
+          <div
+            id="tweet-import-content"
+            hidden={!isOpen}
+          >
+            <div>
+              <div className="space-y-3 border-t border-foreground/10 px-3 pb-3 pt-3">
+          <p className="whitespace-nowrap text-[10px] leading-4 text-muted-foreground">
+            Fetch, preview, then add to canvas.
+          </p>
 
-        {status === 'loading' && (
-          <div className="rounded-md border border-foreground/10 bg-foreground/[0.04] p-3 animate-pulse">
-            <div className="flex gap-2.5 items-center">
-              <div className="w-8 h-8 rounded-full bg-foreground/10" />
-              <div className="flex-1 min-w-0 space-y-1.5">
-                <div className="h-2.5 w-20 rounded-full bg-foreground/10" />
-                <div className="h-2 w-14 rounded-full bg-foreground/10" />
+          <div className="space-y-2">
+            <label
+              htmlFor="tweet-url"
+              className="block text-[10px] font-medium leading-4 text-foreground"
+            >
+              Tweet URL
+            </label>
+
+            <div className="relative">
+              <LinkSquare02Icon
+                size={14}
+                aria-hidden="true"
+                className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground/50"
+              />
+              <input
+                id="tweet-url"
+                type="url"
+                value={urlInput}
+                onChange={(event) => {
+                  setUrlInput(event.target.value);
+                  if (error) setError(null);
+                }}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter') fetchTweet(urlInput);
+                }}
+                placeholder="https://x.com/user/status/..."
+                spellCheck={false}
+                autoComplete="off"
+                aria-invalid={error ? true : undefined}
+                aria-describedby={error ? 'tweet-url-error' : undefined}
+                className="h-9 w-full rounded-md border border-foreground/10 bg-foreground/4 pl-8 pr-9 text-[11px] text-foreground outline-none transition-[border-color,box-shadow] max-[768px]:h-11 placeholder:text-muted-foreground/50 focus-visible:border-foreground/30 focus-visible:ring-2 focus-visible:ring-ring/40"
+              />
+              {urlInput ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setUrlInput('');
+                    setError(null);
+                    setTweetData(null);
+                    setStatus('idle');
+                  }}
+                  aria-label="Clear tweet URL"
+                  className="absolute right-1.5 top-1/2 flex size-7 -translate-y-1/2 cursor-pointer items-center justify-center rounded-md text-muted-foreground after:absolute after:-inset-2 after:content-[''] hover:bg-foreground/6 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+                >
+                  <Cancel01Icon size={13} aria-hidden="true" />
+                </button>
+              ) : null}
+            </div>
+
+            {error ? (
+              <div
+                id="tweet-url-error"
+                role="alert"
+                className="rounded-md border border-destructive/20 bg-destructive/10 px-2.5 py-2 text-[10px] leading-4 text-destructive"
+              >
+                {error}
+              </div>
+            ) : null}
+
+            {status === 'idle' && urlInput.trim() && !tweetData && !error ? (
+              <div>
+                <Button
+                  type="button"
+                  size="sm"
+                  onClick={() => fetchTweet(urlInput)}
+                  className="h-9 w-full text-[11px] max-[768px]:h-11"
+                >
+                  Fetch tweet
+                </Button>
+                <p className="mt-2 text-[9px] leading-4 text-muted-foreground">
+                  You will review the screenshot before it reaches the canvas.
+                </p>
+              </div>
+            ) : null}
+          </div>
+
+          {status === 'loading' ? (
+            <div
+              role="status"
+              aria-live="polite"
+              className="rounded-md border border-foreground/10 bg-foreground/4 p-3"
+            >
+              <div className="flex items-center gap-2.5">
+                <div className="flex size-8 shrink-0 items-center justify-center rounded-md bg-foreground/8 text-foreground">
+                  <Loading03Icon
+                    size={15}
+                    aria-hidden="true"
+                    className="motion-safe:animate-spin"
+                  />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-[11px] font-semibold leading-4 text-foreground">
+                    Fetching tweet
+                  </p>
+                  <p className="text-[9px] leading-4 text-muted-foreground">
+                    Fetching post details and media
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleCancelFetch}
+                  className="ml-auto min-h-6 cursor-pointer rounded-md px-2 py-1 text-[9px] font-medium text-muted-foreground max-[768px]:min-h-11 hover:bg-foreground/6 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+                >
+                  Cancel
+                </button>
               </div>
             </div>
-            <div className="mt-2.5 space-y-1.5">
-              <div className="h-2 w-full rounded-full bg-foreground/10" />
-              <div className="h-2 w-2/3 rounded-full bg-foreground/10" />
-            </div>
-          </div>
-        )}
+          ) : null}
 
-        {tweetData && status !== 'loading' && (
-          <div className="space-y-2.5">
-            <div className="flex items-center justify-between gap-2">
+          {tweetData && status !== 'loading' ? (
+            <div className="space-y-2.5">
               <SegmentedControl
                 size="sm"
                 value={tweetTheme}
@@ -487,62 +591,68 @@ export function TweetImportSection() {
                   { id: 'light', label: 'Light' },
                   { id: 'dark', label: 'Dark' },
                 ]}
-                className="w-auto min-w-[140px]"
+                className="w-full"
               />
-              <button
-                onClick={() => { setTweetData(null); setUrlInput(''); setStatus('idle'); }}
-                aria-label="Remove tweet"
-                className="p-1 rounded-md text-muted-foreground/50 hover:text-muted-foreground hover:bg-foreground/[0.06] transition-colors cursor-pointer"
-              >
-                <Cancel01Icon size={14} />
-              </button>
-            </div>
 
-            <div
-              ref={previewWrapRef}
-              className="rounded-md border border-foreground/10"
-              style={{
-                overflow: 'hidden',
-                height: previewHeight,
-                backgroundColor: tweetTheme === 'dark' ? '#000000' : '#ffffff',
-              }}
-            >
-              <div
-                ref={previewInnerRef}
-                style={{
-                  width: TWEET_WIDTH,
-                  transform: `scale(${previewScale})`,
-                  transformOrigin: 'top left',
-                }}
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={handleDismissPreview}
+                  disabled={status === 'capturing'}
+                  aria-label="Dismiss preview"
+                  className="absolute right-2 top-2 z-10 flex size-6 cursor-pointer items-center justify-center rounded-md bg-foreground/10 text-muted-foreground backdrop-blur-sm after:absolute after:-inset-2.5 after:content-[''] transition-colors hover:bg-foreground/20 hover:text-foreground disabled:pointer-events-none disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+                >
+                  <Cancel01Icon size={12} aria-hidden="true" />
+                </button>
+                <div
+                  ref={previewWrapRef}
+                  className="rounded-md border border-foreground/10 ring-1 ring-foreground/4"
+                  style={{
+                    overflow: 'hidden',
+                    height: previewHeight,
+                    backgroundColor: tweetTheme === 'dark' ? '#000000' : '#ffffff',
+                  }}
+                >
+                  <div
+                    ref={previewInnerRef}
+                    style={{
+                      width: TWEET_WIDTH,
+                      transform: `scale(${previewScale})`,
+                      transformOrigin: 'top left',
+                    }}
+                  >
+                    <TweetCard tweet={tweetData} theme={tweetTheme} />
+                  </div>
+                </div>
+              </div>
+
+              <Button
+                type="button"
+                size="sm"
+                onClick={handleAddToCanvas}
+                disabled={status === 'capturing'}
+                className="h-9 w-full text-[11px] max-[768px]:h-11"
               >
-                <TweetCard tweet={tweetData} theme={tweetTheme} />
+                {status === 'capturing' ? (
+                  <>
+                    <Loading03Icon
+                      size={13}
+                      aria-hidden="true"
+                      className="motion-safe:animate-spin"
+                    />
+                    Adding{'\u2026'}
+                  </>
+                ) : (
+                  'Add to canvas'
+                )}
+              </Button>
+            </div>
+          ) : null}
               </div>
             </div>
-
-            <button
-              onClick={handleAddToCanvas}
-              disabled={status === 'capturing'}
-              className="w-full h-8 rounded-md text-xs font-medium border border-foreground/15 bg-foreground/[0.04] text-foreground hover:bg-foreground/[0.08] hover:border-foreground/25 disabled:opacity-50 transition-colors flex items-center justify-center gap-1.5 focus-visible:ring-1 focus-visible:ring-foreground/25 cursor-pointer"
-            >
-              {status === 'capturing' ? (
-                <>
-                  <Loading03Icon size={12} className="animate-spin" />
-                  Adding{'\u2026'}
-                </>
-              ) : (
-                'Add to Canvas'
-              )}
-            </button>
           </div>
-        )}
-
-        {status === 'idle' && !tweetData && !error && (
-          <p className="text-[10px] text-muted-foreground/50 leading-relaxed">
-            Paste any X/Twitter post URL to capture it as a screenshot.
-          </p>
-        )}
+        </div>
       </div>
-    </SectionWrapper>
 
     {tweetData && (
       <div

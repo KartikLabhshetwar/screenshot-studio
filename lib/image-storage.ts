@@ -9,7 +9,7 @@ const MAX_IMAGE_SIZE = 500 * 1024; // 500KB limit per image to avoid quota issue
 /**
  * Convert blob to base64 string
  */
-async function blobToBase64(blob: Blob): Promise<string> {
+export async function blobToDataUrl(blob: Blob): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onloadend = () => resolve(reader.result as string);
@@ -33,7 +33,7 @@ export async function saveImageBlob(
   }
 
   try {
-    const base64 = await blobToBase64(blob);
+    const base64 = await blobToDataUrl(blob);
     localStorage.setItem(`${STORAGE_KEY_PREFIX}${imageId}`, base64);
     return imageId;
   } catch (error) {

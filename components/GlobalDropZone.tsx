@@ -5,6 +5,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'motion/react';
 import { useEditorStore, useImageStore } from '@/lib/store';
 import { ALLOWED_IMAGE_TYPES, MAX_IMAGE_SIZE } from '@/lib/constants';
+import { isDeviceScreenDropTarget } from '@/lib/drop-routing';
 
 interface GlobalDropZoneProps {
   children: React.ReactNode;
@@ -88,6 +89,11 @@ export function GlobalDropZone({ children }: GlobalDropZoneProps) {
   // Global drag events
   React.useEffect(() => {
     const handleDragEnter = (e: DragEvent) => {
+      if (isDeviceScreenDropTarget(e.target)) {
+        dragCounterRef.current = 0;
+        setIsDraggingOver(false);
+        return;
+      }
       e.preventDefault();
       dragCounterRef.current++;
       if (e.dataTransfer?.types.includes('Files')) {
@@ -97,6 +103,7 @@ export function GlobalDropZone({ children }: GlobalDropZoneProps) {
     };
 
     const handleDragOver = (e: DragEvent) => {
+      if (isDeviceScreenDropTarget(e.target)) return;
       e.preventDefault();
       if (e.dataTransfer) {
         e.dataTransfer.dropEffect = 'copy';
@@ -104,6 +111,7 @@ export function GlobalDropZone({ children }: GlobalDropZoneProps) {
     };
 
     const handleDragLeave = (e: DragEvent) => {
+      if (isDeviceScreenDropTarget(e.target)) return;
       e.preventDefault();
       dragCounterRef.current--;
       if (dragCounterRef.current <= 0) {
@@ -113,6 +121,11 @@ export function GlobalDropZone({ children }: GlobalDropZoneProps) {
     };
 
     const handleDrop = (e: DragEvent) => {
+      if (isDeviceScreenDropTarget(e.target)) {
+        dragCounterRef.current = 0;
+        setIsDraggingOver(false);
+        return;
+      }
       e.preventDefault();
       dragCounterRef.current = 0;
       setIsDraggingOver(false);
@@ -168,7 +181,7 @@ export function GlobalDropZone({ children }: GlobalDropZoneProps) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-[9999] flex items-center justify-center"
+            className="pointer-events-none fixed inset-0 z-[9999] flex items-center justify-center"
             style={{ backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' }}
           >
             {/* Dark overlay */}

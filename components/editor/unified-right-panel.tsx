@@ -13,6 +13,7 @@ import {
   LayersLogoIcon,
   Image01Icon,
   Globe02Icon,
+  SmartPhone01Icon,
 } from 'hugeicons-react';
 import {
   SettingsSection,
@@ -29,18 +30,20 @@ import {
   TweetImportSection,
   CodeImagesLinkCard,
   ImagePositionSection,
+  DeviceFramesSection,
 } from './sections';
 import { cn } from '@/lib/utils';
 import { useImageStore } from '@/lib/store';
 import { AnimationPresetGallery } from '@/components/timeline/AnimationPresetGallery';
 import { SegmentedControl } from '@/components/ui/segmented-control';
 
-type EditorMode = 'screenshot' | 'browser';
+type EditorMode = 'screenshot' | 'browser' | 'device';
 type TabType = 'settings' | 'edit' | 'background' | 'transforms' | 'animate' | 'depth';
 
 const modeTabs: { id: EditorMode; icon: React.ReactNode; label: string }[] = [
-  { id: 'screenshot', icon: <Image01Icon size={14} />, label: 'Screenshot' },
+  { id: 'screenshot', icon: <Image01Icon size={14} />, label: 'Image' },
   { id: 'browser', icon: <Globe02Icon size={14} />, label: 'Browser' },
+  { id: 'device', icon: <SmartPhone01Icon size={14} />, label: 'Device' },
 ];
 
 const tabs: { id: TabType; icon: React.ReactNode; label: string }[] = [
@@ -134,7 +137,7 @@ export function UnifiedRightPanel({
 
       <div className="min-h-0 min-w-0 flex-1 overflow-x-hidden overflow-y-auto scrollbar-hide">
         <div
-          className="p-3 transition-all duration-150 ease-out sm:p-4"
+          className="p-3 transition-[opacity,transform] duration-150 ease-out motion-reduce:transition-none sm:p-4"
           style={{
             opacity: transitioning ? 0 : 1,
             transform: transitioning ? 'translateY(4px)' : 'translateY(0)',
@@ -148,21 +151,27 @@ export function UnifiedRightPanel({
 
           {contentKey === 'edit' && (
             <div className="space-y-2">
-              {editorMode === 'browser' ? (
-                <BrowserMockupSection />
+              {editorMode === 'device' ? (
+                <DeviceFramesSection />
               ) : (
                 <>
-                  <StyleSection />
-                  <BorderSection />
+                  {editorMode === 'browser' ? (
+                    <BrowserMockupSection />
+                  ) : (
+                    <>
+                      <StyleSection />
+                      <BorderSection />
+                    </>
+                  )}
+                  <ImagePositionSection />
+                  <ShadowSection />
+                  <TweetImportSection />
+                  <CodeImagesLinkCard />
+                  <ImageOverlaySection />
+                  <AnnotateSection />
+                  <TextSection />
                 </>
               )}
-              <ImagePositionSection />
-              <ShadowSection />
-              <TweetImportSection />
-              <CodeImagesLinkCard />
-              <ImageOverlaySection />
-              <AnnotateSection />
-              <TextSection />
             </div>
           )}
 
@@ -182,7 +191,7 @@ export function UnifiedRightPanel({
 
       <div
         className={cn(
-          'absolute inset-0 z-50 flex flex-col bg-background transition-all duration-300 ease-out',
+          'absolute inset-0 z-50 flex flex-col bg-background transition-[opacity,transform] duration-300 ease-out motion-reduce:transition-none',
           templatesOpen
             ? 'translate-x-0 opacity-100'
             : '-translate-x-full opacity-0 pointer-events-none'

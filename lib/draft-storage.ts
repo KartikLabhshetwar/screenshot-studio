@@ -11,10 +11,14 @@ const DRAFT_KEY = 'screenshotstudio-draft';
 const MAX_DRAFT_AGE_DAYS = 7;
 const MAX_DRAFT_AGE_MS = MAX_DRAFT_AGE_DAYS * 24 * 60 * 60 * 1000;
 
+export type PersistedImageState = OmitFunctions<ImageState> & {
+  deviceScreenAssets?: Record<string, string>;
+};
+
 export interface DraftStorage {
   id: string;
   editorState: OmitFunctions<EditorState>;
-  imageState: OmitFunctions<ImageState>;
+  imageState: PersistedImageState;
   timestamp: number;
 }
 
@@ -104,7 +108,7 @@ function getDB(): Promise<IDBDatabase> {
 
 export async function saveDraft(
   editorState: OmitFunctions<EditorState>,
-  imageState: OmitFunctions<ImageState>,
+  imageState: PersistedImageState,
 ): Promise<SaveDraftResult> {
   let db: IDBDatabase;
   try {
