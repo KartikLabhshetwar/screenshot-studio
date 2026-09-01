@@ -5,7 +5,6 @@ export const DEFAULT_OVERLAY_TILT: ImageOverlayTilt = {
   perspective: 200,
   rotateX: 0,
   rotateY: 0,
-  rotateZ: 0,
 };
 
 export const DEFAULT_OVERLAY_SHADOW: ImageShadow = {
@@ -19,12 +18,12 @@ export const DEFAULT_OVERLAY_SHADOW: ImageShadow = {
 };
 
 export function hasOverlayTilt(tilt: ImageOverlayTilt | undefined): tilt is ImageOverlayTilt {
-  return Boolean(tilt && (tilt.rotateX !== 0 || tilt.rotateY !== 0 || tilt.rotateZ !== 0));
+  return Boolean(tilt && (tilt.rotateX !== 0 || tilt.rotateY !== 0));
 }
 
 export function buildOverlayTiltTransform(tilt: ImageOverlayTilt | undefined): string | undefined {
   if (!hasOverlayTilt(tilt)) return undefined;
-  return `rotateX(${tilt.rotateX}deg) rotateY(${tilt.rotateY}deg) rotateZ(${tilt.rotateZ}deg)`;
+  return `rotateX(${tilt.rotateX}deg) rotateY(${tilt.rotateY}deg)`;
 }
 
 export function buildOverlayShadowFilter(shadow: ImageShadow | undefined): string | undefined {

@@ -73,7 +73,6 @@ export interface ImageOverlayTilt {
   perspective: number;
   rotateX: number;
   rotateY: number;
-  rotateZ: number;
 }
 
 export interface ImageOverlay {

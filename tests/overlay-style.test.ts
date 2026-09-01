@@ -12,14 +12,14 @@ import {
 test("overlays without tilt keep rendering with no 3D transform", () => {
   assert.equal(hasOverlayTilt(undefined), false);
   assert.equal(buildOverlayTiltTransform(undefined), undefined);
-  assert.equal(buildOverlayTiltTransform({ perspective: 200, rotateX: 0, rotateY: 0, rotateZ: 0 }), undefined);
+  assert.equal(buildOverlayTiltTransform({ perspective: 200, rotateX: 0, rotateY: 0 }), undefined);
 });
 
 test("tilted overlays rotate around X then Y", () => {
-  const tilt = { perspective: 200, rotateX: 12, rotateY: -20, rotateZ: 0 };
+  const tilt = { perspective: 200, rotateX: 12, rotateY: -20 };
 
   assert.equal(hasOverlayTilt(tilt), true);
-  assert.equal(buildOverlayTiltTransform(tilt), "rotateX(12deg) rotateY(-20deg) rotateZ(0deg)");
+  assert.equal(buildOverlayTiltTransform(tilt), "rotateX(12deg) rotateY(-20deg)");
 });
 
 test("overlay shadows use the same drop-shadow as the main image", () => {

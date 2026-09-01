@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { useImageStore } from '@/lib/store';
-import type { ImageOverlay } from '@/lib/store';
+import type { ImageOverlay, ImageOverlayTilt, ImageShadow } from '@/lib/store';
 import { SectionWrapper } from './SectionWrapper';
 import { cn } from '@/lib/utils';
 import { Slider } from '@/components/ui/slider';
@@ -663,7 +663,7 @@ function OverlayCornerRadiusControls({ overlay, onUpdate }: OverlayControlProps)
 
 function OverlayTiltControls({ overlay, onUpdate }: OverlayControlProps) {
   const tilt = overlay.tilt ?? DEFAULT_OVERLAY_TILT;
-  const setTilt = (updates: Partial<ImageOverlay['tilt']>) =>
+  const setTilt = (updates: Partial<ImageOverlayTilt>) =>
     onUpdate({ tilt: { ...tilt, ...updates } });
 
   return (
@@ -696,30 +696,21 @@ function OverlayTiltControls({ overlay, onUpdate }: OverlayControlProps) {
         valueDisplay={`${tilt.rotateY}°`}
       />
       <Slider
-        value={[tilt.rotateZ]}
-        onValueChange={(v) => setTilt({ rotateZ: v[0] })}
-        min={-45}
-        max={45}
-        step={1}
-        label="Rotate Z"
-        valueDisplay={`${tilt.rotateZ}°`}
-      />
-      <Slider
         value={[tilt.perspective]}
         onValueChange={(v) => setTilt({ perspective: v[0] })}
         min={50}
         max={1000}
         step={10}
         label="Perspective"
-        valueDisplay={`${tilt.perspective}`}
+        valueDisplay={`${tilt.perspective}px`}
       />
     </div>
   );
 }
 
 function OverlayShadowControls({ overlay, onUpdate }: OverlayControlProps) {
-  const shadow = overlay.shadow ?? { ...DEFAULT_OVERLAY_SHADOW, enabled: false };
-  const setShadow = (updates: Partial<ImageOverlay['shadow']>) =>
+  const shadow = overlay.shadow ?? DEFAULT_OVERLAY_SHADOW;
+  const setShadow = (updates: Partial<ImageShadow>) =>
     onUpdate({ shadow: { ...shadow, ...updates } });
 
   return (
