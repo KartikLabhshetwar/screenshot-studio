@@ -18,8 +18,12 @@ function Slider({
   max = 100,
   label,
   valueDisplay,
+  "aria-label": ariaLabel,
+  "aria-labelledby": ariaLabelledBy,
+  "aria-valuetext": ariaValueText,
   ...props
 }: SliderProps) {
+  const labelId = React.useId()
   const _values = React.useMemo(
     () =>
       Array.isArray(value)
@@ -30,8 +34,6 @@ function Slider({
     [value, defaultValue, min, max]
   )
 
-  // Only show the value readout when a label is set, or valueDisplay is passed explicitly.
-  // Compact uses (e.g. timeline duration) pass neither, so the track stays clean.
   const showMeta = Boolean(label) || valueDisplay !== undefined
   const displayValue =
     valueDisplay ??
@@ -44,7 +46,7 @@ function Slider({
       {showMeta ? (
         <div className="flex items-center justify-between gap-3 select-none">
           {label ? (
-            <span className="text-xs text-muted-foreground">{label}</span>
+            <span id={labelId} className="text-xs text-muted-foreground">{label}</span>
           ) : (
             <span />
           )}
@@ -61,7 +63,7 @@ function Slider({
         min={min}
         max={max}
         className={cn(
-          "relative flex touch-none select-none items-center cursor-grab active:cursor-grabbing w-full h-4",
+          "relative flex h-4 w-full touch-none cursor-grab select-none items-center active:cursor-grabbing max-[768px]:h-11",
           "data-disabled:opacity-50 data-[orientation=vertical]:h-full data-[orientation=vertical]:min-h-44 data-[orientation=vertical]:w-auto data-[orientation=vertical]:flex-col"
         )}
         {...props}
@@ -80,7 +82,7 @@ function Slider({
             data-slot="slider-thumb"
             key={index}
             className={cn(
-              "block size-3.5 shrink-0 rounded-full bg-primary",
+              "relative block size-3.5 shrink-0 rounded-full bg-primary after:absolute after:-inset-[5px] after:content-['']",
               "border border-foreground/20 shadow-sm",
               "transition-[box-shadow,transform] duration-150",
               "hover:scale-110",
@@ -88,6 +90,9 @@ function Slider({
               "active:scale-95",
               "disabled:pointer-events-none disabled:opacity-50"
             )}
+            aria-label={label ? undefined : ariaLabel}
+            aria-labelledby={label ? labelId : ariaLabelledBy}
+            aria-valuetext={ariaValueText ?? (showMeta ? String(displayValue) : undefined)}
           />
         ))}
       </SliderPrimitive.Root>

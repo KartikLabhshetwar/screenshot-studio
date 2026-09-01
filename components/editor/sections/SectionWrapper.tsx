@@ -45,7 +45,7 @@ export function SectionWrapper({
       </div>
 
       <div className={cn(
-        'overflow-hidden transition-all duration-200',
+        'overflow-hidden transition-[max-height,opacity] duration-200 motion-reduce:transition-none',
         isOpen ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'
       )}>
         <div className="px-2 pb-4 space-y-4">

@@ -19,6 +19,10 @@ import { TimelineEditor } from "@/components/timeline";
 import { useImageStore } from "@/lib/store";
 import { trackEditorOpen } from "@/lib/analytics";
 import { cn } from "@/lib/utils";
+import {
+  hasVisibleMockups,
+  shouldRenderSourceImage,
+} from "@/lib/device-mockups/layouts";
 
 function EditorMain() {
   const isMobile = useIsMobile();
@@ -26,6 +30,8 @@ function EditorMain() {
   const {
     uploadedImageUrl,
     slides,
+    mockups,
+    editorMode,
     showTimeline,
     toggleTimeline,
     showTemplates,
@@ -35,7 +41,12 @@ function EditorMain() {
   // enable autosave
   useAutosaveDraft();
 
-  const hasContent = !!uploadedImageUrl || slides.length > 0;
+  const hasSourceContent = (
+    !!uploadedImageUrl || slides.length > 0
+  ) && shouldRenderSourceImage(editorMode, mockups);
+  const hasContent = hasSourceContent || (
+    editorMode === "device" && hasVisibleMockups(mockups)
+  );
 
   React.useEffect(() => {
     document.body.style.overflow = "hidden";

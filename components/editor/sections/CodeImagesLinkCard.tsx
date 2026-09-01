@@ -6,7 +6,7 @@ export function CodeImagesLinkCard() {
     <div className="mb-1 px-2">
       <Link
         href="/code"
-        className="group flex items-center gap-3 rounded-md border border-foreground/10 bg-foreground/[0.04] px-3 py-3 transition-colors hover:bg-foreground/[0.08]"
+        className="flex items-center gap-3 rounded-md border border-foreground/10 bg-foreground/[0.04] px-3 py-3 transition-colors hover:bg-foreground/[0.08]"
       >
         <span className="flex size-9 shrink-0 items-center justify-center rounded-md bg-foreground/[0.06] text-foreground">
           <SourceCodeIcon size={18} />
@@ -21,7 +21,7 @@ export function CodeImagesLinkCard() {
         </span>
         <ArrowRight01Icon
           size={16}
-          className="shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-foreground"
+          className="shrink-0 text-muted-foreground"
           aria-hidden
         />
       </Link>

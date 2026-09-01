@@ -10,6 +10,7 @@ import {
   LayersLogoIcon,
   Image01Icon,
   Globe02Icon,
+  SmartPhone01Icon,
 } from "hugeicons-react";
 import {
   StyleSection,
@@ -24,6 +25,7 @@ import {
   TextSection,
   SettingsSection,
   BrowserMockupSection,
+  DeviceFramesSection,
 } from "./sections";
 import { cn } from "@/lib/utils";
 import { useImageStore } from "@/lib/store";
@@ -44,19 +46,25 @@ function ModeSegmentedControl(): React.JSX.Element {
   return (
     <SegmentedControl
       value={editorMode}
-      onChange={(id) => setEditorMode(id as "screenshot" | "browser")}
+      onChange={(id) => setEditorMode(id as "screenshot" | "browser" | "device")}
       options={[
         {
           id: "screenshot",
-          label: "Screenshot",
+          label: "Image",
           icon: <Image01Icon size={14} />,
-          ariaLabel: "Screenshot",
+          ariaLabel: "Image",
         },
         {
           id: "browser",
           label: "Browser",
           icon: <Globe02Icon size={14} />,
           ariaLabel: "Browser",
+        },
+        {
+          id: "device",
+          label: "Device",
+          icon: <SmartPhone01Icon size={14} />,
+          ariaLabel: "Device",
         },
       ]}
     />
@@ -113,7 +121,7 @@ export function LeftEditPanel() {
 
       <div className="flex-1 overflow-y-auto scrollbar-hide">
         <div
-          className="p-4 transition-all duration-150 ease-out"
+          className="p-4 transition-[opacity,transform] duration-150 ease-out motion-reduce:transition-none"
           style={{
             opacity: transitioning ? 0 : 1,
             transform: transitioning ? "translateY(4px)" : "translateY(0)",
@@ -121,7 +129,9 @@ export function LeftEditPanel() {
         >
           {contentKey === "edit" && (
             <div className="space-y-1">
-              {editorMode === "browser" ? (
+              {editorMode === "device" ? (
+                <DeviceFramesSection />
+              ) : editorMode === "browser" ? (
                 <BrowserMockupSection />
               ) : (
                 <>
@@ -129,13 +139,17 @@ export function LeftEditPanel() {
                   <BorderSection />
                 </>
               )}
-              <ShadowSection />
-              <TweetImportSection />
-              <CodeImagesLinkCard />
-              <ImageOverlaySection />
-              <AnnotateSection />
-              <TextSection />
-              <SettingsSection />
+              {editorMode !== "device" ? (
+                <>
+                  <ShadowSection />
+                  <TweetImportSection />
+                  <CodeImagesLinkCard />
+                  <ImageOverlaySection />
+                  <AnnotateSection />
+                  <TextSection />
+                  <SettingsSection />
+                </>
+              ) : null}
             </div>
           )}
 
@@ -151,7 +165,7 @@ export function LeftEditPanel() {
 
       <div
         className={cn(
-          "absolute inset-0 z-50 bg-background flex flex-col transition-all duration-300 ease-out",
+          "absolute inset-0 z-50 bg-background flex flex-col transition-[opacity,transform] duration-300 ease-out motion-reduce:transition-none",
           templatesOpen
             ? "translate-x-0 opacity-100"
             : "-translate-x-full opacity-0 pointer-events-none",

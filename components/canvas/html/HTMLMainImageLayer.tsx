@@ -4,6 +4,7 @@ import { useRef, useState, useCallback, useMemo, useEffect } from 'react';
 import { type ShadowConfig } from '../utils/shadow-utils';
 import { type ImageFilters, useImageStore } from '@/lib/store';
 import { SafariToolbar, ChromeToolbar } from '../frames/BrowserToolbar';
+import { CanvasObjectTopControls } from './CanvasObjectTopControls';
 
 export interface FrameConfig {
   enabled: boolean;
@@ -631,81 +632,12 @@ export function HTMLMainImageLayer({
             );
           })}
 
-          {/* Connector line from image to rotate handle */}
-          <div
-            data-resize-handle="true"
-            style={{
-              position: 'absolute',
-              top: `${-35 * handleScale}px`,
-              left: '50%',
-              width: '1px',
-              height: `${30 * handleScale}px`,
-              backgroundColor: 'rgba(59, 130, 246, 0.5)',
-              transform: `translateX(-0.5px) scaleX(${handleScale})`,
-              pointerEvents: 'none',
-              zIndex: 20,
-            }}
+          <CanvasObjectTopControls
+            handleScale={handleScale}
+            onRotatePointerDown={handleRotateMouseDown}
+            onRemove={handleRemoveImage}
+            objectLabel="image"
           />
-
-          {/* Rotate handle */}
-          <div
-            data-resize-handle="true"
-            onPointerDown={handleRotateMouseDown}
-            title="Rotate"
-            style={{
-              position: 'absolute',
-              top: `${-52 * handleScale}px`,
-              left: '50%',
-              transform: `translateX(-50%) scale(${handleScale})`,
-              transformOrigin: 'top center',
-              width: '22px',
-              height: '22px',
-              backgroundColor: 'white',
-              border: '2px solid rgba(59, 130, 246, 0.8)',
-              borderRadius: '50%',
-              cursor: 'grab',
-              zIndex: 21,
-              pointerEvents: 'auto',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(59, 130, 246, 0.8)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M21.5 2v6h-6" />
-              <path d="M21.34 13.72A10 10 0 1 1 18.57 4.62L21.5 8" />
-            </svg>
-          </div>
-
-          {/* Remove button */}
-          <div
-            data-resize-handle="true"
-            onClick={handleRemoveImage}
-            title="Remove image"
-            style={{
-              position: 'absolute',
-              top: `${-52 * handleScale}px`,
-              left: '50%',
-              transform: `translateX(calc(-50% + ${30 * handleScale}px)) scale(${handleScale})`,
-              transformOrigin: 'top center',
-              width: '22px',
-              height: '22px',
-              backgroundColor: 'white',
-              border: '2px solid rgba(239, 68, 68, 0.8)',
-              borderRadius: '50%',
-              cursor: 'pointer',
-              zIndex: 21,
-              pointerEvents: 'auto',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(239, 68, 68, 0.8)" strokeWidth="3" strokeLinecap="round">
-              <line x1="18" y1="6" x2="6" y2="18" />
-              <line x1="6" y1="6" x2="18" y2="18" />
-            </svg>
-          </div>
         </>
       )}
     </div>

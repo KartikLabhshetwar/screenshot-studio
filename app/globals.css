@@ -150,6 +150,9 @@
   --preview-shell-shadow:
     0 1px 2px rgba(0, 0, 0, 0.04),
     0 24px 64px rgba(0, 0, 0, 0.2);
+  --canvas-control-surface: #ffffff;
+  --canvas-selection: #3b82f6;
+  --canvas-destructive: #ef4444;
 }
 
 .dark {

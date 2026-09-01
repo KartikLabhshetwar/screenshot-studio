@@ -10,6 +10,13 @@ import {
 } from "@/lib/store";
 import { toast } from "sonner";
 import {
+  compactDeviceScreenForDraft,
+} from "@/lib/device-mockups/layouts";
+import {
+  normalizeDraftMockups,
+  resolveRestoredEditorMode,
+} from "@/lib/device-mockups/draft-migration";
+import {
   saveDraft,
   getDraft,
   blobUrlToBase64,
@@ -17,6 +24,7 @@ import {
   migrateFromLocalStorage,
   autoCleanIndexedDB,
 } from "@/lib/draft-storage";
+import type { PersistedImageState } from "@/lib/draft-storage";
 
 const AUTOSAVE_DELAY = 1000;
 
@@ -137,9 +145,43 @@ export function useAutosaveDraft() {
         // an explicit line here silently stayed at its default.
         const img = draft.imageState;
         if (img) {
-          const { timeline, browserUrl, ...rest } = img;
+          const {
+            timeline,
+            browserUrl,
+            mockups,
+            deviceLayoutSnapshot,
+            deviceScreenAssets,
+            editorMode,
+            ...rest
+          } = img;
+          const normalizeMockups = (draftMockups: typeof mockups) => normalizeDraftMockups(
+            draftMockups,
+            {
+              uploadedImageUrl: img.uploadedImageUrl ?? null,
+              imageName: img.imageName ?? null,
+              canvasDimensions: img.canvasDimensions,
+              deviceScreenAssets,
+            },
+          );
+          const normalized = normalizeMockups(mockups);
           useImageStore.setState({
             ...definedOnly(rest),
+            mockups: normalized.mockups,
+            ...(editorMode !== undefined || normalized.migratedLegacyMockups
+              ? {
+                  editorMode: resolveRestoredEditorMode(
+                    editorMode,
+                    normalized.migratedLegacyMockups,
+                  ),
+                }
+              : {}),
+            ...(deviceLayoutSnapshot !== undefined
+              ? {
+                  deviceLayoutSnapshot: deviceLayoutSnapshot
+                    ? normalizeMockups(deviceLayoutSnapshot).mockups
+                    : null,
+                }
+              : {}),
             ...IDLE_SESSION_STATE,
             ...(timeline
               ? { timeline: { ...timeline, isPlaying: false, playhead: 0 } }
@@ -273,6 +315,45 @@ export function useAutosaveDraft() {
             }))
           );
 
+          const deviceScreenAssets: Record<string, string> = {};
+          const deviceScreenAssetIds = new Map<string, string>();
+          const processMockups = async (mockups: typeof persistedImage.mockups) => (
+            Promise.all(mockups.map(async (mockup) => {
+              const screen = compactDeviceScreenForDraft(
+                mockup.screen,
+                rawUploadedImageUrl ?? null,
+              );
+              const src = screen.src ? await toPersistableSrc(screen.src) : null;
+              if (screen.isCustom && src) {
+                let assetId = deviceScreenAssetIds.get(src);
+                if (!assetId) {
+                  assetId = `screen-${deviceScreenAssetIds.size + 1}`;
+                  deviceScreenAssetIds.set(src, assetId);
+                  deviceScreenAssets[assetId] = src;
+                }
+                return {
+                  ...mockup,
+                  screen: {
+                    ...screen,
+                    src: null,
+                    sourceRef: `device-screen:${assetId}` as const,
+                  },
+                };
+              }
+              return {
+                ...mockup,
+                screen: {
+                  ...screen,
+                  src,
+                },
+              };
+            }))
+          );
+          const processedMockups = await processMockups(persistedImage.mockups);
+          const processedDeviceLayoutSnapshot = persistedImage.deviceLayoutSnapshot
+            ? await processMockups(persistedImage.deviceLayoutSnapshot)
+            : persistedImage.deviceLayoutSnapshot;
+
           const editorState: OmitFunctions<EditorState> = {
             screenshot: {
               ...screenshot,
@@ -288,12 +369,15 @@ export function useAutosaveDraft() {
 
           // Spread the derived state, then override only the fields whose blob
           // sources had to be inlined above.
-          const imageState: OmitFunctions<ImageState> = {
+          const imageState: PersistedImageState = {
             ...persistedImage,
             uploadedImageUrl: processedUploadedImageUrl,
             backgroundConfig: processedBackgroundConfig,
             imageOverlays: processedImageOverlays,
             slides: processedSlides,
+            mockups: processedMockups,
+            deviceLayoutSnapshot: processedDeviceLayoutSnapshot,
+            deviceScreenAssets,
           };
 
           const result = await saveDraft(editorState, imageState);

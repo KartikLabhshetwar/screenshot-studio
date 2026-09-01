@@ -16,3 +16,4 @@ export { CodeImagesLinkCard } from './CodeImagesLinkCard';
 export { PositionSection } from './PositionSection';
 export { BrowserMockupSection } from './BrowserMockupSection';
 export { ImagePositionSection } from './ImagePositionSection';
+export { DeviceFramesSection } from './DeviceFramesSection';

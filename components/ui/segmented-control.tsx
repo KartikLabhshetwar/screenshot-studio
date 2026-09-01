@@ -14,6 +14,7 @@ interface SegmentedControlProps {
   options: SegmentedControlOption[];
   value: string;
   onChange: (value: string) => void;
+  ariaLabel?: string;
   className?: string;
   indicatorClassName?: string;
   size?: 'sm' | 'md';
@@ -23,6 +24,7 @@ export function SegmentedControl({
   options,
   value,
   onChange,
+  ariaLabel,
   className,
   indicatorClassName,
   size = 'md',
@@ -35,10 +37,11 @@ export function SegmentedControl({
 
   return (
     <div
-      role="tablist"
+      role={ariaLabel ? "group" : undefined}
+      aria-label={ariaLabel}
       className={cn(
         'relative flex w-full overflow-hidden border border-foreground/10 bg-foreground/[0.04]',
-        size === 'sm' ? 'h-8 p-0.5 rounded-md' : 'h-9 p-0.5 rounded-md',
+        size === 'sm' ? 'h-8 p-0.5 rounded-md max-[768px]:h-11' : 'h-9 p-0.5 rounded-md max-[768px]:h-11',
         className
       )}
     >
@@ -62,9 +65,25 @@ export function SegmentedControl({
           <button
             key={option.id}
             type="button"
-            role="tab"
-            aria-selected={isActive}
+            aria-pressed={isActive}
+            data-segmented-option="true"
             onClick={() => onChange(option.id)}
+            onKeyDown={(event) => {
+              if (options.length === 0) return;
+              if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+              event.preventDefault();
+              const currentIndex = options.findIndex((item) => item.id === option.id);
+              const nextIndex = event.key === "Home"
+                ? 0
+                : event.key === "End"
+                  ? options.length - 1
+                  : event.key === "ArrowRight"
+                    ? (currentIndex + 1) % options.length
+                    : (currentIndex - 1 + options.length) % options.length;
+              onChange(options[nextIndex].id);
+              const buttons = event.currentTarget.parentElement?.querySelectorAll<HTMLButtonElement>('[data-segmented-option="true"]');
+              buttons?.[nextIndex]?.focus();
+            }}
             aria-label={option.ariaLabel ?? option.label}
             title={option.ariaLabel ?? option.label}
             className={cn(
