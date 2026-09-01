@@ -322,6 +322,7 @@ export function HTMLImageOverlayLayer({
 
           {!interacting && (
             <div
+              data-export-exclude="true"
               style={{
                 position: 'absolute',
                 left: `${selectedOverlay.position.x - selectedOverlay.size / 2}px`,
