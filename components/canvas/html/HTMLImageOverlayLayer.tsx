@@ -81,7 +81,7 @@ function OverlayElement({
     overlay.flipX ? 'scaleX(-1)' : '',
     overlay.flipY ? 'scaleY(-1)' : '',
   ].filter(Boolean).join(' ');
-  const fitted = fitOverlayImage(overlay.size, overlayImg.naturalWidth, overlayImg.naturalHeight);
+  const fitted = fitOverlayImage(overlayImg.naturalWidth, overlayImg.naturalHeight);
 
   return (
     <div
@@ -114,10 +114,8 @@ function OverlayElement({
         alt="Overlay"
         draggable={false}
         style={{
-          width: `${fitted.width}px`,
-          height: `${fitted.height}px`,
-          maxWidth: '100%',
-          maxHeight: '100%',
+          width: `${fitted.width}%`,
+          height: `${fitted.height}%`,
           objectFit: 'contain',
           display: 'block',
           borderRadius: overlay.radius ? `${overlay.radius}px` : undefined,

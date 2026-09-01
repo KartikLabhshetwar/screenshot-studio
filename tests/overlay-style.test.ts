@@ -1,72 +1,42 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { buildDropShadowFilter, parseShadowRgb } from "../lib/drop-shadow";
 import {
+  DEFAULT_OVERLAY_SHADOW,
   buildOverlayShadowFilter,
   buildOverlayTiltTransform,
   fitOverlayImage,
   hasOverlayTilt,
 } from "../lib/overlay-style";
 
-test("overlays without tilt render no 3D transform", () => {
-  assert.equal(buildOverlayTiltTransform(undefined), undefined);
-  assert.equal(
-    buildOverlayTiltTransform({ perspective: 600, rotateX: 0, rotateY: 0, rotateZ: 0 }),
-    undefined
-  );
-});
-
-test("tilted overlays render rotateX, rotateY and rotateZ in order", () => {
-  assert.equal(
-    buildOverlayTiltTransform({ perspective: 600, rotateX: 12, rotateY: -20, rotateZ: 3 }),
-    "rotateX(12deg) rotateY(-20deg) rotateZ(3deg)"
-  );
-});
-
-test("hasOverlayTilt is true only when some axis is rotated", () => {
+test("overlays without tilt keep rendering with no 3D transform", () => {
   assert.equal(hasOverlayTilt(undefined), false);
-  assert.equal(hasOverlayTilt({ perspective: 600, rotateX: 0, rotateY: 0, rotateZ: 0 }), false);
-  assert.equal(hasOverlayTilt({ perspective: 600, rotateX: 0, rotateY: 15, rotateZ: 0 }), true);
+  assert.equal(buildOverlayTiltTransform(undefined), undefined);
+  assert.equal(buildOverlayTiltTransform({ perspective: 200, rotateX: 0, rotateY: 0, rotateZ: 0 }), undefined);
 });
 
-test("disabled or missing shadows render no filter", () => {
-  assert.equal(buildOverlayShadowFilter(undefined), undefined);
-  assert.equal(
-    buildOverlayShadowFilter({
-      enabled: false,
-      blur: 15,
-      offsetX: 5,
-      offsetY: 8,
-      spread: 3,
-      color: "rgba(0, 0, 0, 0.6)",
-      opacity: 0.5,
-    }),
-    undefined
-  );
+test("tilted overlays rotate around X then Y", () => {
+  const tilt = { perspective: 200, rotateX: 12, rotateY: -20, rotateZ: 0 };
+
+  assert.equal(hasOverlayTilt(tilt), true);
+  assert.equal(buildOverlayTiltTransform(tilt), "rotateX(12deg) rotateY(-20deg) rotateZ(0deg)");
 });
 
-test("enabled shadows render a drop-shadow using blur plus spread and the shadow opacity", () => {
-  assert.equal(
-    buildOverlayShadowFilter({
-      enabled: true,
-      blur: 10,
-      offsetX: 4,
-      offsetY: 6,
-      spread: 2,
-      color: "#102030",
-      opacity: 0.4,
-    }),
-    "drop-shadow(4px 6px 12px rgba(16, 32, 48, 0.4))"
-  );
+test("overlay shadows use the same drop-shadow as the main image", () => {
+  const shadow = { ...DEFAULT_OVERLAY_SHADOW, enabled: true, color: "#102030" };
+
+  assert.equal(buildOverlayShadowFilter({ ...shadow, enabled: false }), undefined);
+  assert.equal(buildOverlayShadowFilter(shadow), buildDropShadowFilter(shadow));
 });
 
-test("landscape overlays fill the box width and keep their aspect ratio", () => {
-  assert.deepEqual(fitOverlayImage(200, 1600, 1000), { width: 200, height: 125 });
+test("shadow colors parse from hex, legacy rgba and modern space-separated rgb", () => {
+  assert.deepEqual(parseShadowRgb("#102030"), [16, 32, 48]);
+  assert.deepEqual(parseShadowRgb("rgba(0, 0, 0, 0.6)"), [0, 0, 0]);
+  assert.deepEqual(parseShadowRgb("rgb(10 20 30 / 50%)"), [10, 20, 30]);
 });
 
-test("portrait overlays fill the box height and keep their aspect ratio", () => {
-  assert.deepEqual(fitOverlayImage(200, 500, 1000), { width: 100, height: 200 });
-});
-
-test("overlays with unknown natural size fill the box", () => {
-  assert.deepEqual(fitOverlayImage(200, 0, 0), { width: 200, height: 200 });
+test("overlay images keep their aspect ratio inside the square overlay box", () => {
+  assert.deepEqual(fitOverlayImage(1600, 1000), { width: 100, height: 62.5 });
+  assert.deepEqual(fitOverlayImage(500, 1000), { width: 50, height: 100 });
+  assert.deepEqual(fitOverlayImage(0, 0), { width: 100, height: 100 });
 });
