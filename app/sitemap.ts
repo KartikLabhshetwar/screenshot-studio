@@ -1,6 +1,7 @@
 import { MetadataRoute } from "next";
 import { SITE_URL } from "@/lib/seo/metadata";
 import { getAllComparisonSlugs } from "@/lib/seo/comparisons";
+import { TOOLS, TOOLS_HUB_PATH } from "@/lib/seo/tools";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = SITE_URL;
@@ -21,6 +22,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.9,
     },
     { path: "/code", changeFrequency: "weekly", priority: 0.9 },
+    { path: TOOLS_HUB_PATH, changeFrequency: "weekly", priority: 0.9 },
 
     // Features
     { path: "/features", changeFrequency: "monthly", priority: 0.8 },
@@ -86,6 +88,16 @@ export default function sitemap(): MetadataRoute.Sitemap {
       url: `${baseUrl}${page.path}`,
       changeFrequency: page.changeFrequency,
       priority: page.priority,
+    });
+  }
+
+  // Image tools: the five primary tools carry the same weight as the editor
+  // surfaces, the format converters a step below them.
+  for (const tool of TOOLS) {
+    entries.push({
+      url: `${baseUrl}${tool.slug}`,
+      changeFrequency: "monthly",
+      priority: tool.primary ? 0.9 : 0.7,
     });
   }
 

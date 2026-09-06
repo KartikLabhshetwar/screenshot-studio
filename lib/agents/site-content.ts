@@ -1,4 +1,5 @@
 import { SITE_URL } from "@/lib/seo/metadata";
+import { TOOLS, TOOLS_HUB_PATH } from "@/lib/seo/tools";
 
 export const BASE_URL = SITE_URL;
 
@@ -49,6 +50,19 @@ export const AGENT_PAGES: AgentPage[] = [
       "Line numbers, macOS window frame, and 10 monospace fonts",
       "Shareable links that restore the exact design from the URL",
       "2x and 3x PNG export, plus copy image to clipboard",
+    ],
+  },
+  {
+    path: TOOLS_HUB_PATH,
+    title: "Free Online Image Tools - Screenshot Studio",
+    summary:
+      "Index of the standalone image utilities: compress, convert, resize, crop, and rotate, plus six direct format converters. Every tool decodes, processes, and encodes in the browser using Canvas and Web Workers, so images are never uploaded. Batch input is supported and multiple results download as one zip. Free, no signup, no watermark.",
+    points: [
+      "Compress: four levels, live before and after file sizes",
+      "Convert: PNG, JPG, and WebP in every direction",
+      "Resize: exact pixels or percentage, aspect ratio locked by default",
+      "Crop: drag a selection or type exact pixels, with ratio presets",
+      "Rotate and flip: quarter turns plus horizontal and vertical mirroring",
     ],
   },
   {
@@ -203,6 +217,19 @@ export const AGENT_PAGES: AgentPage[] = [
     summary: "Feature-by-feature comparison with Screely.",
   },
 ];
+
+/**
+ * One agent page per image tool, generated from the same registry that drives
+ * the routes and the sitemap so the three can never drift apart.
+ */
+for (const tool of TOOLS) {
+  AGENT_PAGES.push({
+    path: tool.slug,
+    title: `${tool.title} - Screenshot Studio`,
+    summary: `${tool.intro} Runs entirely in the browser: the image is decoded, processed, and re-encoded locally and never uploaded. Free, no signup, no watermark.`,
+    points: tool.features,
+  });
+}
 
 export const AGENT_RESOURCES = [
   { name: "API documentation", url: `${BASE_URL}/docs` },
