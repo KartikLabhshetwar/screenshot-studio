@@ -22,11 +22,23 @@ Screenshot Studio is a client-side image editor: imported images are not uploade
 - One-click professional styling presets
 - Aspect ratio presets for every social platform
 
+## Standalone Image Tools
+
+Single-purpose utilities that run entirely in the browser (Canvas plus Web Workers) and do not call any API. Batch input is supported; several results download as one zip.
+
+- Compress Image: ${BASE_URL}/compress-image
+- Convert Image: ${BASE_URL}/convert-image
+- Resize Image: ${BASE_URL}/resize-image
+- Crop Image: ${BASE_URL}/crop-image
+- Rotate Image: ${BASE_URL}/rotate-image
+- Converters: ${BASE_URL}/png-to-jpg, ${BASE_URL}/jpg-to-png, ${BASE_URL}/png-to-webp, ${BASE_URL}/webp-to-png, ${BASE_URL}/jpg-to-webp, ${BASE_URL}/webp-to-jpg
+
 ## Pages
 
 - Editor: ${BASE_URL}/
 - Landing: ${BASE_URL}/landing
 - Free Screenshot Editor: ${BASE_URL}/free-screenshot-editor
+- Image Tools Hub: ${BASE_URL}/tools
 - Features: ${BASE_URL}/features
 - Screenshot Beautifier: ${BASE_URL}/features/screenshot-beautifier
 - Social Media Graphics: ${BASE_URL}/features/social-media-graphics
@@ -140,6 +152,15 @@ Built as a free alternative to paid tools like Pika Style, Shots.so, and CleanSh
 - Depth-of-field simulation
 - Custom shadow with blur, spread, offset, and color
 
+### Standalone Image Tools
+- Compress: light, balanced, strong, and extreme levels
+- Convert: PNG, JPG, and WebP, with a chosen background behind transparency
+- Resize: by exact pixels or percentage, with stepped downscaling
+- Crop: drag or type, with 1:1, 16:9, 4:3, 3:2, and 9:16 presets
+- Rotate and flip: 90, 180, 270 degrees plus mirroring
+- Batch input for every tool except crop, downloaded as a zip
+- All of it runs in the browser and calls no API
+
 ### Image Editing
 - Resize and scale
 - Opacity control
@@ -192,6 +213,24 @@ Built as a free alternative to paid tools like Pika Style, Shots.so, and CleanSh
 | Editor | ${BASE_URL}/ | Main canvas editor for creating designs |
 | Landing | ${BASE_URL}/landing | Product landing page with overview |
 | Free Screenshot Editor | ${BASE_URL}/free-screenshot-editor | SEO landing page for free editor |
+| Image Tools Hub | ${BASE_URL}/tools | Index of the standalone image utilities |
+
+### Image Tools
+Standalone, single-purpose utilities. Each decodes, processes, and re-encodes the image locally with Canvas and a Web Worker, and calls no API. Batch input downloads as one zip.
+
+| Page | URL | Description |
+|------|-----|-------------|
+| Compress Image | ${BASE_URL}/compress-image | Four compression levels with before and after sizes |
+| Convert Image | ${BASE_URL}/convert-image | PNG, JPG, and WebP in every direction |
+| Resize Image | ${BASE_URL}/resize-image | Exact pixels or percentage, aspect ratio locked by default |
+| Crop Image | ${BASE_URL}/crop-image | Drag a selection or type pixels, with ratio presets |
+| Rotate Image | ${BASE_URL}/rotate-image | Quarter turns plus horizontal and vertical flips |
+| PNG to JPG | ${BASE_URL}/png-to-jpg | Direct converter with a background colour for transparency |
+| JPG to PNG | ${BASE_URL}/jpg-to-png | Direct converter to a lossless format |
+| PNG to WebP | ${BASE_URL}/png-to-webp | Direct converter that keeps transparency |
+| WebP to PNG | ${BASE_URL}/webp-to-png | Direct converter for tools that cannot read WebP |
+| JPG to WebP | ${BASE_URL}/jpg-to-webp | Direct converter for smaller web images |
+| WebP to JPG | ${BASE_URL}/webp-to-jpg | Direct converter for maximum compatibility |
 
 ### Features
 | Page | URL | Description |

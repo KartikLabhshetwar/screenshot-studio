@@ -27,6 +27,7 @@ interface NavigationProps {
 
 const resourceLinks = [
   { label: "Features", href: "/features" },
+  { label: "Image Tools", href: "/tools" },
   { label: "Code Images", href: "/code" },
   { label: "For Designers", href: "/for/designers" },
   { label: "For Developers", href: "/for/developers" },
